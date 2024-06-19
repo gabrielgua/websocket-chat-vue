@@ -9,7 +9,7 @@ export const useChatStore = defineStore('chat', () => {
     const state = reactive({loading: false, error: false});
 
     function fetchChats() {
-        http.get('/chats')
+        return http.get('/chats')
             .then(response => {
                 state.error = false;
                 response.data.map((chat: Chat) => {

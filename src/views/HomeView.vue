@@ -1,78 +1,69 @@
 <script setup lang="ts">
-    import { useChatStore } from '@/stores/chat.store';
-    import { onMounted, reactive, ref } from 'vue';
     import ChatComponent from '@/components/Chat.vue';
+    import { useChatStore } from '@/stores/chat.store';
+    import { useMessageStore } from '@/stores/message.store';
+    import { useNotificationStore } from '@/stores/notification.store';
     import type { Chat } from '@/types/chat.type';
-import { useNotificationStore } from '@/stores/notification.store';
+    import type { Message } from '@/types/message.type';
+    import Stomp from 'stompjs';
+    import { reactive, ref } from 'vue';
 
-    // import { reactive, ref } from "vue";
-    // import Stomp from "stompjs";
 
-
-    // const chat = "ca3eb690-7afa-4a5d-b65f-e07cca178cf2";
-
-    // const message = ref("");
-    // const username = ref("");
-    // const connected = ref(false);
-
-    // const messages = ref([] as string[]);
-
-    // const socket = new WebSocket("ws://localhost:8080/ws");
-    // let stomp = Stomp.over(socket);
-
-    // stomp.connect({}, onConnected, onError);
-
-    // function connect() { }
-
-    // function onConnected() {
-    //     connected.value = true;
-    //     stomp.subscribe(`/topic/chats/${chat}`, onMessageReceived);
-    // }
-
-    // function onError() {
-    //     console.log("error");
-    // }
-
-    // function onMessageReceived(payload: Stomp.Message) {
-    //     const message: Message = JSON.parse(payload.body);
-
-    //     messages.value.push(`(${message.sender}): ${message.content}`);
-    // }
-
-    // function sendMessage() {
-    //     const chatMessage = {
-    //         senderId: 1,
-    //         chatId: chat,
-    //         content: message.value,
-    //     };
-
-    //     stomp.send(`/app/chats/${chat}.sendMessage`, {}, JSON.stringify(chatMessage));
-    // }
-
-    const store = useChatStore();
+    const chatStore = useChatStore();
+    const messageStore = useMessageStore();
     const notificationStore = useNotificationStore();
-    const openedChat = ref({} as Chat);
+
     const showChat = ref(false);
+    const openedChat = ref({} as Chat);
+    const state = reactive({loading: false, error: false});
 
-    onMounted(() => {
-        store.fetchChats();
+    const socket = new WebSocket('ws://localhost:8080/ws');
+    const stomp = Stomp.over(socket);
+    stomp.connect({}, onConnected, onError);
+    
+    function subscribe(chat: string) {
+        stomp.subscribe(`/topic/chats/${chat}`, onMessageReceived);
+    }
 
-        console.log(notificationStore.notifications);
-        
-    })
+    function onMessageReceived(payload: Stomp.Message) {
+        const response: Message = JSON.parse(payload.body);
+                
+        if (response.chat != openedChat.value.id) {
+            notificationStore.add(response.chat);
+            return;
+        }
+
+        messageStore.add(response);
+    }
+
+    function onConnected() {
+        state.loading = true;
+        chatStore.fetchChats()
+            .then(() => subscribeToAll())
+            .finally(() => state.loading = false);
+    }
+
+    function subscribeToAll() {
+        chatStore.chats.map(chat => {
+            subscribe(chat.id);
+        });
+    }
+
+    function onError() { console.log('Websocket error'); }
 
     function openChat(chat: Chat) {
         openedChat.value = chat;
         showChat.value = true; 
 
-        
         notificationStore.read(chat.id);
     }
 </script>
 
 <template>
-    <div class="chat-wrapper">
-        <div v-for="chat in store.chats" class="chat">
+    <div class="chats">
+        <div class="loading" v-if="state.loading">Loading...</div>
+
+        <div v-for="chat in chatStore.chats" class="chat" v-else>
             <button @click="openChat(chat)" type="button">{{ chat.name }}</button>
 
             <div v-for="notification in notificationStore.notifications">
@@ -82,11 +73,11 @@ import { useNotificationStore } from '@/stores/notification.store';
         
     </div>
 
-    <ChatComponent v-if="showChat" :chat="openedChat"/>
-</template>
+    <ChatComponent v-if="showChat" :chat="openedChat" :stomp="stomp"/>
+</template> 
 
 <style scoped>
-    .chat-wrapper {
+    .chats {
         padding: 1rem;
         border: 1px solid black;
         display: flex;

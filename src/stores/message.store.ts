@@ -1,4 +1,5 @@
 import { http } from "@/services/http";
+import type { Message } from "@/types/message.type";
 import { defineStore } from "pinia";
 import { reactive, ref, type Ref } from "vue";
 
@@ -12,6 +13,11 @@ export const useMessageStore = defineStore('message', () => {
         messages.value = [];
         state.error = false;
         state.loading = false;
+    }
+
+
+    function add(message: Message) {
+        messages.value.push(message);
     }
 
 
@@ -30,5 +36,5 @@ export const useMessageStore = defineStore('message', () => {
             }).finally(() => state.loading = false)
     }
 
-    return { messages, state, fetchMessages, reset }
+    return { messages, state, fetchMessages, reset, add }
 });

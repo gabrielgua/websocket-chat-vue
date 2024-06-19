@@ -17,7 +17,6 @@ export const useNotificationStore = defineStore('notification', () => {
             return;
         }
 
-
         notifications.value.push({chat: chat, show: true, count: 1} as Notification);
     }
     
