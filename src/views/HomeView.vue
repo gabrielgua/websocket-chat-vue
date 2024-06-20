@@ -20,6 +20,8 @@
     const socket = new WebSocket('ws://localhost:8080/ws');
     const stomp = Stomp.over(socket);
     stomp.connect({}, onConnected, onError);
+
+    const chatEl = ref();
     
     function subscribe(chat: string) {
         stomp.subscribe(`/topic/chats/${chat}`, onMessageReceived);
@@ -33,7 +35,9 @@
             return;
         }
 
+        chatEl.value.scrollToBottom('smooth');
         messageStore.add(response);
+
     }
 
     function onConnected() {
@@ -73,7 +77,7 @@
         
     </div>
 
-    <ChatComponent v-if="showChat" :chat="openedChat" :stomp="stomp"/>
+    <ChatComponent ref="chatEl" v-if="showChat" :chat="openedChat" :stomp="stomp"/>
 </template> 
 
 <style scoped>
