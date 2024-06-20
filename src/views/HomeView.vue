@@ -1,15 +1,17 @@
 <script setup lang="ts">
     import ChatComponent from '@/components/Chat.vue';
+    import { useAuthStore } from '@/stores/auth.store';
     import { useChatStore } from '@/stores/chat.store';
     import { useMessageStore } from '@/stores/message.store';
     import { useNotificationStore } from '@/stores/notification.store';
     import type { Chat } from '@/types/chat.type';
     import type { Message } from '@/types/message.type';
     import Stomp from 'stompjs';
-    import { reactive, ref } from 'vue';
+    import { onMounted, reactive, ref } from 'vue';
 
 
     const chatStore = useChatStore();
+    const authStore = useAuthStore();
     const messageStore = useMessageStore();
     const notificationStore = useNotificationStore();
 
@@ -29,6 +31,7 @@
 
     function onMessageReceived(payload: Stomp.Message) {
         const response: Message = JSON.parse(payload.body);
+        
                 
         if (response.chat != openedChat.value.id) {
             notificationStore.add(response.chat);
@@ -61,6 +64,14 @@
 
         notificationStore.read(chat.id);
     }
+
+    onMounted(() => {
+        authStore.checkAuthentication();
+    })
+
+    function logout() {
+        authStore.logout();
+    }
 </script>
 
 <template>
@@ -73,6 +84,10 @@
             <div v-for="notification in notificationStore.notifications">
                 <div class="notification" v-if="notification.show && notification.chat === chat.id">{{ notification.count }} new.</div>
             </div>
+        </div>
+        <div>
+            <strong>({{ authStore.authentication.username }})</strong>
+            <button type="button" @click="logout">Logout</button>
         </div>
         
     </div>

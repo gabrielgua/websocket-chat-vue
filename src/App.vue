@@ -1,10 +1,10 @@
 <script setup lang="ts">
-	import { RouterView } from 'vue-router';
+    import DefaultView from './views/DefaultView.vue';
 </script>
 
 
 <template>
-	<RouterView />
+    <RouterView></RouterView>
 </template>
 
 <style global>

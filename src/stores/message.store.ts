@@ -17,7 +17,7 @@ export const useMessageStore = defineStore('message', () => {
 
 
     function add(message: Message) {
-        messages.value.push(message);
+        messages.value.push(message);   
     }
 
 
@@ -29,7 +29,7 @@ export const useMessageStore = defineStore('message', () => {
             .then((response) => {
                 response.data.map((message: Message) => {
                     messages.value.push(message);
-                })
+                });                
             }).catch(e => {
                 state.error = true;
                 console.log(e);
