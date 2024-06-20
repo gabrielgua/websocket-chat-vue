@@ -14,6 +14,7 @@ export const useChatStore = defineStore('chat', () => {
             .then(response => {
                 state.error = false;
                 response.data.map((chat: Chat) => {
+                    chat.online = 1;
                     chats.value.push(chat);
                 })
             }).catch(e => {
@@ -22,6 +23,10 @@ export const useChatStore = defineStore('chat', () => {
             }).finally(() => {
                 state.loading = false;
             });
+    }
+
+    function addOnline(chat: string) {
+
     }
 
 

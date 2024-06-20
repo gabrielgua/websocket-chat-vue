@@ -1,46 +1,67 @@
 <script setup lang="ts">
     import { useAuthStore } from '@/stores/auth.store';
 import { useMessageStore } from '@/stores/message.store';
+import { useNotificationStore } from '@/stores/notification.store';
+import { useStompStore } from '@/stores/stomp.store';
 import { ChatType, type Chat } from '@/types/chat.type';
 import type { Message } from '@/types/message.type';
 import { format } from 'date-fns';
 import Stomp from 'stompjs';
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, onActivated, onBeforeMount, onMounted, ref, watch } from 'vue';
 
 
     
 
     const props = defineProps<{
         chat: Chat,
-        stomp: Stomp.Client
     }>();
 
     const message = ref('');
     const authStore = useAuthStore();
+    const stompStore = useStompStore();
+    const notificationStore = useNotificationStore();
     const messageStore = useMessageStore();
+
+
     const currentChat = computed(() => props.chat);
     const chatbox = ref({} as HTMLElement);
 
+    
+    const handleMessage = (payload: Stomp.Message) => {
+        
+        const response: Message = JSON.parse(payload.body);
+        
+        if (response.chat != currentChat.value.id) {
+            notificationStore.add(response.chat);
+            return;
+        }
+
+        scrollToBottom('smooth');
+        messageStore.add(response);
+    }
+
+
+
     onMounted(() => {
+        
         messageStore.fetchMessages(currentChat.value.id);     
         scrollToBottom('instant');
-
         
-
         watch(currentChat, (newChat) => {
             messageStore.fetchMessages(newChat.id);     
             scrollToBottom('instant');
         })
+
+        stompStore.overrideMessageReceived(handleMessage);
+
     })
 
-    
     function scrollToBottom(behavior: ScrollBehavior) {
         setTimeout(() => {
             chatbox.value.scrollTo({top: chatbox.value.scrollHeight, behavior: behavior});
         }, 15);
     }
 
-    defineExpose({ scrollToBottom });
     function sendMessage() {
         scrollToBottom('smooth');
         const chatMessage = {
@@ -49,7 +70,7 @@ import { computed, onMounted, ref, watch } from 'vue';
             content: message.value.trim(),
         };
         
-        props.stomp.send(`/app/chats/${currentChat.value.id}.sendMessage`, {}, JSON.stringify(chatMessage));
+        stompStore.stomp.send(`/app/chats/${currentChat.value.id}.sendMessage`, {}, JSON.stringify(chatMessage));
         message.value = '';
     }
 
@@ -86,11 +107,15 @@ import { computed, onMounted, ref, watch } from 'vue';
     function isGroupChat() {
         return currentChat.value.type === ChatType.Group;
     }
+
+    function showChat() {
+        return currentChat.value.id != '0';
+    }
 </script>
 
 <template>
     <div class="container">
-        <div class="chatbox">
+        <div class="chatbox" v-if="showChat()">
             <h2>{{ currentChat.name }}</h2>
             <h5>{{ currentChat.id }}</h5>
 
@@ -115,6 +140,8 @@ import { computed, onMounted, ref, watch } from 'vue';
                 <button type="submit">Send</button>
             </form>
         </div>
+
+        <span v-else>Welcome, star chatting now!</span>
 
     </div>
 </template>

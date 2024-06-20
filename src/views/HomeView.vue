@@ -4,59 +4,34 @@
     import { useChatStore } from '@/stores/chat.store';
     import { useMessageStore } from '@/stores/message.store';
     import { useNotificationStore } from '@/stores/notification.store';
-    import type { Chat } from '@/types/chat.type';
+import { useStompStore } from '@/stores/stomp.store';
+    import { ChatType, type Chat } from '@/types/chat.type';
     import type { Message } from '@/types/message.type';
-    import Stomp from 'stompjs';
     import { onMounted, reactive, ref } from 'vue';
+    import Stomp from 'stompjs'
 
 
     const chatStore = useChatStore();
     const authStore = useAuthStore();
-    const messageStore = useMessageStore();
+    const stompStore = useStompStore();
     const notificationStore = useNotificationStore();
 
     const showChat = ref(false);
-    const openedChat = ref({} as Chat);
+    const openedChat = ref({
+        id: '0'
+    } as Chat);
     const state = reactive({loading: false, error: false});
 
-    const socket = new WebSocket('ws://localhost:8080/ws');
-    const stomp = Stomp.over(socket);
-    stomp.connect({}, onConnected, onError);
 
-    const chatEl = ref();
+
     
-    function subscribe(chat: string) {
-        stomp.subscribe(`/topic/chats/${chat}`, onMessageReceived);
-    }
 
-    function onMessageReceived(payload: Stomp.Message) {
-        const response: Message = JSON.parse(payload.body);
-        
-                
-        if (response.chat != openedChat.value.id) {
-            notificationStore.add(response.chat);
-            return;
-        }
-
-        chatEl.value.scrollToBottom('smooth');
-        messageStore.add(response);
+    const handlePublic = (payload: Stomp.Message) => {
 
     }
 
-    function onConnected() {
-        state.loading = true;
-        chatStore.fetchChats()
-            .then(() => subscribeToAll())
-            .finally(() => state.loading = false);
-    }
 
-    function subscribeToAll() {
-        chatStore.chats.map(chat => {
-            subscribe(chat.id);
-        });
-    }
-
-    function onError() { console.log('Websocket error'); }
+    
 
     function openChat(chat: Chat) {
         openedChat.value = chat;
@@ -67,6 +42,7 @@
 
     onMounted(() => {
         authStore.checkAuthentication();
+        stompStore.connect();
     })
 
     function logout() {
@@ -80,7 +56,7 @@
 
         <div v-for="chat in chatStore.chats" class="chat" v-else>
             <button @click="openChat(chat)" type="button">{{ chat.name }}</button>
-
+            <p class="chat-online" v-if="chat.type === ChatType.Group">{{ chat.online }} online</p>
             <div v-for="notification in notificationStore.notifications">
                 <div class="notification" v-if="notification.show && notification.chat === chat.id">{{ notification.count }} new.</div>
             </div>
@@ -92,7 +68,7 @@
         
     </div>
 
-    <ChatComponent ref="chatEl" v-if="showChat" :chat="openedChat" :stomp="stomp"/>
+    <ChatComponent :chat="openedChat" />
 </template> 
 
 <style scoped>
@@ -101,6 +77,11 @@
         border: 1px solid black;
         display: flex;
         gap: 1rem;
+    }
+
+    .chat-online {
+        margin-top: .25rem;
+        font-size: 14px;
     }
 
 </style>
