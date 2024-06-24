@@ -14,9 +14,9 @@ export const useChatStore = defineStore('chat', () => {
             .then(response => {
                 state.error = false;
                 response.data.map((chat: Chat) => {
-                    chat.online = 1;
                     chats.value.push(chat);
                 })
+                return chats.value
             }).catch(e => {
                 state.error = true;
                 console.log(e);
@@ -25,12 +25,15 @@ export const useChatStore = defineStore('chat', () => {
             });
     }
 
-    function addOnline(chat: string) {
+    function addOnline() {
+        chats.value.forEach(chat => {
+            chat.online = chat.online ? chat.online += 1 : 1;
+        })
 
     }
 
 
 
 
-    return { chats, state, fetchChats }
+    return { chats, state, fetchChats, addOnline }
 });

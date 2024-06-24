@@ -4,11 +4,13 @@
     import { useChatStore } from '@/stores/chat.store';
     import { useMessageStore } from '@/stores/message.store';
     import { useNotificationStore } from '@/stores/notification.store';
-import { useStompStore } from '@/stores/stomp.store';
+    import { useStompStore } from '@/stores/stomp.store';
     import { ChatType, type Chat } from '@/types/chat.type';
     import type { Message } from '@/types/message.type';
     import { onMounted, reactive, ref } from 'vue';
     import Stomp from 'stompjs'
+    import type { User } from '@/types/user.type';
+import { emitter } from '@/services/mitt';
 
 
     const chatStore = useChatStore();
@@ -16,34 +18,36 @@ import { useStompStore } from '@/stores/stomp.store';
     const stompStore = useStompStore();
     const notificationStore = useNotificationStore();
 
-    const showChat = ref(false);
-    const openedChat = ref({
+    const currentChat = ref({
         id: '0'
     } as Chat);
     const state = reactive({loading: false, error: false});
-
-
-
-    
-
-    const handlePublic = (payload: Stomp.Message) => {
-
+    const handlePublic = (payload: Stomp.Message): undefined => {
+        chatStore.addOnline();
     }
 
-
-    
-
     function openChat(chat: Chat) {
-        openedChat.value = chat;
-        showChat.value = true; 
-
+        currentChat.value = chat;
         notificationStore.read(chat.id);
     }
 
+
+
     onMounted(() => {
         authStore.checkAuthentication();
-        stompStore.connect();
+                
+        // stompStore.overridePublicReceived(handlePublic);
+        
+        emitter.on('messageReceived', handleOnMessage);
     })
+
+    function handleOnMessage(body: string) {
+        const message: Message = JSON.parse(body);
+
+        if (message.chat != currentChat.value.id) {
+            notificationStore.add(message.chat);
+        }  
+    }
 
     function logout() {
         authStore.logout();
@@ -68,7 +72,7 @@ import { useStompStore } from '@/stores/stomp.store';
         
     </div>
 
-    <ChatComponent :chat="openedChat" />
+    <ChatComponent :chat="currentChat" />
 </template> 
 
 <style scoped>

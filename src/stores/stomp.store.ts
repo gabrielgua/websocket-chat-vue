@@ -1,56 +1,55 @@
-import { defineStore } from "pinia"
-import { reactive, ref, type Ref } from "vue";
+import { defineStore } from "pinia";
 import Stomp from 'stompjs';
+import { reactive, ref, type Events, type Ref } from "vue";
 import { useChatStore } from "./chat.store";
+import { useMessageStore } from "./message.store";
+import { emitter } from "@/services/mitt";
+import type { Message } from "@/types/message.type";
 
 export const useStompStore = defineStore('stomp', () => {
 
+
     const socket = new WebSocket('ws://localhost:8080/ws');
     const stomp = Stomp.over(socket);
-    const onMessageReceived: Ref<(payload: Stomp.Message) => void> = ref(() => void {})
-    const onPublicReceived: Ref<(payload: Stomp.Message) => void> = ref(() => void {})
+    stomp.connect({}, onConnected, onError);
 
     const chatStore = useChatStore();
     const state = reactive({loading: false, error: false});
+    const subscriptions: Stomp.Subscription[] = [];
 
-
-    function overrideMessageReceived(override: (payload: Stomp.Message) => void) {
-        console.log('override');
-        
-        onMessageReceived.value = override;
-    }
-
-    function overridePublicReceived(override: (payload: Stomp.Message) => void) {
-        onPublicReceived.value = override;
-    }
 
     function connect() {
-        stomp.connect({}, onConnected, onError);
     }
 
     function onError() {}
 
     function onConnected() {
-        state.loading = true;
-        stomp.subscribe('/users/public', onPublicReceived.value);
         chatStore.fetchChats()
-            .then(() => subscribeToAll())
-            .finally(() => state.loading = false);
-        
+            .then(() => subscribeAll());
     }
 
-    function subscribeToAll() {
-        chatStore.chats.map(chat => {
-            subscribe(chat.id);
+    function subscribeAll() {
+        chatStore.chats.forEach(chat => {
+            subscriptions.push(subscribe(chat.id));      
         });
     }
 
-    function subscribe(chat: string) {
-        stomp.subscribe(`/topic/chats/${chat}`, onMessageReceived.value);
+    function unsubscribeAll() {
+        subscriptions.forEach(sub => sub.unsubscribe());
     }
 
-    
+    function subscribe(chat: string) {
+        return stomp.subscribe(`/topic/chats/${chat}`, emitReceived);
+    }
+
+    function emitReceived(message: Stomp.Message) {
+        emitter.emit('messageReceived', message.body);
+    }
+
+    function send(topic: string, payload: Object) {
+        stomp.send(topic, {}, JSON.stringify(payload));
+    }
 
 
-    return { connect, stomp, overrideMessageReceived }
+    return { stomp, send, connect, subscribe, unsubscribeAll, subscribeAll }
 });

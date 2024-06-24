@@ -3,9 +3,11 @@ import type { AxiosError } from "axios";
 import { defineStore } from "pinia";
 import { computed, reactive, type ComputedRef } from "vue";
 import { useRouter } from "vue-router";
+import { useStompStore } from "./stomp.store";
 
 export const useAuthStore = defineStore('auth', () => {
     const router = useRouter();
+    const stompStore = useStompStore();
 
     const authentication = reactive<{
         userId?: number,
@@ -27,7 +29,6 @@ export const useAuthStore = defineStore('auth', () => {
             .then(response => {
                 saveAuthentication(response.data.senderId, response.data.username, response.data.token);
                 console.log('Logged in');
-                
                 router.push('/chat');
             }).catch((e: AxiosError) => {
                 state.error = true;

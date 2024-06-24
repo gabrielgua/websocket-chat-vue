@@ -1,13 +1,17 @@
 <script setup lang="ts">
-    import { useAuthStore } from '@/stores/auth.store';
+    import { emitter } from '@/services/mitt';
+import { useAuthStore } from '@/stores/auth.store';
 import { useMessageStore } from '@/stores/message.store';
 import { useNotificationStore } from '@/stores/notification.store';
 import { useStompStore } from '@/stores/stomp.store';
 import { ChatType, type Chat } from '@/types/chat.type';
 import type { Message } from '@/types/message.type';
 import { format } from 'date-fns';
+import { on } from 'events';
+import mitt from 'mitt';
+import { emit } from 'process';
 import Stomp from 'stompjs';
-import { computed, onActivated, onBeforeMount, onMounted, ref, watch } from 'vue';
+import { computed, onActivated, onBeforeMount, onMounted, onUpdated, ref, watch } from 'vue';
 
 
     
@@ -23,37 +27,31 @@ import { computed, onActivated, onBeforeMount, onMounted, ref, watch } from 'vue
     const messageStore = useMessageStore();
 
 
+
     const currentChat = computed(() => props.chat);
     const chatbox = ref({} as HTMLElement);
 
-    
-    const handleMessage = (payload: Stomp.Message) => {
-        
-        const response: Message = JSON.parse(payload.body);
-        
-        if (response.chat != currentChat.value.id) {
-            notificationStore.add(response.chat);
-            return;
-        }
-
+    function handleMessageReceived(body: string) {
         scrollToBottom('smooth');
-        messageStore.add(response);
+
+        const message: Message = JSON.parse(body);
+
+        if (message.chat === currentChat.value.id) { 
+            messageStore.add(message);      
+        }
     }
 
-
-
     onMounted(() => {
-        
-        messageStore.fetchMessages(currentChat.value.id);     
+
         scrollToBottom('instant');
-        
         watch(currentChat, (newChat) => {
-            messageStore.fetchMessages(newChat.id);     
+            messageStore.fetchMessages(newChat.id);   
+
             scrollToBottom('instant');
-        })
 
-        stompStore.overrideMessageReceived(handleMessage);
+        });
 
+        emitter.on('messageReceived', handleMessageReceived)
     })
 
     function scrollToBottom(behavior: ScrollBehavior) {
@@ -63,14 +61,13 @@ import { computed, onActivated, onBeforeMount, onMounted, ref, watch } from 'vue
     }
 
     function sendMessage() {
-        scrollToBottom('smooth');
         const chatMessage = {
             senderId: authStore.authentication.userId,
             chatId: currentChat.value.id,
             content: message.value.trim(),
         };
         
-        stompStore.stomp.send(`/app/chats/${currentChat.value.id}.sendMessage`, {}, JSON.stringify(chatMessage));
+        stompStore.send(`/app/chats/${currentChat.value.id}.sendMessage`, chatMessage);
         message.value = '';
     }
 
@@ -98,6 +95,7 @@ import { computed, onActivated, onBeforeMount, onMounted, ref, watch } from 'vue
         }
 
         return sameTime;   
+
     }
 
     function isMessageSender(sender: string) {
