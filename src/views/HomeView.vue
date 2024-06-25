@@ -7,8 +7,7 @@
     import { useStompStore } from '@/stores/stomp.store';
     import { ChatType, type Chat } from '@/types/chat.type';
     import type { Message } from '@/types/message.type';
-    import Stomp from 'stompjs';
-    import { onMounted, reactive, ref } from 'vue';
+    import { onBeforeUnmount, onMounted, reactive, ref } from 'vue';
 
 
     const chatStore = useChatStore();
@@ -20,9 +19,6 @@
         id: '0'
     } as Chat);
     const state = reactive({loading: false, error: false});
-    const handlePublic = (payload: Stomp.Message): undefined => {
-        chatStore.addOnline();
-    }
 
     function openChat(chat: Chat) {
         currentChat.value = chat;
@@ -30,11 +26,19 @@
     }
 
     onMounted(() => {
+        
         authStore.checkAuthentication();
                 
-        // stompStore.overridePublicReceived(handlePublic);
         stompStore.connect();
-        emitter.on('messageReceived', handleOnMessage);
+        emitter.on('message', handleOnMessage);
+        emitter.on('connected', () => {
+            stompStore.send('/app/user.connectUser', {id: authStore.authentication.userId})
+        });
+        emitter.on('disconnected', () => {
+            stompStore.send('/app/user.disconnectUser', {id: authStore.authentication.userId})
+        });
+
+        emitter.on('statusNotification', chatStore.fetchUsersOnlineCount);
     })
 
     function handleOnMessage(body: string) {
@@ -45,9 +49,14 @@
         }  
     }
 
+    window.addEventListener('beforeunload', () => {
+        stompStore.send('/app/user.disconnectUser', {id: authStore.authentication.userId})
+    })
+
     function logout() {
         authStore.logout();
     }
+
 </script>
 
 <template>
@@ -56,7 +65,9 @@
 
         <div v-for="chat in chatStore.chats" class="chat" v-else>
             <button @click="openChat(chat)" type="button">{{ chat.name }}</button>
-            <p class="chat-online" v-if="chat.type === ChatType.Group">{{ chat.online }} online</p>
+            <p class="chat-online" v-if="chat.type === ChatType.Group">{{ chat.online === undefined ? '0' : chat.online }} online.</p>
+            <p class="chat-online" v-else>offline.</p>
+            
             <div v-for="notification in notificationStore.notifications">
                 <div class="notification" v-if="notification.show && notification.chat === chat.id">{{ notification.count }} new.</div>
             </div>

@@ -4,18 +4,20 @@ import { defineStore } from "pinia";
 import { computed, reactive, type ComputedRef } from "vue";
 import { useRouter } from "vue-router";
 import { useStompStore } from "./stomp.store";
+import { emitter } from "@/services/mitt";
 
 export const useAuthStore = defineStore('auth', () => {
     const router = useRouter();
     const stompStore = useStompStore();
 
-    const authentication = reactive<{
-        userId?: number,
-        username?: string,
-        token?: string,
-    }>({});
+    type Authentication = {
+        userId: number,
+        username: string,
+        token: string,
+    }
 
-    const state = reactive({loading: false, error: true});
+    const state = reactive({loading: false, error: false});
+    const authentication = reactive<Authentication>({} as Authentication);
 
     const authenticated: ComputedRef<boolean> = computed(() => {
         return checkAuthentication();
@@ -28,7 +30,6 @@ export const useAuthStore = defineStore('auth', () => {
         http.post('/auth/login', {username: username, password: password})
             .then(response => {
                 saveAuthentication(response.data.senderId, response.data.username, response.data.token);
-                console.log('Logged in');
                 router.push('/chat');
             }).catch((e: AxiosError) => {
                 state.error = true;
@@ -36,15 +37,23 @@ export const useAuthStore = defineStore('auth', () => {
             }).finally(() => state.loading = false);
     }
 
-    function logout() {
-        localStorage.clear();
-        authentication.userId = 0;
+    function clearAuthentication() {
         authentication.token = '';
+        authentication.userId = 0;
         authentication.username = '';
+    }
 
-        stompStore.disconnectAndUnsubscribe();
+    function logout() {
+        stompStore.disconnectAndUnsubscribe()   
+            .then((message) => {
+                console.log(message);
+                localStorage.clear();
+                clearAuthentication();
+                router.push('/login');
+                emitter.all.clear();
+            });
 
-        router.push('/login');
+
     }
     
     function saveAuthentication(id: number, username: string, token: string) {

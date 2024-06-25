@@ -16,25 +16,52 @@ export const useStompStore = defineStore('stomp', () => {
         stomp.connect({}, onConnected, onError);
     }
 
-    function onError() {}
+    function onError() { console.log('error connecting to websocket server') }
 
     function onConnected() {
+        
+        
         if (!subscriptions.value.length) {
+            console.log('user connected');
 
+            emitter.emit('connected', 'User connected');
+            subscribePublicNotifications();
+            
             chatStore.fetchChats()
                 .then(() => subscribeAll())
                 .finally(() => state.loading = false);
+
+            
         }
+
+        
+        console.log(subscriptions.value);
+        
+    }
+
+    function subscribePublicNotifications() {
+        const publicSub = stomp.subscribe('/topic/notifications', (message) => {
+            emitter.emit('statusNotification', message.body);
+        });
+        subscriptions.value.push(publicSub);
     }
 
     function subscribeAll() {
         chatStore.chats.forEach(chat => {
             subscriptions.value.push(subscribe(chat.id));      
         });
+
+        
     }
 
     function unsubscribeAll() {
-        subscriptions.value.forEach(sub => sub.unsubscribe());
+        subscriptions.value.forEach(sub => {
+            stomp.unsubscribe(sub.id)
+        });
+        subscriptions.value = [];
+
+        console.log(subscriptions.value);
+        
     }
 
     function subscribe(chat: string) {
@@ -42,16 +69,22 @@ export const useStompStore = defineStore('stomp', () => {
     }
 
     function emitReceived(message: Stomp.Message) {
-        emitter.emit('messageReceived', message.body);
+        emitter.emit('message', message.body);
     }
 
     function send(topic: string, payload: Object) {
-        stomp!.send(topic, {}, JSON.stringify(payload));
+        stomp.send(topic, {}, JSON.stringify(payload));
     }
 
-    function disconnectAndUnsubscribe() {
-        unsubscribeAll();
-        stomp!.disconnect(() => console.log('disconnected from stomp web server'));
+    function disconnectAndUnsubscribe(): Promise<string> {
+        return new Promise(resolve => {
+            emitter.emit('disconnected', 'disconnected');
+    
+            unsubscribeAll();
+            stomp.disconnect(() => undefined);
+
+            resolve('disconnected from server');
+        })
     }
 
 

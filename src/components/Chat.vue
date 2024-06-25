@@ -2,7 +2,6 @@
     import { emitter } from '@/services/mitt';
 import { useAuthStore } from '@/stores/auth.store';
 import { useMessageStore } from '@/stores/message.store';
-import { useNotificationStore } from '@/stores/notification.store';
 import { useStompStore } from '@/stores/stomp.store';
 import { ChatType, type Chat } from '@/types/chat.type';
 import type { Message } from '@/types/message.type';
@@ -16,7 +15,6 @@ import { computed, onMounted, ref, watch } from 'vue';
     const message = ref('');
     const authStore = useAuthStore();
     const stompStore = useStompStore();
-    const notificationStore = useNotificationStore();
     const messageStore = useMessageStore();
 
     const currentChat = computed(() => props.chat);
@@ -40,7 +38,7 @@ import { computed, onMounted, ref, watch } from 'vue';
             scrollToBottom('instant');
         });
 
-        emitter.on('messageReceived', handleMessageReceived);
+        emitter.on('message', handleMessageReceived);
     })
 
     function scrollToBottom(behavior: ScrollBehavior) {
@@ -111,11 +109,10 @@ import { computed, onMounted, ref, watch } from 'vue';
             <div class="chat-messages" ref="chatbox">
                 <div v-for="(message, i) in messageStore.messages" :key="message.id" class="message" :class="{'sender': isMessageSender(message.sender) }">
                     <div class="message-header" v-if="!isSameSender(message.sender, i) && isGroupChat()">
-                        <p><strong>{{ message.sender }}</strong></p>
-                        <hr>
+                        <small><strong>{{ message.sender === authStore.authentication.username ? 'You' : message.sender }}</strong></small>
                     </div>
-
                     <div class="message-timestamp" v-if="!wasSentAtSameTime(message, i)">{{ formatTimestamp(message.timestamp) }}</div>
+
                     <p class="message-content" :class="{
                             'message-sender': isMessageSender(message.sender),
                             'message-group': wasSentAtSameTime(message, i)}
@@ -151,6 +148,7 @@ import { computed, onMounted, ref, watch } from 'vue';
         --message-border-radius: .75rem;
 
         max-height: 60dvh;
+        height: 60dvh;
         overflow-y: auto;
         display: flex;
         flex-direction: column;
@@ -172,10 +170,12 @@ import { computed, onMounted, ref, watch } from 'vue';
 
     .message-header { 
         max-width: max-content;
+        margin-top: 1rem;
     }
 
     .message-header > p {
-        margin-bottom: .25rem;
+        margin-bottom: 0;
+        font-size: 14px;
     }
     
     .message-timestamp {

@@ -2,20 +2,25 @@ import { http } from "@/services/http";
 import type { Chat } from "@/types/chat.type";
 import { defineStore } from "pinia";
 import { reactive, ref, type Ref } from "vue";
+import { useAuthStore } from "./auth.store";
+import ChatList from "@/components/ChatList.vue";
 
 export const useChatStore = defineStore('chat', () => {
 
     const chats: Ref<Chat[]> = ref([]);
     const state = reactive({loading: false, error: false});
+    const authStore = useAuthStore();
 
     function fetchChats() {
         chats.value = [];
-        return http.get('/chats')
+        return http.get(`/chats?user=${authStore.authentication.userId}`)
             .then(response => {
                 state.error = false;
                 response.data.map((chat: Chat) => {
                     chats.value.push(chat);
                 })
+
+                fetchUsersOnlineCount();
                 return chats.value
             }).catch(e => {
                 state.error = true;
@@ -25,15 +30,17 @@ export const useChatStore = defineStore('chat', () => {
             });
     }
 
-    function addOnline() {
-        chats.value.forEach(chat => {
-            chat.online = chat.online ? chat.online += 1 : 1;
-        })
-
+    function fetchUsersOnlineCount() {
+        chats.value
+            .filter(chat => chat.type === 'GROUP')
+            .forEach(chat => {
+                http.get(`/chats/${chat.id}/users/count?status=ONLINE`) 
+                    .then(response => {
+                        chat.online = response.data;
+                    })
+            });
     }
 
 
-
-
-    return { chats, state, fetchChats, addOnline }
+    return { chats, state, fetchChats, fetchUsersOnlineCount }
 });
