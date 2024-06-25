@@ -1,16 +1,14 @@
 <script setup lang="ts">
     import ChatComponent from '@/components/Chat.vue';
+    import { emitter } from '@/services/mitt';
     import { useAuthStore } from '@/stores/auth.store';
     import { useChatStore } from '@/stores/chat.store';
-    import { useMessageStore } from '@/stores/message.store';
     import { useNotificationStore } from '@/stores/notification.store';
     import { useStompStore } from '@/stores/stomp.store';
     import { ChatType, type Chat } from '@/types/chat.type';
     import type { Message } from '@/types/message.type';
+    import Stomp from 'stompjs';
     import { onMounted, reactive, ref } from 'vue';
-    import Stomp from 'stompjs'
-    import type { User } from '@/types/user.type';
-import { emitter } from '@/services/mitt';
 
 
     const chatStore = useChatStore();
@@ -31,13 +29,11 @@ import { emitter } from '@/services/mitt';
         notificationStore.read(chat.id);
     }
 
-
-
     onMounted(() => {
         authStore.checkAuthentication();
                 
         // stompStore.overridePublicReceived(handlePublic);
-        
+        stompStore.connect();
         emitter.on('messageReceived', handleOnMessage);
     })
 

@@ -1,41 +1,40 @@
+import { emitter } from "@/services/mitt";
 import { defineStore } from "pinia";
 import Stomp from 'stompjs';
-import { reactive, ref, type Events, type Ref } from "vue";
+import { reactive, ref, type Ref } from "vue";
 import { useChatStore } from "./chat.store";
-import { useMessageStore } from "./message.store";
-import { emitter } from "@/services/mitt";
-import type { Message } from "@/types/message.type";
 
 export const useStompStore = defineStore('stomp', () => {
 
-
-    const socket = new WebSocket('ws://localhost:8080/ws');
-    const stomp = Stomp.over(socket);
-    stomp.connect({}, onConnected, onError);
-
     const chatStore = useChatStore();
     const state = reactive({loading: false, error: false});
-    const subscriptions: Stomp.Subscription[] = [];
-
-
+    const subscriptions: Ref<Stomp.Subscription[]> = ref([]);
+    let stomp = Stomp.client('');
+    
     function connect() {
+        stomp = Stomp.over(new WebSocket('ws://localhost:8080/ws')); 
+        stomp.connect({}, onConnected, onError);
     }
 
     function onError() {}
 
     function onConnected() {
-        chatStore.fetchChats()
-            .then(() => subscribeAll());
+        if (!subscriptions.value.length) {
+
+            chatStore.fetchChats()
+                .then(() => subscribeAll())
+                .finally(() => state.loading = false);
+        }
     }
 
     function subscribeAll() {
         chatStore.chats.forEach(chat => {
-            subscriptions.push(subscribe(chat.id));      
+            subscriptions.value.push(subscribe(chat.id));      
         });
     }
 
     function unsubscribeAll() {
-        subscriptions.forEach(sub => sub.unsubscribe());
+        subscriptions.value.forEach(sub => sub.unsubscribe());
     }
 
     function subscribe(chat: string) {
@@ -47,9 +46,14 @@ export const useStompStore = defineStore('stomp', () => {
     }
 
     function send(topic: string, payload: Object) {
-        stomp.send(topic, {}, JSON.stringify(payload));
+        stomp!.send(topic, {}, JSON.stringify(payload));
+    }
+
+    function disconnectAndUnsubscribe() {
+        unsubscribeAll();
+        stomp!.disconnect(() => console.log('disconnected from stomp web server'));
     }
 
 
-    return { stomp, send, connect, subscribe, unsubscribeAll, subscribeAll }
+    return { stomp, send, connect, subscribe, subscribeAll, disconnectAndUnsubscribe }
 });

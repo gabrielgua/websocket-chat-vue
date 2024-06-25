@@ -42,6 +42,8 @@ export const useAuthStore = defineStore('auth', () => {
         authentication.token = '';
         authentication.username = '';
 
+        stompStore.disconnectAndUnsubscribe();
+
         router.push('/login');
     }
     

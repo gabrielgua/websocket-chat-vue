@@ -7,14 +7,7 @@ import { useStompStore } from '@/stores/stomp.store';
 import { ChatType, type Chat } from '@/types/chat.type';
 import type { Message } from '@/types/message.type';
 import { format } from 'date-fns';
-import { on } from 'events';
-import mitt from 'mitt';
-import { emit } from 'process';
-import Stomp from 'stompjs';
-import { computed, onActivated, onBeforeMount, onMounted, onUpdated, ref, watch } from 'vue';
-
-
-    
+import { computed, onMounted, ref, watch } from 'vue';
 
     const props = defineProps<{
         chat: Chat,
@@ -25,8 +18,6 @@ import { computed, onActivated, onBeforeMount, onMounted, onUpdated, ref, watch 
     const stompStore = useStompStore();
     const notificationStore = useNotificationStore();
     const messageStore = useMessageStore();
-
-
 
     const currentChat = computed(() => props.chat);
     const chatbox = ref({} as HTMLElement);
@@ -46,17 +37,17 @@ import { computed, onActivated, onBeforeMount, onMounted, onUpdated, ref, watch 
         scrollToBottom('instant');
         watch(currentChat, (newChat) => {
             messageStore.fetchMessages(newChat.id);   
-
             scrollToBottom('instant');
-
         });
 
-        emitter.on('messageReceived', handleMessageReceived)
+        emitter.on('messageReceived', handleMessageReceived);
     })
 
     function scrollToBottom(behavior: ScrollBehavior) {
         setTimeout(() => {
-            chatbox.value.scrollTo({top: chatbox.value.scrollHeight, behavior: behavior});
+            if (currentChat.value.id != '0') {
+                chatbox.value.scrollTo({top: chatbox.value.scrollHeight, behavior: behavior});
+            }
         }, 15);
     }
 
@@ -216,6 +207,11 @@ import { computed, onActivated, onBeforeMount, onMounted, onUpdated, ref, watch 
         margin-top: 1rem;
         display: grid;
         grid-template-columns: 1fr auto;
+        gap: 1rem;
+    }
+
+    input {
+        padding: .5rem;
     }
 
  
