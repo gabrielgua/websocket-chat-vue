@@ -25,7 +25,7 @@ export const useMessageStore = defineStore('message', () => {
         state.loading = true;
         messages.value = [];
 
-        http.get(`/chats/${chat}/messages`)
+        return http.get(`/chats/${chat}/messages`)
             .then((response) => {
                 response.data.map((message: Message) => {
                     messages.value.push(message);

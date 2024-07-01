@@ -6,7 +6,7 @@ import { useStompStore } from '@/stores/stomp.store';
 import { ChatType, type Chat } from '@/types/chat.type';
 import type { Message } from '@/types/message.type';
 import { differenceInDays, differenceInHours, format, getDay, getDayOfYear, getDaysInMonth, isSameDay } from 'date-fns';
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, onMounted, onUpdated, ref, watch } from 'vue';
 
     const props = defineProps<{
         chat: Chat,
@@ -21,32 +21,31 @@ import { computed, onMounted, ref, watch } from 'vue';
     const chatbox = ref({} as HTMLElement);
 
     function handleMessageReceived(body: string) {
-        scrollToBottom('smooth');
+        // scrollToBottom('smooth');
 
         const message: Message = JSON.parse(body);
 
         if (message.chat === currentChat.value.id) { 
-            messageStore.add(message);      
+            messageStore.add(message);   
         }
     }
 
     onMounted(() => {
 
-        scrollToBottom('instant');
+        // scrollToBottom('instant');
         watch(currentChat, (newChat) => {
-            messageStore.fetchMessages(newChat.id);   
-            scrollToBottom('instant');
+            messageStore.fetchMessages(newChat.id)
+                .then(() => scrollToBottom('instant'));
+                
         });
 
         emitter.on('message', handleMessageReceived);
     })
 
+    onUpdated(() => scrollToBottom('smooth'));
+
     function scrollToBottom(behavior: ScrollBehavior) {
-        setTimeout(() => {
-            if (currentChat.value.id != '0') {
-                chatbox.value.scrollTo({top: chatbox.value.scrollHeight, behavior: behavior});
-            }
-        }, 15);
+        chatbox.value.scrollTo({top: chatbox.value.scrollHeight, behavior: behavior});
     }
 
     function sendMessage() {
@@ -58,6 +57,7 @@ import { computed, onMounted, ref, watch } from 'vue';
         
         stompStore.send(`/app/chats/${currentChat.value.id}.sendMessage`, chatMessage);
         message.value = '';
+
     }
 
     function formatTimestamp(timestamp: Date) {
@@ -70,8 +70,6 @@ import { computed, onMounted, ref, watch } from 'vue';
         }
         return messageStore.messages[index - 1].sender === sender;
     }
-
-   
 
     function isMessageSender(sender: string) {
         return sender === authStore.authentication.username;
@@ -100,8 +98,6 @@ import { computed, onMounted, ref, watch } from 'vue';
     }
 
     function displayFullTimestamp(timestamp: Date) {
-
-
         return format(timestamp, "PPPP");
     }
 </script>
@@ -176,8 +172,7 @@ import { computed, onMounted, ref, watch } from 'vue';
     .message {
         display: flex;
         flex-direction: column;
-        /* border: 1px solid black; */
-        margin-top: .75rem;
+        /* margin-top: .75rem; */
     }
 
     .message-group {
@@ -205,28 +200,24 @@ import { computed, onMounted, ref, watch } from 'vue';
         padding: .25rem .5rem;
         border-radius: var(--message-border-radius);
         background-color: var(--clr-bg);
-        position: relative
+        position: relative;
     }
 
     .message-first-triangle {
         --r: 4px; /* border radius */
 
-        height: 15px;
-        aspect-ratio: 2;
-        --_g:calc(var(--r)/tan(22.5deg)) top var(--r),#000 98%,#0000 101%;
-        -webkit-mask:
-            conic-gradient(from 157.5deg at 50% calc(var(--r)/(3*sqrt(2) - 4) - 100%/tan(22.5deg)),#000 45deg,#0000 0)
+        --mask: conic-gradient(from 157.5deg at 50% calc(var(--r)/(3*sqrt(2) - 4) - 100%/tan(22.5deg)),#000 45deg,#0000 0)
             0 0/100% calc(100% - var(--r)/sqrt(2)) no-repeat,
             radial-gradient(var(--r) at 50% calc(100% - var(--r)*sqrt(2)),#000 98%,#0000 101%),
             radial-gradient(var(--r) at left  var(--_g)),
             radial-gradient(var(--r) at right var(--_g));
 
-        mask: 
-            conic-gradient(from 157.5deg at 50% calc(var(--r)/(3*sqrt(2) - 4) - 100%/tan(22.5deg)),#000 45deg,#0000 0)
-            0 0/100% calc(100% - var(--r)/sqrt(2)) no-repeat,
-            radial-gradient(var(--r) at 50% calc(100% - var(--r)*sqrt(2)),#000 98%,#0000 101%),
-            radial-gradient(var(--r) at left  var(--_g)),
-            radial-gradient(var(--r) at right var(--_g));
+        height: 15px;
+        aspect-ratio: 2;
+        --_g:calc(var(--r)/tan(22.5deg)) top var(--r),#000 98%,#0000 101%;
+        -webkit-mask: var(--mask);
+        mask: var(--mask);
+            
         clip-path: polygon(50% 100%,100% 0,0 0);
         background-color: var(--clr-bg);
         position: absolute;
