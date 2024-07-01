@@ -1,12 +1,13 @@
 <script setup lang="ts">
     import { emitter } from '@/services/mitt';
-import { useAuthStore } from '@/stores/auth.store';
-import { useMessageStore } from '@/stores/message.store';
-import { useStompStore } from '@/stores/stomp.store';
-import { ChatType, type Chat } from '@/types/chat.type';
-import type { Message } from '@/types/message.type';
-import { differenceInDays, differenceInHours, format, getDay, getDayOfYear, getDaysInMonth, isSameDay } from 'date-fns';
-import { computed, onMounted, onUpdated, ref, watch } from 'vue';
+    import { useAuthStore } from '@/stores/auth.store';
+    import { useMessageStore } from '@/stores/message.store';
+    import { useStompStore } from '@/stores/stomp.store';
+    import { ChatType, type Chat } from '@/types/chat.type';
+    import type { Message } from '@/types/message.type';
+    import { differenceInDays, differenceInHours, format, formatRelative, getDay, getDayOfYear, getDaysInMonth, isSameDay, isToday, isYesterday, subDays, type FormatRelativeFn, type Locale } from 'date-fns';
+    import { ptBR } from 'date-fns/locale';
+    import { computed, onMounted, onUpdated, ref, watch } from 'vue';
 
     const props = defineProps<{
         chat: Chat,
@@ -31,17 +32,16 @@ import { computed, onMounted, onUpdated, ref, watch } from 'vue';
     }
 
     onMounted(() => {
-
-        // scrollToBottom('instant');
         watch(currentChat, (newChat) => {
             messageStore.fetchMessages(newChat.id)
                 .then(() => scrollToBottom('instant'));
-                
+
         });
 
         emitter.on('message', handleMessageReceived);
     })
 
+    //this will trigger whenever a new message is added to the DOM
     onUpdated(() => scrollToBottom('smooth'));
 
     function scrollToBottom(behavior: ScrollBehavior) {
@@ -98,7 +98,17 @@ import { computed, onMounted, onUpdated, ref, watch } from 'vue';
     }
 
     function displayFullTimestamp(timestamp: Date) {
-        return format(timestamp, "PPPP");
+        let date = "PPPP";
+        if (isToday(timestamp)) date = "'Hoje, 'P";
+        else if (isYesterday(timestamp)) date = "'Ontem, 'P";        
+        
+        return format(timestamp, date, {locale: ptBR}); ;
+    }
+
+    function showMessageHeader(message: Message, index: number) {
+        const sameSenderDifferentDay = isSameSender(message.sender, index) && !sameDay(message, index);
+
+        return isGroupChat() && (!isSameSender(message.sender, index) || sameSenderDifferentDay) ;
     }
 </script>
 
@@ -114,20 +124,20 @@ import { computed, onMounted, onUpdated, ref, watch } from 'vue';
                     'message-group': isSameSender(message.sender, i)
                      }">
                     
-                    <span class="message-timestamp-full" :style="{'margin-top': i === 0 ? 0 : '1rem'}" v-if="!sameDay(message, i)">
+                    <span class="message-timestamp-full" v-if="!sameDay(message, i)">
                         <p>{{ displayFullTimestamp(message.timestamp) }}</p>
                         <span class="divider"></span>
                     </span>
-                    <div class="message-header" v-if="!isSameSender(message.sender, i) && isGroupChat()"><small><strong>{{ displaySender(message.sender)  }}</strong></small></div>
-                    <div class="message-content" :class="{
-                        'message-sender': isMessageSender(message.sender)}">
-                        <p class="message-text" >{{ message.content }}</p>
-                        <span class="message-timestamp">{{ formatTimestamp(message.timestamp) }}</span>
-                        <span class="message-first-triangle" :class="{
-                            'message-first-triangle-sender': isMessageSender(message.sender)
-                            }"
-                            :style="{'display': isSameSender(message.sender, i) && sameDay(message, i) ? 'none' : 'block'}"
-                            ></span>
+                    <div class="message-header" v-if="showMessageHeader(message, i)"><small><strong>{{ displaySender(message.sender)  }}</strong></small></div>
+                    <div class="message-content-wrapper" :class="{
+                        'message-content-wrapper-sender': isMessageSender(message.sender)}">
+                        <div class="message-content" :class="{
+                            'message-sender': isMessageSender(message.sender)}">
+                            <p class="message-text" >{{ message.content }}</p>
+                            <span class="message-timestamp">{{ formatTimestamp(message.timestamp) }}</span>
+                            <span class="message-first-triangle" :class="{'message-first-triangle-sender': isMessageSender(message.sender)}" :style="{'display': isSameSender(message.sender, i) && sameDay(message, i) ? 'none' : 'block'}"></span>
+                        </div>
+                        <span class="message-hover-timestamp">{{ format(message.timestamp, "P", {locale: ptBR}) }}</span>
                     </div>
                 </div>
                 
@@ -162,21 +172,33 @@ import { computed, onMounted, onUpdated, ref, watch } from 'vue';
         margin-top: 1rem;
         max-height: 60dvh;
         height: 60dvh;
-        overflow-y: auto;
+        overflow-y: scroll;
         display: flex;
         flex-direction: column;
         padding: 1rem;
         border: 1px solid whitesmoke;
+        position: relative;
     }
 
     .message {
+        --space-between: 1.5rem;
+
+
         display: flex;
         flex-direction: column;
-        /* margin-top: .75rem; */
+        margin-top: 1rem;
+    }
+
+    .message:hover .message-hover-timestamp {
+        display: block;
     }
 
     .message-group {
         margin-top: .25rem;
+    }
+
+    .message-group > .message-timestamp-full {
+        margin-top: .75rem;
     }
 
     .sender {
@@ -184,8 +206,24 @@ import { computed, onMounted, onUpdated, ref, watch } from 'vue';
     }
 
     .message-header { 
-        margin-top: 1rem;
         font-size: small;
+    }
+
+
+    .message-content-wrapper {
+        display: flex;
+        align-items: center;
+        gap: .5rem;
+    }
+
+    .message-content-wrapper-sender {
+        flex-direction: row-reverse;
+    }
+
+    .message-hover-timestamp {
+        font-size: 11px;
+        color: slategray;
+        display: none;
     }
     
     .message-content {
@@ -196,7 +234,7 @@ import { computed, onMounted, onUpdated, ref, watch } from 'vue';
         gap: .5rem;
         font-size: 15px;
         width: max-content;
-        max-width: 70%;
+        max-width: 350px;
         padding: .25rem .5rem;
         border-radius: var(--message-border-radius);
         background-color: var(--clr-bg);
@@ -238,24 +276,33 @@ import { computed, onMounted, onUpdated, ref, watch } from 'vue';
         font-size: 11px;
         align-self: flex-end;
         color: darkgray;
-        align-self: right;
     }
 
     .message-timestamp-full {
-        width: 100%;
+        --clr-divider: lightgrey;
+        
         display: grid;
-        gap: 1rem;
-        align-items: center;
-        grid-template-columns: auto 1fr;
+        place-items: center;
+        width: 100%;
+        align-self: center;
         font-size: small;
-        align-self: flex-start;
         margin-block: 1rem;
-        padding: .125rem .25rem;
+        position: relative;
+
+    }
+
+    .message-timestamp-full > p {
+        background-color: white;
+        outline: 1rem solid white;
     }
 
     .message-timestamp-full > .divider {
-        border-bottom: 1px solid lightgray;
         width: 100%;
+        z-index: -1;
+        position: absolute;
+        place-self: center;
+        border-bottom: 1px solid var(--clr-divider);
+        border-radius: .25rem;
     }
 
     .message-sender {
