@@ -15,4 +15,22 @@
         font-family: 'Poppins', sans-serif
     }
 
+    body {
+        --container-outline-clr: #222831;
+        --df-border-clr: #222831;
+
+        background-color: var(--container-outline-clr);
+    }
+
+    .button {
+        border: none;
+        cursor: pointer;
+        background-color: transparent;
+        transition: all ease-out 150ms;
+    }
+
+    .button:hover {
+        transform: translateY(-0.125rem);
+    }
+
 </style>

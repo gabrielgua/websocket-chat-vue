@@ -113,10 +113,12 @@
 </script>
 
 <template>
-    <div class="container">
-        <div class="chatbox" v-if="showChat()">
-            <h2>{{ currentChat.name }}</h2>
-            <h5>{{ currentChat.id }}</h5>
+        <span class="no-chat-selected" v-if="!showChat()">Welcome, star chatting now!</span>
+        <div class="chatbox" v-else>
+            <div class="chat-header">
+                <h2>{{ currentChat.name }}</h2>
+                <h5>{{ currentChat.id }}</h5>
+            </div>
 
             <div class="chat-messages" ref="chatbox">
                 <div v-for="(message, i) in messageStore.messages" :key="message.id" class="message" :class="{
@@ -133,7 +135,7 @@
                         'message-content-wrapper-sender': isMessageSender(message.sender)}">
                         <div class="message-content" :class="{
                             'message-sender': isMessageSender(message.sender)}">
-                            <p class="message-text" >{{ message.content }}</p>
+                            <p style="z-index: 99;">{{ message.content }}</p>
                             <span class="message-timestamp">{{ formatTimestamp(message.timestamp) }}</span>
                             <span class="message-first-triangle" :class="{'message-first-triangle-sender': isMessageSender(message.sender)}" :style="{'display': isSameSender(message.sender, i) && sameDay(message, i) ? 'none' : 'block'}"></span>
                         </div>
@@ -146,37 +148,57 @@
 
             <form @submit.prevent="sendMessage">
                 <input required v-model="message" type="text" class="chat-input" placeholder="Type your message" />
-                <button type="submit">Send</button>
+                <button class="button" type="submit">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-send-fill" viewBox="0 0 16 16">
+                    <path d="M15.964.686a.5.5 0 0 0-.65-.65L.767 5.855H.766l-.452.18a.5.5 0 0 0-.082.887l.41.26.001.002 4.995 3.178 3.178 4.995.002.002.26.41a.5.5 0 0 0 .886-.083zm-1.833 1.89L6.637 10.07l-.215-.338a.5.5 0 0 0-.154-.154l-.338-.215 7.494-7.494 1.178-.471z"/>
+                    </svg>
+                </button>
             </form>
         </div>
-
-        <span v-else>Welcome, star chatting now!</span>
-
-    </div>
 </template>
 
 <style scoped>
-    .container {
-        padding: 1rem;
-        max-height: 80dvh;
-        height: 80dvh;
+    .no-chat-selected {
+        display: grid;
+        place-items: center;
+        background-color: var(--secondary-clr);
+        padding: 5rem;
+
+        color: black;
+
+        font-size: large;
+        font-weight: bold;
     }
 
     .chatbox {
-        width: min(600px, 100% - 4rem);
+        --chatbox-bg-clr: var(--secondary-clr);
+        --chatbox-height: calc(100dvh - 80px - 1rem);
+
+        max-height: var(--chatbox-height);
+        height: 100%;
+        /* border-radius: .5rem; */
+        background-color: var(--chatbox-bg-clr);
+        display: flex;
+        flex-direction: column;
+        overflow-x: hidden;
     }
+
+    .chat-header {
+        padding: 1rem;
+        box-shadow: 10px -40px 50px 10px var(--tertiary-clr);
+        background-color: whitesmoke;
+        z-index: 1;
+    }
+
 
     .chat-messages {
         --message-border-radius: .75rem;
 
-        margin-top: 1rem;
-        max-height: 60dvh;
-        height: 60dvh;
+        flex-grow: 1;
         overflow-y: scroll;
         display: flex;
         flex-direction: column;
         padding: 1rem;
-        border: 1px solid whitesmoke;
         position: relative;
     }
 
@@ -227,7 +249,8 @@
     }
     
     .message-content {
-        --clr-bg: lightblue;
+        --clr-bg: var(--container-outline-clr);
+        color: var(--secondary-clr);
 
         display: flex;
         justify-content: space-between;
@@ -242,7 +265,7 @@
     }
 
     .message-first-triangle {
-        --r: 4px; /* border radius */
+        --r: 1px; /* border radius */
 
         --mask: conic-gradient(from 157.5deg at 50% calc(var(--r)/(3*sqrt(2) - 4) - 100%/tan(22.5deg)),#000 45deg,#0000 0)
             0 0/100% calc(100% - var(--r)/sqrt(2)) no-repeat,
@@ -279,7 +302,6 @@
     }
 
     .message-timestamp-full {
-        --clr-divider: lightgrey;
         
         display: grid;
         place-items: center;
@@ -292,33 +314,58 @@
     }
 
     .message-timestamp-full > p {
-        background-color: white;
-        outline: 1rem solid white;
+        background-color: var(--chatbox-bg-clr);
+        outline: 1rem solid var(--chatbox-bg-clr);
+        z-index: 2;
     }
+
 
     .message-timestamp-full > .divider {
         width: 100%;
-        z-index: -1;
+        z-index: 1;
         position: absolute;
         place-self: center;
-        border-bottom: 1px solid var(--clr-divider);
+        border-bottom: 1px solid lightgrey;
         border-radius: .25rem;
     }
 
     .message-sender {
-        --clr-bg: whitesmoke;
+        --clr-bg: white;
+        color: black;
     }
 
     form {
-        margin-top: 1rem;
         display: grid;
         grid-template-columns: 1fr auto;
         gap: 1rem;
+        padding: 1rem;
+        background-color: var(--tertiary-clr);
+        margin-top: auto;
     }
 
     input {
-        padding: .5rem;
+        padding: .75rem 1rem;
+        border-radius: 1.5rem;
+        outline: none;
+        border: none;
+        color: var(--secondary-clr);
+
+        background-color: var(--container-outline-clr);
+        transition: outline ease 25ms;
+    } 
+
+    input:focus {
+        outline: 3px solid var(--primary-clr);
+        outline-offset: 2px;
     }
 
- 
+    form > button {
+        background-color: var(--primary-clr);
+        display: grid;
+        place-items: center;
+        aspect-ratio: 1 / 1;
+        border-radius: 50%;
+        color: white;
+    }
+
 </style>
