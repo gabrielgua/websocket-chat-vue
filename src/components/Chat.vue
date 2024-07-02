@@ -172,11 +172,10 @@
 
     .chatbox {
         --chatbox-bg-clr: var(--secondary-clr);
-        --chatbox-height: calc(100dvh - 80px - 1rem);
+        --chatbox-height: calc(100dvh - 68px - 2rem);
 
         max-height: var(--chatbox-height);
         height: 100%;
-        /* border-radius: .5rem; */
         background-color: var(--chatbox-bg-clr);
         display: flex;
         flex-direction: column;

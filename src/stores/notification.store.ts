@@ -14,10 +14,11 @@ export const useNotificationStore = defineStore('notification', () => {
         const notification = notifications.value.find(n => n.chat === chat);
         if (notification) {
             notification.count += 1;
+            notification.timestamp = new Date();
             return;
         }
 
-        notifications.value.push({chat: chat, show: true, count: 1} as Notification);
+        notifications.value.push({chat: chat, show: true, count: 1, timestamp: new Date()} as Notification);
     }
     
     function read(chat: string) {

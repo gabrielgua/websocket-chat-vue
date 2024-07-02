@@ -20,6 +20,7 @@
         --df-border-clr: #222831;
 
         background-color: var(--container-outline-clr);
+
     }
 
     .button {
