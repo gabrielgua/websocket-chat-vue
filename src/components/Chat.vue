@@ -139,12 +139,8 @@ function showMessageHeader(message: Message, index: number) {
             </div>
             <div class="ms-auto me-2 flex items-center gap-4">
                 <button
-                    class="aspect-square w-8 grid place-items-center hover:bg-slate-900 transition-all rounded-full text-slate-500">
-                    <fa-icon icon="fa-solid fa-user" />
-                </button>
-                <button
-                    class="aspect-square w-8 grid place-items-center hover:bg-slate-900 transition-all rounded-full text-slate-500">
-                    <fa-icon icon="fa-solid fa-ellipsis-vertical" />
+                    class="aspect-square w-11 grid place-items-center hover:bg-slate-700 hover:text-sky-600 transition-all rounded-full  text-slate-500">
+                    <fa-icon icon="fa-solid fa-chevron-down" />
                 </button>
             </div>
         </div>
@@ -167,19 +163,21 @@ function showMessageHeader(message: Message, index: number) {
                 <div class="flex items-center gap-2" :class="{
                     'flex-row-reverse': isMessageSender(message.sender)
                 }">
-                    <div class="relative flex items-center justify-between gap-2 px-2 py-1 rounded-lg"
-                        :class="[isMessageSender(message.sender) ? 'bg-slate-100 text-black' : 'bg-slate-900']">
-                        <p class="text-base" :class="{ 'font-light': !isMessageSender(message.sender) }">{{
-                            message.content }}</p>
-                        <span class="text-xs self-end"
-                            :class="[isMessageSender(message.sender) ? 'text-slate-400' : 'text-slate-600']">{{
-                            formatTimestamp(message.timestamp) }}</span>
+                    <div class="relative flex items-center justify-between gap-2 rounded-xl"
+                        :class="[isMessageSender(message.sender) ? 'bg-sky-600' : 'bg-slate-900']">
+                        <p class="pl-2.5 py-1.5 text-sm" 
+                            :class="[isMessageSender(message.sender) ? 'font-medium' : 'font-normal']"
+                        >{{ message.content }}</p>
+                        <span class="mb-0.5 mr-1.5 text-xs font-medium self-end"
+                            :class="[isMessageSender(message.sender) ? 'text-sky-400' : 'text-slate-600']">
+                            {{ formatTimestamp(message.timestamp) }}
+                        </span>
                         <span class="absolute top-0 message-first-triangle"
-                            :class="[isMessageSender(message.sender) ? '-right-2 left-auto bg-slate-100' : '-left-2 bg-slate-900']"
-                            :style="{ 'display': isSameSender(message.sender, i) && sameDay(message, i) ? 'none' : 'block' }"></span>
+                            :class="[isMessageSender(message.sender) ? '-right-2 left-auto bg-sky-600' : '-left-2 bg-slate-900']"
+                            :style="{ 'display': isSameSender(message.sender, i) && sameDay(message, i) ? 'none' : 'block' }">
+                        </span>
                     </div>
-                    <span class="group-hover:block hidden text-xs text-gray-500">{{ format(message.timestamp, "P",
-                        {locale: ptBR}) }}</span>
+                    <span class="group-hover:block hidden text-xs text-gray-500">{{ format(message.timestamp, "P",{locale: ptBR}) }}</span>
                 </div>
             </div>
 

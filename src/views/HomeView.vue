@@ -7,7 +7,8 @@ import { useNotificationStore } from '@/stores/notification.store';
 import { useStompStore } from '@/stores/stomp.store';
 import { ChatType, type Chat } from '@/types/chat.type';
 import type { Message } from '@/types/message.type';
-import { format } from 'date-fns';
+import { format, formatRelative } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 import { onMounted, reactive, ref } from 'vue';
 
 
@@ -48,6 +49,9 @@ import { onMounted, reactive, ref } from 'vue';
         if (message.chat != currentChat.value.id) {
             notificationStore.add(message.chat);
         }  
+
+        chatStore.updateLastMessage(message);
+        chatStore.sortChatsByLastMessage();
     }
 
     window.addEventListener('beforeunload', () => {
@@ -56,6 +60,10 @@ import { onMounted, reactive, ref } from 'vue';
 
     function logout() {
         authStore.logout();
+    }
+
+    function isMessageSender(message: Message) {
+        return authStore.authentication.username === message.sender;
     }
 
 </script>
@@ -102,25 +110,30 @@ import { onMounted, reactive, ref } from 'vue';
             <div class="loading" v-if="state.loading">Loading...</div>
 
             <div class="flex flex-col gap-4 p-4 pt-6"  v-else>
-                <button class="bg-slate-800 w-full rounded-xl flex items-center p-4 gap-4 hover:bg-slate-700 hover:-translate-y-1 transition-all" v-for="chat in chatStore.chats"  @click="openChat(chat)" :class="{'chat-button-selected': chat.id === currentChat.id}">
+                <button class="chat-button bg-slate-800 w-full overflow-x-hidden rounded-xl flex items-center p-3 gap-4 hover:bg-slate-700 transition-all" v-for="chat in chatStore.chats"  @click="openChat(chat)" :class="{'translate-x-4 rounded-e-none hover:bg-slate-800': chat.id === currentChat.id}">
                     
-                    <div class="bg-slate-900 ring-slate-500 ring-1 ring-opacity-20 w-12 grid place-items-center rounded-full aspect-square">
+                    <div class="bg-slate-900 ring-slate-500 ring-1 ring-opacity-20 w-12 min-w-12 grid place-items-center rounded-full aspect-square">
                         <fa-icon icon="fa-solid fa-users" class="block" v-if="chat.type === ChatType.Group"/>
                         <fa-icon icon="fa-solid fa-user" class="block" v-else/>
                     </div>
                  
-                    <div class="flex flex-col items-start gap-1">
+                    <div class="flex flex-col truncate flex-grow items-start gap-1">
                         <p class="font-bold">{{ chat.name }}</p>
-                        <p class="text-xs text-slate-400" v-if="chat.type === ChatType.Group">{{ chat.online === undefined ? '0' : chat.online }} online now</p>
-                        <p class="text-xs text-slate-400" v-else>offline.</p>
+                        <p class="text-xs text-slate-400 truncate max-w-full">
+                            <span class="font-bold" v-if="chat.type === ChatType.Group">{{ isMessageSender(chat.lastMessage) ? 'You' : chat.lastMessage.sender }}: </span>
+                            {{ chat.lastMessage.content }}
+                        </p>
                     </div>
                     
-                    <div class="ms-auto text-sm text-slate-400"  v-for="notification in notificationStore.notifications">
-                        <div class="flex flex-col items-center gap-2" v-if="notification.show && notification.chat === chat.id" >
-                            <p class="text-xs">{{ format(notification.timestamp, "HH:mm") }}</p>
-                            <div class="rounded-full grid place-items-center w-6 bg-sky-600 aspect-square text-white font-semibold"><p>{{ notification.count }}</p></div>                             
+                    <div class="ms-auto text-sm text-slate-400 h-full min-w-max" >
+                        <div class="flex flex-col items-end  gap-2">
+                            <p class="text-[11px]">{{ formatRelative(chat.lastMessage.timestamp, new Date(), {locale: ptBR}) }}</p>
+                            <div class="text-right flex items-center gap-3 transition-all " v-for="notification in notificationStore.notifications" >
+                                <p class="rounded-full grid place-items-center w-5 bg-sky-600 aspect-square text-white font-semibold" v-if="notification.chat === chat.id">{{ notification.count }}</p>
+                            </div>                             
                         </div>
                     </div>
+
                 </button>
 
             </div>
@@ -150,4 +163,6 @@ import { onMounted, reactive, ref } from 'vue';
             --container-height: 100dvh;
         }
     }
+
+   
 </style>
