@@ -69,14 +69,21 @@ import { onMounted, reactive, ref } from 'vue';
 </script>
 
 <template>
-    <div class="antialiased grid grid-cols-3 content-start bg-slate-900 mx-auto container-width text-white">
-        <header class="col-span-3 w-full p-4 flex items-center gap-4">
+    <div class="antialiased grid grid-cols-3 grid-flow-row-dense content-start bg-slate-900 mx-auto container-width text-white">
+        <header class="col-span-3 p-4 flex items-center gap-4">
             <h1 class="font-bold text-3xl">WebSocket Chat</h1>
             <fa-icon class="text-2xl" icon="fa-solid fa-comments" />
+
+            <div class="ms-auto flex items-center gap-4">
+                <p class="text-sm">{{ authStore.authentication.username }}</p>
+                <button @click="logout" class="hover:*:text-rose-400 ">
+                    <fa-icon class="text-slate-500 block transition-all" icon="fa-solid fa-right-from-bracket"/>
+                </button>
+            </div>
         </header>
 
         <div class="flex flex-col w-full">
-            <div class="p-4 pb-0 flex flex-col gap-2 ">
+            <div class="p-4 pb-0 flex flex-col gap-2">
                     
                 <div class="flex items-center justify-between">
                     <h3 class="text-lg font-bold">Chats</h3>
@@ -120,15 +127,15 @@ import { onMounted, reactive, ref } from 'vue';
                     <div class="flex flex-col truncate flex-grow items-start gap-1">
                         <p class="font-bold">{{ chat.name }}</p>
                         <p class="text-xs text-slate-400 truncate max-w-full">
-                            <span class="font-bold" v-if="chat.type === ChatType.Group">{{ isMessageSender(chat.lastMessage) ? 'You' : chat.lastMessage.sender }}: </span>
+                            <span class="font-semibold" v-if="chat.type === ChatType.Group">{{ isMessageSender(chat.lastMessage) ? 'You' : chat.lastMessage.sender }}: </span>
                             {{ chat.lastMessage.content }}
                         </p>
                     </div>
                     
-                    <div class="ms-auto text-sm text-slate-400 h-full min-w-max" >
-                        <div class="flex flex-col items-end  gap-2">
-                            <p class="text-[11px]">{{ formatRelative(chat.lastMessage.timestamp, new Date(), {locale: ptBR}) }}</p>
-                            <div class="text-right flex items-center gap-3 transition-all " v-for="notification in notificationStore.notifications" >
+                    <div class="ms-auto text-sm text-slate-400 min-w-max h-full">
+                        <div class="flex flex-col h-full items-end">
+                            <p class="text-[11px] mb-auto">{{ formatRelative(chat.lastMessage.timestamp, new Date(), {locale: ptBR}) }}</p>
+                            <div class="text-right flex items-center gap-3 " v-for="notification in notificationStore.notifications" >
                                 <p class="rounded-full grid place-items-center w-5 bg-sky-600 aspect-square text-white font-semibold" v-if="notification.chat === chat.id">{{ notification.count }}</p>
                             </div>                             
                         </div>
@@ -136,9 +143,7 @@ import { onMounted, reactive, ref } from 'vue';
 
                 </button>
 
-            </div>
-            
-            
+            </div> 
         </div>
 
         <ChatComponent class="col-span-2" :chat="currentChat" />
@@ -146,6 +151,10 @@ import { onMounted, reactive, ref } from 'vue';
 </template> 
 
 <style scoped>
+   
+    
+
+
     .container-width {
         --container-width: 1500px;
         --container-margin: 1rem;

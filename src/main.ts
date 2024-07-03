@@ -11,20 +11,22 @@ import { library } from '@fortawesome/fontawesome-svg-core'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
-import { faComments, faAdd, faMagnifyingGlass, faUser, faUsers, faComment, faPaperPlane, faInfo, faEllipsisVertical, faChevronDown, faArrowRight } from '@fortawesome/free-solid-svg-icons'
+import { faComments, faAdd, faMagnifyingGlass, faUser, faUsers, faComment, faPaperPlane, faInfo, faEllipsisVertical, faChevronDown, faArrowRight, faRightFromBracket }
+    from '@fortawesome/free-solid-svg-icons'
 
 library.add(
-    faAdd, 
-    faUser, 
+    faAdd,
+    faUser,
     faInfo,
-    faUsers, 
-    faComment, 
-    faComments, 
+    faUsers,
+    faComment,
+    faComments,
     faPaperPlane,
-    faMagnifyingGlass, 
+    faMagnifyingGlass,
     faEllipsisVertical,
     faChevronDown,
-    faArrowRight
+    faArrowRight,
+    faRightFromBracket
 );
 
 const app = createApp(App)

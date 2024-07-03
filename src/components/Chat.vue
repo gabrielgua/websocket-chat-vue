@@ -100,7 +100,7 @@ function displayFullTimestamp(timestamp: Date) {
     if (isToday(timestamp)) date = "'Hoje, 'P";
     else if (isYesterday(timestamp)) date = "'Ontem, 'P";
 
-    return format(timestamp, date, { locale: ptBR });;
+    return format(timestamp, date, { locale: ptBR });
 }
 
 function showMessageHeader(message: Message, index: number) {
@@ -111,16 +111,14 @@ function showMessageHeader(message: Message, index: number) {
 </script>
 
 <template>
-    <span class="grid border place-items-center" v-if="!showChat()">Welcome, star chatting now!</span>
+    <span class="bg-slate-800 m-4 ms-0 rounded-xl overflow-hidden grid place-items-center" v-if="!showChat()">Welcome, star chatting now!</span>
     <div class="bg-slate-800 m-4 ms-0 rounded-xl overflow-hidden flex flex-col" v-else>
         <div class="flex items-center gap-4 p-4 bg-slate-800 rounded-lg shadow-2xl">
-            <div
-                class="relative bg-slate-900 ring-slate-500 ring-opacity-20 w-12 grid place-items-center rounded-full aspect-square">
+            <div class="relative bg-slate-900 ring-slate-500 ring-opacity-20 w-12 grid place-items-center rounded-full aspect-square">
                 <fa-icon icon="fa-solid fa-users" class="block" v-if="isGroupChat()" />
                 <fa-icon icon="fa-solid fa-user" class="block" v-else />
 
-                <span v-if="!isGroupChat()"
-                    class="rounded-full w-2 aspect-square absolute bg-slate-600 top-1 right-1 outline outline-4 outline-slate-800"></span>
+                <span v-if="!isGroupChat()" class="rounded-full w-2 aspect-square absolute bg-slate-600 top-1 right-1 outline outline-4 outline-slate-800"></span>
             </div>
             <div>
                 <p class="font-bold">{{ currentChat.name }}</p>
