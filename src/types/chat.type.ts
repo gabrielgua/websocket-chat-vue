@@ -8,5 +8,7 @@ export interface Chat {
     name: string,
     type: ChatType,
     created_at: Date,
-    online?: number
+    online: number,
+    offline: number,
+    members: number
 }

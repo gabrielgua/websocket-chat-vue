@@ -8,6 +8,10 @@
 </template>
 
 <style global>
+    :root {
+        color-scheme: dark;
+    }
+
     * {
         margin: 0;
         padding: 0;

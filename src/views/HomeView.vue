@@ -61,18 +61,18 @@ import { onMounted, reactive, ref } from 'vue';
 </script>
 
 <template>
-    <div class="antialiased grid grid-cols-3 bg-slate-900 mx-auto container-width text-white h-full">
-        <header class="col-span-3  p-4 flex items-center gap-4">
+    <div class="antialiased grid grid-cols-3 content-start bg-slate-900 mx-auto container-width text-white">
+        <header class="col-span-3 w-full p-4 flex items-center gap-4">
             <h1 class="font-bold text-3xl">WebSocket Chat</h1>
             <fa-icon class="text-2xl" icon="fa-solid fa-comments" />
         </header>
 
-        <div class="flex flex-col">
+        <div class="flex flex-col w-full">
             <div class="p-4 pb-0 flex flex-col gap-2 ">
                     
                 <div class="flex items-center justify-between">
                     <h3 class="text-lg font-bold">Chats</h3>
-                    <button class="rounded-full bg-slate-400 hover:bg-slate-500 grid place-items-center w-9 aspect-square">
+                    <button class="rounded-full bg-sky-600 hover:bg-slate-500 grid place-items-center w-9 aspect-square">
                         <fa-icon icon="fa-solid fa-add"/>
                     </button>
                 </div>
@@ -136,14 +136,18 @@ import { onMounted, reactive, ref } from 'vue';
     .container-width {
         --container-width: 1500px;
         --container-margin: 1rem;
+        --container-height: calc(100dvh - var(--container-margin) * 2);
+
         margin-block: var(--container-margin);
 
         width: min(var(--container-width), 100%);
+        height: var(--container-height);
     }
 
     @media  (max-width: 1500px) {
         .container-width {
-            margin-block: 0;
+            --container-margin: 0;
+            --container-height: 100dvh;
         }
     }
 </style>

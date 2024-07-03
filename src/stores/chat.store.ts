@@ -34,9 +34,11 @@ export const useChatStore = defineStore('chat', () => {
         chats.value
             .filter(chat => chat.type === 'GROUP')
             .forEach(chat => {
-                http.get(`/chats/${chat.id}/users/count?status=ONLINE`) 
+                http.get(`/chats/${chat.id}/users/count`) 
                     .then(response => {
-                        chat.online = response.data;
+                        chat.online = response.data.online;
+                        chat.members = response.data.members;
+                        chat.offline = response.data.offline;
                     })
             });
     }
