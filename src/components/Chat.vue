@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { emitter } from '@/services/mitt';
 import { useAuthStore } from '@/stores/auth.store';
+import { useChatStore } from '@/stores/chat.store';
 import { useMessageStore } from '@/stores/message.store';
 import { useStompStore } from '@/stores/stomp.store';
 import { ChatType, type Chat } from '@/types/chat.type';
 import type { Message } from '@/types/message.type';
+import { UserStatus, type User } from '@/types/user.type';
 import { format, isSameDay, isToday, isYesterday } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { computed, onMounted, onUpdated, ref, watch } from 'vue';
@@ -15,6 +17,7 @@ const props = defineProps<{
 
 const message = ref('');
 const authStore = useAuthStore();
+const chatStore = useChatStore();
 const stompStore = useStompStore();
 const messageStore = useMessageStore();
 
@@ -108,6 +111,8 @@ function showMessageHeader(message: Message, index: number) {
 
     return isGroupChat() && (!isSameSender(message.sender, index) || sameSenderDifferentDay);
 }
+
+
 </script>
 
 <template>
@@ -118,21 +123,25 @@ function showMessageHeader(message: Message, index: number) {
                 <fa-icon icon="fa-solid fa-users" class="block" v-if="isGroupChat()" />
                 <fa-icon icon="fa-solid fa-user" class="block" v-else />
 
-                <span v-if="!isGroupChat()" class="rounded-full w-2 aspect-square absolute bg-slate-600 top-1 right-1 outline outline-4 outline-slate-800"></span>
+                <div class="absolute top-1 right-1 grid place-items-center" v-if="!isGroupChat()">
+                    <span 
+                    :class="[chatStore.isReceiverOnline(chat) ? 'bg-emerald-500' : 'bg-slate-600']"
+                    class="rounded-full w-2 aspect-square outline outline-4 outline-slate-800"></span>
+                </div>
             </div>
-            <div>
+            <div class="transition-all">
                 <p class="font-bold">{{ currentChat.name }}</p>
                 <div class="text-xs text-slate-400">
-                    <div v-if="isGroupChat()" class="flex items-center">
-                        <p class="">{{ currentChat.members }} members - </p>
+                    <div v-if="chatStore.isGroupChat(chat)" class="flex items-center">
+                        <p class="">{{ currentChat.statusCount.members }} members - </p>
                         <span class="w-2 flex aspect-square rounded-full mx-1 bg-green-600"></span>
-                        <p v-if="currentChat.online > 0">{{ currentChat.online }} online - </p>
-                        <span class="w-2 flex aspect-square rounded-full mx-1 bg-slate-500"></span>
-                        <p>{{ currentChat.offline }} offline</p>
+                        <p>{{ currentChat.statusCount.online }} online</p>
                     </div>
-                    <div class="" v-else>
-                        <p>Private messages.</p>
-                    </div>
+                        <div v-else>
+                            <Transition name="online">
+                                <p v-if="chatStore.isReceiverOnline(chat)">online</p>
+                            </Transition>
+                        </div>
                 </div>
             </div>
             <div class="ms-auto me-2 flex items-center gap-4">
@@ -239,194 +248,15 @@ function showMessageHeader(message: Message, index: number) {
         background: white;
     }
 
-
-
-/* .no-chat-selected {
-        display: grid;
-        place-items: center;
-        background-color: var(--secondary-clr);
-        padding: 5rem;
-
-        color: black;
-
-        font-size: large;
-        font-weight: bold;
+    .online-enter-active,
+    .online-leave-active {
+        transition: opacity 0.5s ease;
     }
 
-    .chatbox {
-        --chatbox-bg-clr: var(--secondary-clr);
-        --chatbox-height: calc(100dvh - 68px - 2rem);
-
-        max-height: var(--chatbox-height);
-        height: 100%;
-        background-color: var(--chatbox-bg-clr);
-        display: flex;
-        flex-direction: column;
-        overflow-x: hidden;
-    }
-
-    .chat-header {
-        padding: 1rem;
-        box-shadow: 10px -40px 50px 10px var(--tertiary-clr);
-        background-color: whitesmoke;
-        z-index: 1;
+    .online-enter-from,
+    .online-leave-to {
+        opacity: 0;
     }
 
 
-    .chat-messages {
-        --message-border-radius: .75rem;
-
-        flex-grow: 1;
-        overflow-y: scroll;
-        display: flex;
-        flex-direction: column;
-        padding: 1rem;
-        position: relative;
-    } */
-
-/* .message {
-        --space-between: 1.5rem;
-
-
-        display: flex;
-        flex-direction: column;
-        margin-top: 1rem;
-    }
-
-    .message:hover .message-hover-timestamp {
-        display: block;
-    }
-
-    .message-group {
-        margin-top: .25rem;
-    }
-
-    .message-group > .message-timestamp-full {
-        margin-top: .75rem;
-    }
-
-    .sender {
-        align-items: flex-end;
-    }
-
-    .message-header { 
-        font-size: small;
-    }
-
-
-    .message-content-wrapper {
-        display: flex;
-        align-items: center;
-        gap: .5rem;
-    }
-
-    .message-content-wrapper-sender {
-        flex-direction: row-reverse;
-    }
-
-    .message-hover-timestamp {
-        font-size: 11px;
-        color: slategray;
-        display: none;
-    }
-    
-    .message-content {
-        --clr-bg: var(--container-outline-clr);
-        color: var(--secondary-clr);
-
-        display: flex;
-        justify-content: space-between;
-        gap: .5rem;
-        font-size: 15px;
-        width: max-content;
-        max-width: 350px;
-        padding: .25rem .5rem;
-        border-radius: var(--message-border-radius);
-        background-color: var(--clr-bg);
-        position: relative;
-    }
-
-    
-
-    .message-first-triangle-sender {
-        left: auto;
-        right: -10px;
-    }  
-
-     .message-content > .message-timestamp {
-        color: grey;
-    }
-
-    .message-timestamp {
-        font-size: 11px;
-        align-self: flex-end;
-        color: darkgray;
-    }
-
-    .message-timestamp-full {
-        
-        display: grid;
-        place-items: center;
-        width: 100%;
-        align-self: center;
-        font-size: small;
-        margin-block: 1rem;
-        position: relative;
-
-    }
-
-    .message-timestamp-full > p {
-        background-color: var(--chatbox-bg-clr);
-        outline: 1rem solid var(--chatbox-bg-clr);
-        z-index: 2;
-    }
-
-
-    .message-timestamp-full > .divider {
-        width: 100%;
-        z-index: 1;
-        position: absolute;
-        place-self: center;
-        border-bottom: 1px solid lightgrey;
-        border-radius: .25rem;
-    }
-
-    .message-sender {
-        --clr-bg: white;
-        color: black;
-    }
-
-    form {
-        display: grid;
-        grid-template-columns: 1fr auto;
-        gap: 1rem;
-        padding: 1rem;
-        background-color: var(--tertiary-clr);
-        margin-top: auto;
-    }
-
-    input {
-        padding: .75rem 1rem;
-        border-radius: 1.5rem;
-        outline: none;
-        border: none;
-        color: var(--secondary-clr);
-
-        background-color: var(--container-outline-clr);
-        transition: outline ease 25ms;
-    } 
-
-    input:focus {
-        outline: 3px solid var(--primary-clr);
-        outline-offset: 2px;
-    }
-
-    form > button {
-        background-color: var(--primary-clr);
-        display: grid;
-        place-items: center;
-        aspect-ratio: 1 / 1;
-        border-radius: 50%;
-        color: white;
-    } */
 </style>

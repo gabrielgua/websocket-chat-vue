@@ -40,7 +40,7 @@ import { onMounted, reactive, ref } from 'vue';
             stompStore.send('/app/user.disconnectUser', {id: authStore.authentication.userId})
         });
 
-        emitter.on('statusNotification', chatStore.fetchUsersOnlineCount);
+        emitter.on('statusNotification', chatStore.fetchChatStatusCount );
     })
 
     function handleOnMessage(body: string) {
@@ -119,9 +119,15 @@ import { onMounted, reactive, ref } from 'vue';
             <div class="flex flex-col gap-4 p-4 pt-6"  v-else>
                 <button class="chat-button bg-slate-800 w-full overflow-x-hidden rounded-xl flex items-center p-3 gap-4 hover:bg-slate-700 transition-all" v-for="chat in chatStore.chats"  @click="openChat(chat)" :class="{'translate-x-4 rounded-e-none hover:bg-slate-800': chat.id === currentChat.id}">
                     
-                    <div class="bg-slate-900 ring-slate-500 ring-1 ring-opacity-20 w-12 min-w-12 grid place-items-center rounded-full aspect-square">
-                        <fa-icon icon="fa-solid fa-users" class="block" v-if="chat.type === ChatType.Group"/>
+                    <div class="relative bg-slate-900 ring-slate-500 w-12 min-w-12 grid place-items-center rounded-full aspect-square">
+                        <fa-icon icon="fa-solid fa-users" class="block" v-if="chatStore.isGroupChat(chat)"/>
                         <fa-icon icon="fa-solid fa-user" class="block" v-else/>
+
+                        <div class="absolute top-1 right-1 grid place-items-center" v-if="!chatStore.isGroupChat(chat)">
+                            <span 
+                            :class="[chatStore.isReceiverOnline(chat) ? 'bg-emerald-500' : 'bg-slate-600']"
+                            class="rounded-full w-2 aspect-square outline outline-4 outline-slate-800"></span>
+                        </div>
                     </div>
                  
                     <div class="flex flex-col truncate flex-grow items-start gap-1">

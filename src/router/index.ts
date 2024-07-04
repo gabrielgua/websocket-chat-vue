@@ -19,11 +19,9 @@ router.beforeEach((to, from, next) => {
     const auth = useAuthStore();
 
     if (privateRoutes.includes(to.path) && !auth.authenticated) {
-        console.log('Attempted to access a private route unauthenticated');
         next({ path: '/login' });
     }
     else if (authRoutes.includes(to.path) && auth.authenticated) {
-        console.log('Authenticated user attempted to login or register');
         next({ path: '/chat' })
     }
     else next();

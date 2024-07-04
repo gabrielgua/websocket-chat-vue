@@ -1,9 +1,10 @@
 import { http } from "@/services/http";
-import type { Chat } from "@/types/chat.type";
+import { ChatType, type Chat, type ChatStatusCount } from "@/types/chat.type";
 import type { Message } from "@/types/message.type";
 import { defineStore } from "pinia";
 import { reactive, ref, type Ref } from "vue";
 import { useAuthStore } from "./auth.store";
+import { UserStatus, type User } from "@/types/user.type";
 
 export const useChatStore = defineStore('chat', () => {
 
@@ -13,14 +14,14 @@ export const useChatStore = defineStore('chat', () => {
 
     function fetchChats() {
         chats.value = [];
-        return http.get(`/chats?user=${authStore.authentication.userId}`)
+        return http.get(`/chats`, {headers: { Authorization: `Bearer ${authStore.authentication.token}` }})
             .then(response => {
                 state.error = false;
                 response.data.map((chat: Chat) => {
                     chats.value.push(chat);
                 })
 
-                fetchUsersOnlineCount();
+                fetchChatStatusCount();
                 sortChatsByLastMessage();
                 
             }).catch(e => {
@@ -31,15 +32,21 @@ export const useChatStore = defineStore('chat', () => {
             });
     }
 
-    function fetchUsersOnlineCount() {
+    function fetchChatStatusCount() {
         chats.value
-            .filter(chat => chat.type === 'GROUP')
             .forEach(chat => {
-                http.get(`/chats/${chat.id}/users/count`) 
+                http.get(`/chats/${chat.id}/users/status`) 
                     .then(response => {
-                        chat.online = response.data.online;
-                        chat.members = response.data.members;
-                        chat.offline = response.data.offline;
+                        const statusCount: ChatStatusCount = {
+                            online: response.data.statusCount.online,
+                            members: response.data.statusCount.members,
+                            offline: response.data.statusCount.offline
+                        }
+
+                        chat.statusCount = statusCount;
+                        if (response.data.receiver) {
+                            chat.receiver = response.data.receiver; 
+                        }
                     })
             });
     }
@@ -57,6 +64,17 @@ export const useChatStore = defineStore('chat', () => {
         });
     } 
 
+    function isReceiverOnline(chat: Chat) {
+        if (chat.receiver) {
+            return chat.receiver.status === UserStatus.Online;
 
-    return { chats, state, fetchChats, fetchUsersOnlineCount, updateLastMessage, sortChatsByLastMessage }
+        }
+    }
+
+    function isGroupChat(chat: Chat) {
+        return chat.type === ChatType.Group;
+    } 
+
+
+    return { chats, state, fetchChats, fetchChatStatusCount, updateLastMessage, sortChatsByLastMessage, isReceiverOnline, isGroupChat }
 });

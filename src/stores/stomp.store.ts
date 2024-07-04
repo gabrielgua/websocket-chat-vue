@@ -3,17 +3,19 @@ import { defineStore } from "pinia";
 import Stomp from 'stompjs';
 import { reactive, ref, type Ref } from "vue";
 import { useChatStore } from "./chat.store";
+import { useAuthStore } from "./auth.store";
 
 export const useStompStore = defineStore('stomp', () => {
 
     const chatStore = useChatStore();
+    const authStore = useAuthStore();
     const state = reactive({loading: false, error: false});
     const subscriptions: Ref<Stomp.Subscription[]> = ref([]);
     let stomp = Stomp.client('');
     
     function connect() {
         stomp = Stomp.over(new WebSocket('ws://localhost:8080/ws')); 
-        stomp.connect({}, onConnected, onError);
+        stomp.connect({ Authorization: `Bearer ${authStore.authentication.token}`}, onConnected, onError);
     }
 
     function onError() { console.log('error connecting to websocket server') }

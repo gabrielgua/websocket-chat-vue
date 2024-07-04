@@ -1,8 +1,15 @@
 import type { Message } from "./message.type";
+import type { User } from "./user.type";
 
 export enum ChatType {
     Private = "PRIVATE", 
     Group = "GROUP"  
+}
+
+export interface ChatStatusCount {
+    online: number,
+    offline: number,
+    members: number
 }
 
 export interface Chat {
@@ -10,8 +17,7 @@ export interface Chat {
     name: string,
     type: ChatType,
     created_at: Date,
-    online: number,
-    offline: number,
-    members: number,
+    statusCount: ChatStatusCount
     lastMessage: Message
+    receiver?: User
 }
