@@ -5,6 +5,8 @@ import { computed, reactive, type ComputedRef } from "vue";
 import { useRouter } from "vue-router";
 import { useStompStore } from "./stomp.store";
 import { emitter } from "@/services/mitt";
+import { jwtDecode } from "jwt-decode";
+import { isAfter, isBefore } from "date-fns";
 
 export const useAuthStore = defineStore('auth', () => {
     const router = useRouter();
@@ -19,7 +21,7 @@ export const useAuthStore = defineStore('auth', () => {
     const state = reactive({loading: false, error: false});
     const authentication = reactive<Authentication>({} as Authentication);
 
-    const authenticated: ComputedRef<boolean> = computed(() => {
+    const authenticated: ComputedRef<boolean> = computed(() => {        
         return checkAuthentication();
     })
 
@@ -46,14 +48,12 @@ export const useAuthStore = defineStore('auth', () => {
     function logout() {
         stompStore.disconnectAndUnsubscribe()   
             .then((message) => {
+                router.push('/login');
                 console.log(message);
                 localStorage.clear();
                 clearAuthentication();
-                router.push('/login');
                 emitter.all.clear();
             });
-
-
     }
     
     function saveAuthentication(id: number, username: string, token: string) {
@@ -67,15 +67,23 @@ export const useAuthStore = defineStore('auth', () => {
     }
 
     function checkAuthentication(): boolean {
-        var token = localStorage.getItem('token');
-        var userId = localStorage.getItem('userId');
-        var username = localStorage.getItem('username');
+        const token = localStorage.getItem('token');
+        const userId = localStorage.getItem('userId');
+        const username = localStorage.getItem('username');
 
         if (token && username && userId) {
-            saveAuthentication(+userId, username, token);
-        }
+            const decodedToken = jwtDecode(token);
 
-        return authentication.token != '' && authentication.token != null 
+            const isSameUser = decodedToken.sub === username;
+            const expiryDate = new Date(decodedToken.exp! * 1000); 
+            const isTokenValid = isBefore(new Date(), expiryDate);
+        
+            if (isSameUser && isTokenValid) {
+                saveAuthentication(+userId, username, token);                                
+            }
+        }
+        
+        return !!authentication.token && !!authentication.username && !!authentication.userId;
     }
 
 

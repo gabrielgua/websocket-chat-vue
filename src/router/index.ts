@@ -19,9 +19,13 @@ router.beforeEach((to, from, next) => {
     const auth = useAuthStore();
 
     if (privateRoutes.includes(to.path) && !auth.authenticated) {
+        console.log('not logged in');
+        
         next({ path: '/login' });
     }
     else if (authRoutes.includes(to.path) && auth.authenticated) {
+        console.log('already logged in');
+        
         next({ path: '/chat' })
     }
     else next();
