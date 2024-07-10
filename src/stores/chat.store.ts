@@ -9,12 +9,12 @@ import { UserStatus, type User } from "@/types/user.type";
 export const useChatStore = defineStore('chat', () => {
 
     const chats: Ref<Chat[]> = ref([]);
-    const state = reactive({loading: false, error: false});
+    const state = reactive({ loading: false, error: false });
     const authStore = useAuthStore();
 
     function fetchChats() {
         chats.value = [];
-        return http.get(`/chats`, {headers: { Authorization: `Bearer ${authStore.authentication.token}` }})
+        return http.get(`/chats`, { headers: { Authorization: `Bearer ${authStore.authentication.token}` } })
             .then(response => {
                 state.error = false;
                 response.data.map((chat: Chat) => {
@@ -23,7 +23,7 @@ export const useChatStore = defineStore('chat', () => {
 
                 fetchChatStatusCount();
                 sortChatsByLastMessage();
-                
+
             }).catch(e => {
                 state.error = true;
                 console.log(e);
@@ -35,7 +35,7 @@ export const useChatStore = defineStore('chat', () => {
     function fetchChatStatusCount() {
         chats.value
             .forEach(chat => {
-                http.get(`/chats/${chat.id}/users/status`) 
+                http.get(`/chats/${chat.id}/users/status`)
                     .then(response => {
                         const statusCount: ChatStatusCount = {
                             online: response.data.statusCount.online,
@@ -45,7 +45,7 @@ export const useChatStore = defineStore('chat', () => {
 
                         chat.statusCount = statusCount;
                         if (response.data.receiver) {
-                            chat.receiver = response.data.receiver; 
+                            chat.receiver = response.data.receiver;
                         }
                     })
             });
@@ -62,19 +62,27 @@ export const useChatStore = defineStore('chat', () => {
         chats.value = chats.value.sort((a: Chat, b: Chat) => {
             return new Date(b.lastMessage.timestamp).getTime() - new Date(a.lastMessage.timestamp).getTime();
         });
-    } 
+    }
 
     function isReceiverOnline(chat: Chat) {
         if (chat.receiver) {
             return chat.receiver.status === UserStatus.Online;
-
         }
     }
 
     function isGroupChat(chat: Chat) {
         return chat.type === ChatType.Group;
-    } 
+    }
 
 
-    return { chats, state, fetchChats, fetchChatStatusCount, updateLastMessage, sortChatsByLastMessage, isReceiverOnline, isGroupChat }
+    return { 
+        chats, 
+        state, 
+        fetchChats, 
+        fetchChatStatusCount, 
+        updateLastMessage, 
+        sortChatsByLastMessage, 
+        isReceiverOnline, 
+        isGroupChat, 
+    }
 });

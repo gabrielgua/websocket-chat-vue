@@ -3,6 +3,7 @@ import { emitter } from '@/services/mitt';
 import { useAuthStore } from '@/stores/auth.store';
 import { useChatStore } from '@/stores/chat.store';
 import { useMessageStore } from '@/stores/message.store';
+import { useNotificationStore } from '@/stores/notification.store';
 import { useStompStore } from '@/stores/stomp.store';
 import { ChatType, type Chat } from '@/types/chat.type';
 import type { Message } from '@/types/message.type';
@@ -20,6 +21,7 @@ const authStore = useAuthStore();
 const chatStore = useChatStore();
 const stompStore = useStompStore();
 const messageStore = useMessageStore();
+const notificationStore = useNotificationStore();
 
 const currentChat = computed(() => props.chat);
 const chatbox = ref({} as HTMLElement);
@@ -56,9 +58,8 @@ function sendMessage() {
         content: message.value.trim(),
     };
 
-    stompStore.send(`/app/chats/${currentChat.value.id}.sendMessage`, chatMessage);
+    stompStore.send(`/app/chats/${chatMessage.chatId}.sendMessage`, chatMessage);
     message.value = '';
-
 }
 
 function formatTimestamp(timestamp: Date) {
@@ -116,7 +117,7 @@ function showMessageHeader(message: Message, index: number) {
 </script>
 
 <template>
-    <span class="bg-slate-800 m-4 ms-0 rounded-xl overflow-hidden grid place-items-center" v-if="!showChat()">Welcome, star chatting now!</span>
+    <span class="m-4 grid place-items-center" v-if="!showChat()">Welcome, star chatting now!</span>
     <div class="bg-slate-800 m-4 ms-0 rounded-xl overflow-hidden flex flex-col" v-else>
         <div class="flex items-center gap-4 p-4 bg-slate-800 rounded-lg shadow-2xl">
             <div class="relative bg-slate-900 ring-slate-500 ring-opacity-20 w-12 grid place-items-center rounded-full aspect-square">

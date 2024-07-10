@@ -19,5 +19,6 @@ export interface Chat {
     created_at: Date,
     statusCount: ChatStatusCount
     lastMessage: Message
-    receiver?: User
+    receiver?: User,
+    notifications: number
 }

@@ -1,6 +1,5 @@
 export interface Notification {
-    chat: string,
-    show: boolean,
+    id: number,
+    chatId: string,
     count: number,
-    timestamp: Date,
 }

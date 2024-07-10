@@ -1,29 +1,30 @@
 import { defineStore } from "pinia";
 import { ref, type Ref } from "vue";
 import type { Notification } from "@/types/notification.type";
+import { useChatStore } from "./chat.store";
 
 export const useNotificationStore = defineStore('notification', () => {
 
-    const notifications: Ref<Notification[]> = ref([]);
+    // const notifications: Ref<Notification[]> = ref([]);
+    const chatStore = useChatStore();
 
-    function reset() {
-        notifications.value = [];
-    }
-
-    function add(chat: string) {
-        const notification = notifications.value.find(n => n.chat === chat);
-        if (notification) {
-            notification.count += 1;
-            notification.timestamp = new Date();
-            return;
+    function notify(chatId: string) {
+        const chat = chatStore.chats.find(c => c.id === chatId);
+        if (chat) {
+            chat.notifications += 1;
         }
-
-        notifications.value.push({chat: chat, show: true, count: 1, timestamp: new Date()} as Notification);
     }
     
-    function read(chat: string) {
-        notifications.value = notifications.value.filter(n => n.chat != chat);
+    function read(chatId: string) {
+        const chat = chatStore.chats.find(c => c.id === chatId);
+        if (chat) {
+            chat.notifications = 0;
+        }
     }
 
-    return { notifications, reset, read, add }
+    function saveNotification() {
+        
+    }
+
+    return { notify, read }
 })
