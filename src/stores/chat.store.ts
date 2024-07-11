@@ -32,6 +32,10 @@ export const useChatStore = defineStore('chat', () => {
             });
     }
 
+    function find(chatId: string) {
+        return chats.value.find(chat => chat.id === chatId);
+    }
+
     function fetchChatStatusCount() {
         chats.value
             .forEach(chat => {
@@ -84,5 +88,6 @@ export const useChatStore = defineStore('chat', () => {
         sortChatsByLastMessage, 
         isReceiverOnline, 
         isGroupChat, 
+        find,
     }
 });

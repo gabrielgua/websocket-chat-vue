@@ -3,7 +3,6 @@ import { emitter } from '@/services/mitt';
 import { useAuthStore } from '@/stores/auth.store';
 import { useChatStore } from '@/stores/chat.store';
 import { useMessageStore } from '@/stores/message.store';
-import { useNotificationStore } from '@/stores/notification.store';
 import { useStompStore } from '@/stores/stomp.store';
 import { ChatType, type Chat } from '@/types/chat.type';
 import type { Message } from '@/types/message.type';
@@ -21,7 +20,6 @@ const authStore = useAuthStore();
 const chatStore = useChatStore();
 const stompStore = useStompStore();
 const messageStore = useMessageStore();
-const notificationStore = useNotificationStore();
 
 const currentChat = computed(() => props.chat);
 const chatbox = ref({} as HTMLElement);
@@ -52,13 +50,13 @@ function scrollToBottom(behavior: ScrollBehavior) {
 }
 
 function sendMessage() {
-    const chatMessage = {
+    const messageRequest = {
         senderId: authStore.authentication.userId,
         chatId: currentChat.value.id,
         content: message.value.trim(),
     };
 
-    stompStore.send(`/app/chats/${chatMessage.chatId}.sendMessage`, chatMessage);
+    stompStore.send(`/app/chats/${messageRequest.chatId}.sendMessage`, messageRequest);
     message.value = '';
 }
 

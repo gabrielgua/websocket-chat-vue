@@ -4,11 +4,13 @@ import Stomp from 'stompjs';
 import { reactive, ref, type Ref } from "vue";
 import { useChatStore } from "./chat.store";
 import { useAuthStore } from "./auth.store";
+import { useUnreadStore } from "./unread.store";
 
 export const useStompStore = defineStore('stomp', () => {
 
     const chatStore = useChatStore();
     const authStore = useAuthStore();
+    const unreadStore = useUnreadStore();
     const state = reactive({loading: false, error: false});
     const subscriptions: Ref<Stomp.Subscription[]> = ref([]);
     let stomp = Stomp.client('');
@@ -21,8 +23,6 @@ export const useStompStore = defineStore('stomp', () => {
     function onError() { console.log('error connecting to websocket server') }
 
     function onConnected() {
-        
-        
         if (!subscriptions.value.length) {
             console.log('user connected');
 
@@ -30,10 +30,12 @@ export const useStompStore = defineStore('stomp', () => {
             subscribePublicNotifications();
             
             chatStore.fetchChats()
-                .then(() => subscribeAll())
+                .then(() => {
+                    subscribeAll()
+                    unreadStore.fetch();
+                })
                 .finally(() => state.loading = false);
 
-            
         }
 
         

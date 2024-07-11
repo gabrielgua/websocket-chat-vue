@@ -3,12 +3,11 @@ import ChatComponent from '@/components/Chat.vue';
 import { emitter } from '@/services/mitt';
 import { useAuthStore } from '@/stores/auth.store';
 import { useChatStore } from '@/stores/chat.store';
-import { useNotificationStore } from '@/stores/notification.store';
+import { useUnreadStore } from '@/stores/unread.store';
 import { useStompStore } from '@/stores/stomp.store';
 import { ChatType, type Chat } from '@/types/chat.type';
 import type { Message } from '@/types/message.type';
-import { log } from 'console';
-import { format, formatRelative } from 'date-fns';
+import { formatRelative } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { onMounted, reactive, ref } from 'vue';
 
@@ -16,7 +15,7 @@ import { onMounted, reactive, ref } from 'vue';
     const chatStore = useChatStore();
     const authStore = useAuthStore();
     const stompStore = useStompStore();
-    const notificationStore = useNotificationStore();
+    const unreadStore = useUnreadStore();
 
     const currentChat = ref({
         id: '0'
@@ -25,7 +24,7 @@ import { onMounted, reactive, ref } from 'vue';
 
     function openChat(chat: Chat) {
         currentChat.value = chat;
-        notificationStore.read(chat.id);
+        unreadStore.read(chat);
     }
 
     onMounted(() => {
@@ -50,7 +49,10 @@ import { onMounted, reactive, ref } from 'vue';
         chatStore.updateLastMessage(message);
 
         if (currentChat.value.id != message.chat) {
-            notificationStore.notify(message.chat);
+
+            console.log('message received on different chat');
+            
+            unreadStore.add(message);
         }
 
         chatStore.sortChatsByLastMessage();
