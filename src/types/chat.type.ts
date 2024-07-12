@@ -12,6 +12,7 @@ export enum ChatFilter {
     group = "GROUP"
 }
 
+
 export interface ChatStatusCount {
     online: number,
     offline: number,
@@ -27,4 +28,10 @@ export interface Chat {
     lastMessage: Message
     receiver?: User,
     notifications: number
+}
+
+export interface ChatShort {
+    id: string,
+    statusCount: ChatStatusCount,
+    receiver?: User
 }

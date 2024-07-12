@@ -3,7 +3,7 @@ import { useChatStore } from '@/stores/chat.store';
 import { ChatFilter, ChatType, type Chat } from '@/types/chat.type';
 import type { Message } from '@/types/message.type';
 import { useMessageStore } from '@/stores/message.store';
-import { formatRelative } from 'date-fns';
+import { format, formatRelative, isSameWeek, isToday, isYesterday } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useUnreadStore } from '@/stores/unread.store';
 import { emitter } from '@/services/mitt';
@@ -35,6 +35,15 @@ function changeCurrent(chat: Chat) {
     if (chat.notifications > 0) {
         unreadStore.read(chat);
     }
+}
+
+function formatTimestamp(timestamp: Date) {
+    let date = "PP"
+    if (isToday(timestamp)) date = "HH:mm";
+    else if (isYesterday(timestamp)) date = "'Ontem'";
+    else if (isSameWeek(timestamp, new Date())) date = "EEEE' às 'HH:mm";
+
+    return format(timestamp, date, { locale: ptBR });
 }
 
 emitter.on('message', handleOnMessage);
@@ -82,12 +91,10 @@ function handleOnMessage(body: string) {
 
             <div class="ms-auto text-sm text-slate-400 min-w-max h-full">
                 <div class="flex flex-col h-full items-end">
-                    <p class="text-[11px] mb-auto">{{ formatRelative(chat.lastMessage.timestamp, new Date(),
-                        { locale: ptBR }) }}</p>
+                    <p class="text-[11px] mb-auto" :class="{'text-sky-400': chat.notifications > 0}">{{ formatTimestamp(chat.lastMessage.timestamp) }}</p>
                     <div class="text-right flex items-center gap-3 ">
                         <Transition name="chat-notification">
-                            <p class="rounded-full grid place-items-center w-5 bg-sky-600 aspect-square text-white font-semibold"
-                                v-if="chat.notifications > 0">{{ chat.notifications }}</p>
+                            <p class="rounded-full grid place-items-center w-5 bg-sky-600 aspect-square text-white font-semibold"v-if="chat.notifications > 0">{{ chat.notifications }}</p>
                         </Transition>
                     </div>
                 </div>

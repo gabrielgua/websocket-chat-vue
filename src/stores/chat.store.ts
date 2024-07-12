@@ -1,5 +1,5 @@
 import { http } from "@/services/http";
-import { ChatType, type Chat, type ChatStatusCount } from "@/types/chat.type";
+import { ChatType, type Chat, type ChatShort, type ChatStatusCount } from "@/types/chat.type";
 import type { Message } from "@/types/message.type";
 import { defineStore } from "pinia";
 import { reactive, ref, type Ref } from "vue";
@@ -16,16 +16,13 @@ export const useChatStore = defineStore('chat', () => {
     function fetchChats() {
         state.loading = true;
         chats.value = [];
-        return http.get(`/chats`, { headers: { Authorization: `Bearer ${authStore.authentication.token}` } })
+        return http.get(`/chats`)
             .then(response => {
                 state.error = false;
                 response.data.map((chat: Chat) => {
                     chats.value.push(chat);
                 })
-
-                fetchChatStatusCount();
                 sortChatsByLastMessage();
-
             }).catch(e => {
                 state.error = true;
                 console.log(e);
@@ -47,22 +44,24 @@ export const useChatStore = defineStore('chat', () => {
     }
 
     function fetchChatStatusCount() {
-        chats.value
-            .forEach(chat => {
-                http.get(`/chats/${chat.id}/users/status`)
-                    .then(response => {
-                        const statusCount: ChatStatusCount = {
-                            online: response.data.statusCount.online,
-                            members: response.data.statusCount.members,
-                            offline: response.data.statusCount.offline
-                        }
-
-                        chat.statusCount = statusCount;
-                        if (response.data.receiver) {
-                            chat.receiver = response.data.receiver;
-                        }
-                    })
+        http.get(`/chats/status`).then(response => {
+            
+            response.data.map((short: ChatShort) => {
+                
+                const chat = find(short.id);
+                const index = chats.value.findIndex(c => c.id === short.id);
+                if (chat && index != -1) {
+                    if (chat.type === ChatType.private) {
+                        chat.receiver = short.receiver;
+                        return;
+                    } 
+                    
+                    chat.statusCount.online = short.statusCount.online;
+                    chat.statusCount.members = short.statusCount.members;
+                    chat.statusCount.offline = short.statusCount.offline;
+                }
             });
+        })
     }
 
     function updateLastMessage(message: Message) {

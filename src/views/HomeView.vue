@@ -5,6 +5,7 @@ import Header from '@/components/Header.vue';
 import { emitter } from '@/services/mitt';
 import { useChatStore } from '@/stores/chat.store';
 import { ChatFilter, ChatType, type Chat } from '@/types/chat.type';
+import type { Message } from '@/types/message.type';
 import { computed, onMounted, ref, type ComputedRef } from 'vue';
 
 
