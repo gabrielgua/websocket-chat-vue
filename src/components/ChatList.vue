@@ -1,56 +1,55 @@
 <script setup lang="ts">
-    import { useChatStore } from '@/stores/chat.store';
-    import { ChatType, type Chat } from '@/types/chat.type';
-    import type { Message } from '@/types/message.type';
-    import { useMessageStore } from '@/stores/message.store';
-    import { formatRelative } from 'date-fns';
-    import { ptBR } from 'date-fns/locale';
+import { useChatStore } from '@/stores/chat.store';
+import { ChatFilter, ChatType, type Chat } from '@/types/chat.type';
+import type { Message } from '@/types/message.type';
+import { useMessageStore } from '@/stores/message.store';
+import { formatRelative } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 import { useUnreadStore } from '@/stores/unread.store';
 import { emitter } from '@/services/mitt';
 
-    const props = defineProps<{
-        chats: Chat[]
-    }>();
+defineProps<{
+    chats: Chat[]
+}>();
 
 
-    // const chats: Chat[] = [];
-    const chatStore = useChatStore();
-    const messageStore = useMessageStore();
-    const unreadStore = useUnreadStore();
+const chatStore = useChatStore();
+const messageStore = useMessageStore();
+const unreadStore = useUnreadStore();
 
-    function isCurrent(chat: Chat): boolean {
-        return chatStore.current.id === chat.id;
+function isCurrent(chat: Chat): boolean {
+    return chatStore.current.id === chat.id;
+}
+
+function isGroup(chat: Chat) {
+    return chat.type === ChatType.group;
+}
+
+function isSender(message: Message) {
+    return messageStore.isSender(message);
+}
+
+function changeCurrent(chat: Chat) {
+    chatStore.changeCurrent(chat);
+
+    if (chat.notifications > 0) {
+        unreadStore.read(chat);
     }
+}
 
-    function isGroup(chat: Chat) {
-        return chat.type === ChatType.Group;
+emitter.on('message', handleOnMessage);
+
+
+function handleOnMessage(body: string) {
+    const message: Message = JSON.parse(body);
+
+    chatStore.updateLastMessage(message);
+    chatStore.sortChatsByLastMessage();
+
+    if (chatStore.current.id != message.chat) {
+        unreadStore.add(message);
     }
-
-    function isSender(message: Message) {
-        return messageStore.isSender(message);
-    }
-
-    function changeCurrent(chat: Chat) {
-        chatStore.changeCurrent(chat);
-
-        if (chat.notifications > 0) {
-            unreadStore.read(chat);
-        }
-    } 
-
-    emitter.on('message', handleOnMessage);
-
-
-    function handleOnMessage(body: string) {
-        const message: Message = JSON.parse(body);
-        
-        chatStore.updateLastMessage(message);
-        chatStore.sortChatsByLastMessage();
-
-        if (chatStore.current.id != message.chat) {
-            unreadStore.add(message);
-        }
-    }
+}
 
 </script>
 
@@ -66,7 +65,8 @@ import { emitter } from '@/services/mitt';
                 <fa-icon icon="fa-solid fa-user" class="block" v-else />
 
                 <div class="absolute top-1 right-1 grid place-items-center" v-if="!isGroup(chat)">
-                    <span :class="[chatStore.isReceiverOnline(chat) ? 'bg-emerald-500' : 'bg-slate-600',isCurrent(chat) ? 'outline-slate-800' : 'outline-slate-900']"
+                    <span
+                        :class="[chatStore.isReceiverOnline(chat) ? 'bg-emerald-500' : 'bg-slate-600', isCurrent(chat) ? 'outline-slate-800' : 'outline-slate-900']"
                         class="rounded-full w-2 aspect-square outline outline-4 group-hover:outline-slate-800"></span>
                 </div>
             </div>
@@ -74,7 +74,8 @@ import { emitter } from '@/services/mitt';
             <div class="flex flex-col truncate flex-grow items-start gap-1">
                 <p class="font-bold">{{ chat.name }}</p>
                 <p class="text-xs text-slate-400 truncate max-w-full">
-                    <span class="font-semibold" v-if="chat.type === ChatType.Group">{{ isSender(chat.lastMessage) ? 'You' : chat.lastMessage.sender }}: </span>
+                    <span class="font-semibold" v-if="chat.type === ChatType.group">{{ isSender(chat.lastMessage) ?
+                        'You' : chat.lastMessage.sender }}: </span>
                     {{ chat.lastMessage.content }}
                 </p>
             </div>
@@ -98,27 +99,27 @@ import { emitter } from '@/services/mitt';
 
 
 <style scoped>
-    .chat-list-enter-active,
-    .chat-list-leave-active {
-        transition: all 0.25s ease;
-    }
+.chat-list-enter-active,
+.chat-list-leave-active {
+    transition: all 0.25s ease;
+}
 
-    .chat-list-enter-from,
-    .chat-list-leave-to {
-        opacity: 0;
-        scale: .9;
-    }
+.chat-list-enter-from,
+.chat-list-leave-to {
+    opacity: 0;
+    scale: .9;
+}
 
-    .chat-notification-enter-active,
-    .chat-notification-leave-active {
-        transition:
-            opacity 100ms ease,
-            scale 100ms ease;
-    }
+.chat-notification-enter-active,
+.chat-notification-leave-active {
+    transition:
+        opacity 100ms ease,
+        scale 100ms ease;
+}
 
-    .chat-notification-enter-from,
-    .chat-notification-leave-to {
-        scale: .8;
-        opacity: 0;
-    }
+.chat-notification-enter-from,
+.chat-notification-leave-to {
+    scale: .8;
+    opacity: 0;
+}
 </style>

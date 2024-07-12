@@ -76,7 +76,7 @@ function isMessageSender(sender: string) {
 }
 
 function isGroupChat() {
-    return current.value.type === ChatType.Group;
+    return current.value.type === ChatType.group;
 }
 
 function showChat() {

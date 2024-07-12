@@ -2,8 +2,14 @@ import type { Message } from "./message.type";
 import type { User } from "./user.type";
 
 export enum ChatType {
-    Private = "PRIVATE", 
-    Group = "GROUP"  
+    private = "PRIVATE", 
+    group = "GROUP"  
+}
+
+export enum ChatFilter {
+    all = "ALL",
+    private = "PRIVATE",
+    group = "GROUP"
 }
 
 export interface ChatStatusCount {

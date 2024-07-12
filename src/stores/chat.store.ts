@@ -85,7 +85,7 @@ export const useChatStore = defineStore('chat', () => {
     }
 
     function isGroupChat(chat: Chat) {
-        return chat.type === ChatType.Group;
+        return chat.type === ChatType.group;
     }
 
 

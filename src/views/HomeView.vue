@@ -4,20 +4,37 @@ import ChatList from '@/components/ChatList.vue';
 import Header from '@/components/Header.vue';
 import { emitter } from '@/services/mitt';
 import { useChatStore } from '@/stores/chat.store';
-import { type Chat } from '@/types/chat.type';
-import { computed, ref, type ComputedRef } from 'vue';
+import { ChatFilter, ChatType, type Chat } from '@/types/chat.type';
+import { computed, onMounted, ref, type ComputedRef } from 'vue';
 
 
 const chatStore = useChatStore();
 const chatSearch = ref('');
+const chatFilter = ref<ChatFilter>(ChatFilter.all);
 
 const filteredChats: ComputedRef<Chat[]> = computed(() => {
-    return chatStore.chats.filter(chat => {
-        return chat.name.toLowerCase().includes(chatSearch.value.trim().toLowerCase());
-    });
+    function filter(chat: Chat) {
+        const includesTerm = chat.name.toLowerCase().includes(chatSearch.value.trim().toLowerCase());
+        if (chatFilter.value != ChatFilter.all) {
+            return includesTerm && chat.type.valueOf() === chatFilter.value?.valueOf();
+        }
+
+        return includesTerm;
+    }
+
+    return chatStore.chats.filter(chat => filter(chat));
 })
 
 emitter.on('statusNotification', chatStore.fetchChatStatusCount);
+
+
+function changeFilter(filter: ChatFilter) {
+    chatFilter.value = filter;
+}
+
+function isFilter(filter: ChatFilter) {
+    return chatFilter.value === filter;
+}
 
 </script>
 
@@ -41,20 +58,24 @@ emitter.on('statusNotification', chatStore.fetchChatStatusCount);
                         placeholder="Search chats" type="text">
                 </div>
 
-                <div class="grid grid-cols-3 mt-2 gap-4">
-                    <button
-                        class="flex items-center gap-2 justify-center bg-slate-800 py-1 rounded-xl hover:bg-slate-700 transition-all">
-                        <fa-icon icon="fa-solid fa-comment" class="text-sm text-slate-500"></fa-icon>
+                <div class="grid grid-cols-3 mt-2">
+                    <button @click="changeFilter(ChatFilter.all)"
+                        class="flex items-center gap-2 justify-center py-1 rounded-2xl hover:bg-slate-800 transition-all"
+                        :class="{'bg-sky-900 hover:bg-sky-900': isFilter(ChatFilter.all)}"
+                        >
+                        <fa-icon icon="fa-solid fa-comment" class="text-sm text-sky-600"></fa-icon>
                         <p class="text-sm">All</p>
                     </button>
-                    <button
-                        class="flex items-center gap-2 justify-center bg-slate-800 py-1 rounded-xl hover:bg-slate-700 transition-all">
-                        <fa-icon icon="fa-solid fa-user" class="text-sm text-slate-500"></fa-icon>
+                    <button @click="changeFilter(ChatFilter.private)"
+                        :class="{'bg-sky-900 hover:bg-sky-900': isFilter(ChatFilter.private)}"
+                        class="flex items-center gap-2 justify-center py-1 rounded-2xl hover:bg-slate-800 transition-all">
+                        <fa-icon icon="fa-solid fa-user" class="text-sm text-sky-600"></fa-icon>
                         <p class="text-sm">Private</p>
                     </button>
-                    <button
-                        class="flex items-center gap-2 justify-center bg-slate-800 py-1 rounded-xl hover:bg-slate-700 transition-all">
-                        <fa-icon icon="fa-solid fa-users" class="text-sm text-slate-500"></fa-icon>
+                    <button @click="changeFilter(ChatFilter.group)"
+                        :class="{'bg-sky-900 hover:bg-sky-900': isFilter(ChatFilter.group)}"
+                        class="flex items-center gap-2 justify-center py-1 rounded-2xl hover:bg-slate-800 transition-all">
+                        <fa-icon icon="fa-solid fa-users" class="text-sm text-sky-600"></fa-icon>
                         <p class="text-sm">Group</p>
                     </button>
                 </div>
