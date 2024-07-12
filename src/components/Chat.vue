@@ -11,9 +11,9 @@ import { format, isSameDay, isToday, isYesterday } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { computed, onMounted, onUpdated, ref, watch } from 'vue';
 
-const props = defineProps<{
-    chat: Chat,
-}>();
+// const props = defineProps<{
+//     chat: Chat,
+// }>();
 
 const message = ref('');
 const authStore = useAuthStore();
@@ -21,19 +21,19 @@ const chatStore = useChatStore();
 const stompStore = useStompStore();
 const messageStore = useMessageStore();
 
-const currentChat = computed(() => props.chat);
+const current = computed(() => chatStore.current);
 const chatbox = ref({} as HTMLElement);
 
 function handleMessageReceived(body: string) {
     const message: Message = JSON.parse(body);
 
-    if (message.chat === currentChat.value.id) {
+    if (message.chat === current.value.id) {
         messageStore.add(message);
     }
 }
 
 onMounted(() => {
-    watch(currentChat, (newChat) => {
+    watch(current, (newChat) => {
         messageStore.fetchMessages(newChat.id)
             .then(() => scrollToBottom('instant'));
 
@@ -52,7 +52,7 @@ function scrollToBottom(behavior: ScrollBehavior) {
 function sendMessage() {
     const messageRequest = {
         senderId: authStore.authentication.userId,
-        chatId: currentChat.value.id,
+        chatId: current.value.id,
         content: message.value.trim(),
     };
 
@@ -76,11 +76,11 @@ function isMessageSender(sender: string) {
 }
 
 function isGroupChat() {
-    return currentChat.value.type === ChatType.Group;
+    return current.value.type === ChatType.Group;
 }
 
 function showChat() {
-    return currentChat.value.id != '0';
+    return !chatStore.currentIsEmpty();
 }
 
 function sameDay(current: Message, index: number) {
@@ -124,21 +124,21 @@ function showMessageHeader(message: Message, index: number) {
 
                 <div class="absolute top-1 right-1 grid place-items-center" v-if="!isGroupChat()">
                     <span 
-                    :class="[chatStore.isReceiverOnline(chat) ? 'bg-emerald-500' : 'bg-slate-600']"
+                    :class="[chatStore.isReceiverOnline(current) ? 'bg-emerald-500' : 'bg-slate-600']"
                     class="rounded-full w-2 aspect-square outline outline-4 outline-slate-800"></span>
                 </div>
             </div>
             <div class="transition-all">
-                <p class="font-bold">{{ currentChat.name }}</p>
+                <p class="font-bold">{{ current.name }}</p>
                 <div class="text-xs text-slate-400">
-                    <div v-if="chatStore.isGroupChat(chat)" class="flex items-center">
-                        <p class="">{{ currentChat.statusCount.members }} members - </p>
+                    <div v-if="chatStore.isGroupChat(current)" class="flex items-center">
+                        <p class="">{{ current.statusCount.members }} members - </p>
                         <span class="w-2 flex aspect-square rounded-full mx-1 bg-green-600"></span>
-                        <p>{{ currentChat.statusCount.online }} online</p>
+                        <p>{{ current.statusCount.online }} online</p>
                     </div>
                         <div v-else>
                             <Transition name="online">
-                                <p v-if="chatStore.isReceiverOnline(chat)">online</p>
+                                <p v-if="chatStore.isReceiverOnline(current)">online</p>
                             </Transition>
                         </div>
                 </div>

@@ -9,10 +9,12 @@ import { UserStatus, type User } from "@/types/user.type";
 export const useChatStore = defineStore('chat', () => {
 
     const chats: Ref<Chat[]> = ref([]);
+    const current: Ref<Chat> = ref<Chat>({} as Chat);
     const state = reactive({ loading: false, error: false });
     const authStore = useAuthStore();
 
     function fetchChats() {
+        state.loading = true;
         chats.value = [];
         return http.get(`/chats`, { headers: { Authorization: `Bearer ${authStore.authentication.token}` } })
             .then(response => {
@@ -30,6 +32,14 @@ export const useChatStore = defineStore('chat', () => {
             }).finally(() => {
                 state.loading = false;
             });
+    }
+
+    function changeCurrent(chat: Chat) {
+        current.value = chat;
+    }
+
+    function currentIsEmpty() {
+        return Object.keys(current.value).length === 0;
     }
 
     function find(chatId: string) {
@@ -81,6 +91,8 @@ export const useChatStore = defineStore('chat', () => {
 
     return { 
         chats, 
+        current,
+        changeCurrent,
         state, 
         fetchChats, 
         fetchChatStatusCount, 
@@ -89,5 +101,6 @@ export const useChatStore = defineStore('chat', () => {
         isReceiverOnline, 
         isGroupChat, 
         find,
+        currentIsEmpty
     }
 });
