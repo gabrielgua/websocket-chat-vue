@@ -5,6 +5,7 @@ export enum UserStatus {
 
 export interface User {
     id: number,
+    name: string,
     username: string,
-    status: UserStatus
+    status: UserStatus,
 }

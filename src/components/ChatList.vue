@@ -1,12 +1,13 @@
 <script setup lang="ts">
-import { useChatStore } from '@/stores/chat.store';
-import { ChatFilter, ChatType, type Chat } from '@/types/chat.type';
-import type { Message } from '@/types/message.type';
-import { useMessageStore } from '@/stores/message.store';
-import { format, formatRelative, isSameWeek, isToday, isYesterday } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
-import { useUnreadStore } from '@/stores/unread.store';
 import { emitter } from '@/services/mitt';
+import { useChatStore } from '@/stores/chat.store';
+import { useMessageStore } from '@/stores/message.store';
+import { useUnreadStore } from '@/stores/unread.store';
+import { ChatType, type Chat } from '@/types/chat.type';
+import type { Message } from '@/types/message.type';
+import { format, isSameWeek, isToday, isYesterday } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
+import ChatIcon from './ChatIcon.vue';
 
 defineProps<{
     chats: Chat[]
@@ -68,7 +69,9 @@ function handleOnMessage(body: string) {
             v-for="chat in chats" :key="chat.id" @click="changeCurrent(chat)"
             :class="{ 'bg-slate-800': isCurrent(chat) }">
 
-            <div class="relative w-12 min-w-12 grid place-items-center rounded-full aspect-square group-hover:bg-slate-900"
+            <ChatIcon :chat="chat"></ChatIcon>
+
+            <!-- <div class="relative w-12 min-w-12 grid place-items-center rounded-full aspect-square group-hover:bg-slate-900"
                 :class="[isCurrent(chat) ? 'bg-slate-900' : 'bg-slate-800']">
                 <fa-icon icon="fa-solid fa-users" class="block" v-if="isGroup(chat)" />
                 <fa-icon icon="fa-solid fa-user" class="block" v-else />
@@ -78,7 +81,9 @@ function handleOnMessage(body: string) {
                         :class="[chatStore.isReceiverOnline(chat) ? 'bg-emerald-500' : 'bg-slate-600', isCurrent(chat) ? 'outline-slate-800' : 'outline-slate-900']"
                         class="rounded-full w-2 aspect-square outline outline-4 group-hover:outline-slate-800"></span>
                 </div>
-            </div>
+            </div> -->
+
+
 
             <div class="flex flex-col truncate flex-grow items-start gap-1">
                 <p class="font-bold">{{ chat.name }}</p>
