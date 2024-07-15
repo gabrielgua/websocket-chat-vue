@@ -11,7 +11,7 @@ import { computed, onMounted, ref, type ComputedRef } from 'vue';
 
 const chatStore = useChatStore();
 const chatSearch = ref('');
-const chatFilter = ref<ChatFilter>(ChatFilter.all);
+const chatFilter = ref(ChatFilter.all);
 
 const filteredChats: ComputedRef<Chat[]> = computed(() => {
     function filter(chat: Chat) {
@@ -37,6 +37,18 @@ function isFilter(filter: ChatFilter) {
     return chatFilter.value === filter;
 }
 
+type Filter = {
+    name: string,
+    type: ChatFilter,
+    icon: string
+}
+
+const filters: Filter[] = [
+    { name: 'All', type: ChatFilter.all, icon: 'fa-comment'},
+    { name: 'Private', type: ChatFilter.private, icon: 'fa-user'},
+    { name: 'Group', type: ChatFilter.group, icon: 'fa-users'}
+] 
+
 </script>
 
 <template>
@@ -60,24 +72,16 @@ function isFilter(filter: ChatFilter) {
                 </div>
 
                 <div class="grid grid-cols-3 mt-2">
-                    <button @click="changeFilter(ChatFilter.all)"
+
+                    
+                    <button 
+                        v-for="filter in filters"
+                        @click="changeFilter(filter.type)"
                         class="flex items-center gap-2 justify-center py-1 rounded-2xl hover:bg-slate-800 transition-all"
-                        :class="{'bg-sky-900 hover:bg-sky-900': isFilter(ChatFilter.all)}"
+                        :class="{'bg-slate-800': isFilter(filter.type)}"
                         >
-                        <fa-icon icon="fa-solid fa-comment" class="text-sm text-sky-600"></fa-icon>
-                        <p class="text-sm">All</p>
-                    </button>
-                    <button @click="changeFilter(ChatFilter.private)"
-                        :class="{'bg-sky-900 hover:bg-sky-900': isFilter(ChatFilter.private)}"
-                        class="flex items-center gap-2 justify-center py-1 rounded-2xl hover:bg-slate-800 transition-all">
-                        <fa-icon icon="fa-solid fa-user" class="text-sm text-sky-600"></fa-icon>
-                        <p class="text-sm">Private</p>
-                    </button>
-                    <button @click="changeFilter(ChatFilter.group)"
-                        :class="{'bg-sky-900 hover:bg-sky-900': isFilter(ChatFilter.group)}"
-                        class="flex items-center gap-2 justify-center py-1 rounded-2xl hover:bg-slate-800 transition-all">
-                        <fa-icon icon="fa-solid fa-users" class="text-sm text-sky-600"></fa-icon>
-                        <p class="text-sm">Group</p>
+                        <fa-icon :icon="'fa-solid ' + filter.icon " class="text-sm text-sky-600"></fa-icon>
+                        <p class="text-sm">{{ filter.name }}</p>
                     </button>
                 </div>
 

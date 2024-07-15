@@ -36,7 +36,6 @@
         class="group-hover:bg-slate-900 relative w-12 min-w-12 grid place-items-center rounded-full aspect-square"
         :class="[isCurrent ? 'bg-slate-900' : 'bg-slate-800']"
     >
-
         <fa-icon icon="fa-solid fa-users" class="block" v-if="isGroup()" />
         <p class="font-medium" v-else>{{ displayPrivateName(chat.receiver!.name) }}</p>
     </div>

@@ -71,20 +71,6 @@ function handleOnMessage(body: string) {
 
             <ChatIcon :chat="chat"></ChatIcon>
 
-            <!-- <div class="relative w-12 min-w-12 grid place-items-center rounded-full aspect-square group-hover:bg-slate-900"
-                :class="[isCurrent(chat) ? 'bg-slate-900' : 'bg-slate-800']">
-                <fa-icon icon="fa-solid fa-users" class="block" v-if="isGroup(chat)" />
-                <fa-icon icon="fa-solid fa-user" class="block" v-else />
-
-                <div class="absolute top-1 right-1 grid place-items-center" v-if="!isGroup(chat)">
-                    <span
-                        :class="[chatStore.isReceiverOnline(chat) ? 'bg-emerald-500' : 'bg-slate-600', isCurrent(chat) ? 'outline-slate-800' : 'outline-slate-900']"
-                        class="rounded-full w-2 aspect-square outline outline-4 group-hover:outline-slate-800"></span>
-                </div>
-            </div> -->
-
-
-
             <div class="flex flex-col truncate flex-grow items-start gap-1">
                 <p class="font-bold">{{ chat.name }}</p>
                 <p class="text-xs text-slate-400 truncate max-w-full">

@@ -9,7 +9,6 @@ import { onMounted } from 'vue';
     onMounted(() => {
         stompStore.connect();
         authStore.checkAuthentication()
-    
     })
 
     emitter.on('connected', () => {
@@ -29,7 +28,7 @@ import { onMounted } from 'vue';
         <fa-icon class="text-2xl" icon="fa-solid fa-comments" />
 
         <div class="ms-auto flex items-center gap-4">
-            <p class="text-sm">{{ authStore.authentication.username }}</p>
+            <p class="text-sm">Hello, {{ authStore.authentication.username }}</p>
             <button @click="authStore.logout" class="hover:*:text-rose-400 ">
                 <fa-icon class="text-slate-500 block transition-all" icon="fa-solid fa-right-from-bracket" />
             </button>
