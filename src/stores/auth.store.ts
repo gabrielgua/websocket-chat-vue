@@ -31,6 +31,8 @@ export const useAuthStore = defineStore('auth', () => {
 
         http.post('/auth/login', {username: username, password: password})
             .then(response => {
+                console.log(response);
+                
                 saveAuthentication(response.data.userId, response.data.username, response.data.token);
                 router.push('/chat');
             }).catch((e: AxiosError) => {

@@ -4,7 +4,7 @@ type Events = {
     message: string,
     connected: string,
     disconnected: string,
-    statusNotification: string,
+    notification: string,
 }
 
 

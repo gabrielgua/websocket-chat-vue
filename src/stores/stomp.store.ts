@@ -1,6 +1,6 @@
 import { emitter } from "@/services/mitt";
 import { defineStore } from "pinia";
-import Stomp from 'stompjs';
+import Stomp, { type Message } from 'stompjs';
 import { reactive, ref, type Ref } from "vue";
 import { useChatStore } from "./chat.store";
 import { useAuthStore } from "./auth.store";
@@ -24,8 +24,6 @@ export const useStompStore = defineStore('stomp', () => {
 
     function onConnected() {
         if (!subscriptions.value.length) {
-            console.log('user connected');
-
             emitter.emit('connected', 'User connected');
             subscribePublicNotifications();
             
@@ -35,18 +33,15 @@ export const useStompStore = defineStore('stomp', () => {
                     unreadStore.fetch();
                 })
                 .finally(() => state.loading = false);
-
         }
+    }
 
-        
-        console.log(subscriptions.value);
-        
+    function handleNotification(message: Message) {
+        emitter.emit('notification', message.body);
     }
 
     function subscribePublicNotifications() {
-        const publicSub = stomp.subscribe('/topic/notifications', (message) => {
-            emitter.emit('statusNotification', message.body);
-        });
+        const publicSub = stomp.subscribe('/topic/notifications', handleNotification);
         subscriptions.value.push(publicSub);
     }
 
@@ -64,8 +59,6 @@ export const useStompStore = defineStore('stomp', () => {
         });
         subscriptions.value = [];
 
-        console.log(subscriptions.value);
-        
     }
 
     function subscribe(chat: string) {

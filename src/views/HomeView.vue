@@ -4,8 +4,8 @@ import ChatList from '@/components/ChatList.vue';
 import Header from '@/components/Header.vue';
 import { emitter } from '@/services/mitt';
 import { useChatStore } from '@/stores/chat.store';
-import { ChatFilter, ChatType, type Chat } from '@/types/chat.type';
-import type { Message } from '@/types/message.type';
+import { useStompStore } from '@/stores/stomp.store';
+import { ChatFilter, type Chat } from '@/types/chat.type';
 import { computed, onMounted, ref, type ComputedRef } from 'vue';
 
 
@@ -26,9 +26,6 @@ const filteredChats: ComputedRef<Chat[]> = computed(() => {
     return chatStore.chats.filter(chat => filter(chat));
 })
 
-emitter.on('statusNotification', chatStore.fetchChatStatusCount);
-
-
 function changeFilter(filter: ChatFilter) {
     chatFilter.value = filter;
 }
@@ -46,12 +43,13 @@ type Filter = {
 const filters: Filter[] = [
     { name: 'All', type: ChatFilter.all, icon: 'fa-comment'},
     { name: 'Private', type: ChatFilter.private, icon: 'fa-user'},
-    { name: 'Group', type: ChatFilter.group, icon: 'fa-users'}
+    { name: 'Group', type: ChatFilter.group, icon: 'fa-user-group'}
 ] 
 
 </script>
 
 <template>
+    
     <div class="antialiased grid md:grid-cols-3 sm:grid-cols-2 content-start bg-slate-900 mx-auto container-width text-white">
         <Header></Header>
 
@@ -80,7 +78,7 @@ const filters: Filter[] = [
                         class="flex items-center gap-2 justify-center py-1 rounded-2xl hover:bg-slate-800 transition-all"
                         :class="{'bg-slate-800': isFilter(filter.type)}"
                         >
-                        <fa-icon :icon="'fa-solid ' + filter.icon " class="text-sm text-sky-600"></fa-icon>
+                        <fa-icon :icon="'fa-solid ' + filter.icon" class="text-sm text-sky-600"></fa-icon>
                         <p class="text-sm">{{ filter.name }}</p>
                     </button>
                 </div>

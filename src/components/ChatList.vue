@@ -48,7 +48,7 @@ function formatTimestamp(timestamp: Date) {
 }
 
 emitter.on('message', handleOnMessage);
-
+emitter.on('notification', chatStore.fetchChatStatusCount);
 
 function handleOnMessage(body: string) {
     const message: Message = JSON.parse(body);
@@ -56,7 +56,7 @@ function handleOnMessage(body: string) {
     chatStore.updateLastMessage(message);
     chatStore.sortChatsByLastMessage();
 
-    if (chatStore.current.id != message.chat) {
+    if (chatStore.current.id != message.chat && !isSender(message)) {
         unreadStore.add(message);
     }
 }

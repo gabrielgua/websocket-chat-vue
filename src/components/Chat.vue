@@ -36,13 +36,13 @@ onMounted(() => {
     watch(current, (newChat) => {
         messageStore.fetchMessages(newChat.id)
             .then(() => scrollToBottom('instant'));
-
     });
 
     emitter.on('message', handleMessageReceived);
+    emitter.on('notification', chatStore.fetchChatStatusCount)
 })
 
-//this will trigger whenever a new message is added to the DOM
+//this will trigger whenever a new message is added
 onUpdated(() => scrollToBottom('smooth'));
 
 function scrollToBottom(behavior: ScrollBehavior) {

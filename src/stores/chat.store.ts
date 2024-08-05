@@ -45,7 +45,7 @@ export const useChatStore = defineStore('chat', () => {
 
     function fetchChatStatusCount() {
         http.get(`/chats/status`).then(response => {
-            
+
             response.data.map((short: ChatShort) => {
                 
                 const chat = find(short.id);

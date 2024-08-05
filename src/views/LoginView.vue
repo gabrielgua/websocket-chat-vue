@@ -1,6 +1,5 @@
 <script setup lang="ts">
     import { useAuthStore } from '@/stores/auth.store';
-    import { useStompStore } from '@/stores/stomp.store';
     import { ref } from 'vue';
 
     const username = ref('');

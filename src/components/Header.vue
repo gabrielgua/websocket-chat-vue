@@ -18,6 +18,7 @@ import { onMounted } from 'vue';
         stompStore.send('/app/user.disconnectUser', { id: authStore.authentication.userId })
     });
 
+
     window.addEventListener('beforeunload', () => {
         stompStore.send('/app/user.disconnectUser', { id: authStore.authentication.userId })
     })
