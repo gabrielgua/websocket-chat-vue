@@ -1,33 +1,49 @@
-# websocket-vue
+# websocket-chat
+# ![WebSocket Chat](websocket-chat.png)
 
-This template should help get you started developing with Vue 3 in Vite.
+> Image representing separate clients communicating using the project.
 
-## Recommended IDE Setup
+# How it works
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+> The application uses Spring Boot 3, Java 21 and WebSockets for all its backend architecture, and Vue 3 with tailwind CSS for UI and frontend logic.
 
-## Type Support for `.vue` Imports in TS
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
+### Back-End
+Here's the functionalities of the backend API:
 
-## Customize configuration
+- [X] __User Authentication via JWT:__ It lets users sign in securely using JSON Web Tokens (JWT).
+- [X] __Realtime message sending__: Instantly relays messages to recipients via WebSocket connections and stores them in the database for future retrieval and access.
+- [X] __User status monitoring__: Tracks user connections and disconnections in real-time, updating their online/offline status.
+- [X] __Notification handling__: Sends notifications for new messages to users, regardless of their online status, and stores them in the database if a user is not currently active.
 
-See [Vite Configuration Reference](https://vitejs.dev/config/).
+### Front-End
+Here's the functionalities of the front-end UI:
 
-## Project Setup
+- [X] __Authentication:__ Login and register page.
+- [X] __Realtime message sending__: Displays incoming messages in real-time as they arrive.
+- [X] __Filter and Search Chats__: Allows users to view conversations by type, such as group chats, private messages, or all chats, for easier organization and navigation.
+- [X] __Chat History__: Loads and displays previous messages when a user opens a chat, allowing them to view the conversation history.
+- [X] __User status monitoring__: Dynamically updates the UI to reflect the user's online/offline status.
+- [X] __Notification handling__: Displays real-time notifications for incoming messages, even if the app is in the background.
 
-```sh
-npm install
-```
+## What's Under the Hood?
+Here's the technologies used for the implementation:
 
-### Compile and Hot-Reload for Development
+ * __Spring Data JPA__ for efficient data management.
+ * __Spring Security__ with __JWT tokens__ for authentication.
+ * __WebSocket__ with __STOMP__ for realtime messaging.
+ * __MySql__ for the database.
+ * __Flyway__ for the database migrations.
+ * __[modelmapper](https://modelmapper.org/)__ for the DTOs.
+ * __Vue 3__ with __Typescript__ for the UI and front-end logic.
+ * __Tailwind CSS__ for styling the components.
 
-```sh
-npm run dev
-```
+## What’s Next?
+Here's some future funcionalities to be implemented: 
+- [ ] __User registration:__ Processes user information, verifies it, and stores it in the database to create a new profile and grant access to the app.
+- [ ] __User Search__: Allows users to find and select contacts by username to start a new conversation or send messages directly.
+- [ ] __Create and Manage Group Chats__: Enables users to start new group chats by selecting participants and naming the group, as well as members.
 
-### Type-Check, Compile and Minify for Production
+# How do i run it?
 
-```sh
-npm run build
-```
+Working on `docker` support.
