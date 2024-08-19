@@ -1,7 +1,6 @@
-# websocket-chat
+# websocket-chat 💬
+This real-time messaging app features instant message sending, and persistent message storage. It supports user presence indicators, chat creation and management (including group chats), and some chat filtering. Users can search for contacts, send messages, and receive notifications, all while enjoying a responsive design with Vue 3, TypeScript, and TailwindCSS. Built with Spring Boot and Java 21, the app ensures real-time updates through WebSockets. The objective of this project was to learn about WebSockets and dive deeper into Vue and TailwindCSS.
 # ![WebSocket Chat](websocket-chat.png)
-
-> Image representing separate clients communicating using the project.
 
 # How it works
 
