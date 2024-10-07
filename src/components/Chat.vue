@@ -203,7 +203,7 @@ function showMessageHeader(message: Message, index: number) {
 <style scoped>
     .message-first-triangle {
         --r: 1px;
-        /*  border radius */
+      /*  border radius */
 
         --mask: conic-gradient(from 157.5deg at 50% calc(var(--r)/(3*sqrt(2) - 4) - 100%/tan(22.5deg)), #000 45deg, #0000 0) 0 0/100% calc(100% - var(--r)/sqrt(2)) no-repeat,
             radial-gradient(var(--r) at 50% calc(100% - var(--r)*sqrt(2)), #000 98%, #0000 101%),
