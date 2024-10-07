@@ -94,7 +94,7 @@ function sameDay(current: Message, index: number) {
 }
 
 function displaySender(sender: string) {
-    return sender === authStore.authentication.username ? 'You' : sender;
+    return sender === authStore.authentication.username ? '' : sender;
 }
 
 function displayFullTimestamp(timestamp: Date) {
@@ -164,12 +164,9 @@ function showMessageHeader(message: Message, index: number) {
                         displayFullTimestamp(message.timestamp) }}</p>
                     <span class="w-full border-b absolute border-slate-700 border-opacity-50"></span>
                 </span>
-                <div class="text-xs font-bold mb-1" v-if="showMessageHeader(message, i)">{{
-                    displaySender(message.sender) }}</div>
-                <div class="flex items-center gap-2" :class="{
-                    'flex-row-reverse': isMessageSender(message.sender)
-                }">
-                    <div class="relative flex items-center justify-between gap-2 rounded-xl"
+                <div class="text-xs font-bold mb-1" v-if="showMessageHeader(message, i)">{{displaySender(message.sender) }}</div>
+                <div class="flex items-center gap-2 w-full" :class="{'flex-row-reverse': isMessageSender(message.sender)}">
+                    <div class="relative flex items-center justify-between gap-2 rounded-xl max-w-[70%]"
                         :class="[isMessageSender(message.sender) ? 'bg-sky-600' : 'bg-slate-900']">
                         <p class="pl-2.5 py-1.5 text-sm" 
                             :class="[isMessageSender(message.sender) ? 'font-medium' : 'font-normal']"
