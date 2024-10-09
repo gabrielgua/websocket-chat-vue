@@ -1,13 +1,12 @@
 <script setup lang="ts">
 import ChatComponent from '@/components/Chat.vue';
+import ChatForm from '@/components/ChatForm.vue';
 import ChatList from '@/components/ChatList.vue';
 import Header from '@/components/Header.vue';
 import Modal from '@/components/Modal.vue';
-import { emitter } from '@/services/mitt';
 import { useChatStore } from '@/stores/chat.store';
-import { useStompStore } from '@/stores/stomp.store';
 import { ChatFilter, type Chat } from '@/types/chat.type';
-import { computed, onMounted, ref, type ComputedRef } from 'vue';
+import { computed, ref, type ComputedRef } from 'vue';
 
 
 const modalActive = ref(false);
@@ -56,11 +55,11 @@ function toggleModal() {
 
 <template>
 
+  <Header></Header>
   <div
     class="antialiased grid md:grid-cols-3 sm:grid-cols-2 content-start bg-slate-900 mx-auto container-width text-white">
-    <Header></Header>
 
-    <div class="flex flex-col w-full">
+    <div class="flex flex-col w-full overflow-auto h-[calc(100dvh-68px)]">
       <div class="p-4 pb-0 flex flex-col gap-2">
 
         <div class="flex items-center justify-between">
@@ -96,8 +95,8 @@ function toggleModal() {
 
     <ChatComponent class="md:col-span-2 sm:col-span-1" />
 
-    <Modal :modalActive="modalActive" @close-modal="toggleModal" title="Create a new chat">
-      
+    <Modal :modal-active="modalActive" @close-modal="toggleModal" title="Create a new chat" :action-buttons="false">
+      <ChatForm />
     </Modal>
   </div>
 </template>
@@ -106,12 +105,9 @@ function toggleModal() {
 .container-width {
   --container-width: 1500px;
   --container-margin: 1rem;
-  --container-height: calc(100dvh - var(--container-margin) * 2);
-
-  margin-block: var(--container-margin);
 
   width: min(var(--container-width), 100%);
-  height: var(--container-height);
+  height: calc(100dvh - 68px);
 }
 
 @media (max-width: 1500px) {

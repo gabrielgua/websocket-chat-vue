@@ -14,10 +14,11 @@ defineEmits(['close-modal', 'confirm'])
   <Teleport to="body">
     <Transition name="outer-modal">
       <div @click.self="$emit('close-modal')" v-show="modalActive"
-        class="absolute z-10 top-0 left-0 bg-black/60 w-full h-full flex flex-col items-center">
+        class="absolute z-10 top-0 left-0 bg-black/60 w-full h-full grid place-items-center">
 
         <Transition name="content-modal">
-          <div v-if="modalActive" class="modal-container bg-slate-900 text-white p-6 shadow-sm rounded-md flex flex-col gap-6 mt-48">
+          <div v-if="modalActive"
+            class="modal-container bg-slate-900 text-white p-6 shadow-sm rounded-md flex flex-col gap-6">
             <div class="relative flex items-center justify-between gap-5">
               <p class="text-lg font-bold mr-auto">{{ title ? title : 'Do you want to confirm the action?' }}</p>
               <button @click="$emit('close-modal')"
@@ -27,13 +28,15 @@ defineEmits(['close-modal', 'confirm'])
             </div>
             <slot />
             <div v-if="actionButtons" class="flex justify-end gap-3">
-              <button class="p-3 px-4 transition-all hover:bg-slate-800 hover:text-red-300 text-sm text-slate-400 rounded-2xl flex gap-2 items-center"
+              <button
+                class="p-3 px-4 transition-all hover:bg-slate-800 hover:text-red-300 text-sm text-slate-400 rounded-2xl flex gap-2 items-center"
                 @click="$emit('close-modal')">
                 <fa-icon icon="fa-solid fa-xmark" />
                 <p>Close</p>
               </button>
 
-              <button class="p-3 px-4 transition-all hover:bg-slate-800 hover:text-emerald-500 text-sm text-slate-400 rounded-2xl flex gap-2 items-center"
+              <button
+                class="p-3 px-4 transition-all hover:bg-slate-800 hover:text-emerald-500 text-sm text-slate-400 rounded-2xl flex gap-2 items-center"
                 @click="$emit('confirm')">
                 <fa-icon icon="fa-solid fa-check" />
                 <p>Confirm</p>
@@ -67,7 +70,7 @@ defineEmits(['close-modal', 'confirm'])
 
 .content-modal-enter-active,
 .content-modal-leave-active {
-  transition: all 300ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transition: all 250ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
   /* cubic-bezier(.47,1.64,.41,.8); */
 }
 
@@ -75,6 +78,4 @@ defineEmits(['close-modal', 'confirm'])
 .content-modal-leave-to {
   scale: .85;
 }
-
-
 </style>
