@@ -4,15 +4,17 @@ import { useAuthStore } from '@/stores/auth.store';
 import { useChatStore } from '@/stores/chat.store';
 import { useMessageStore } from '@/stores/message.store';
 import { useStompStore } from '@/stores/stomp.store';
-import { ChatType } from '@/types/chat.type';
+import { useUserStore } from '@/stores/user.store';
+import { ChatType, type Chat } from '@/types/chat.type';
 import type { Message } from '@/types/message.type';
+import type { User } from '@/types/user.type';
 import { format, isSameDay, isToday, isYesterday } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { computed, onMounted, onUpdated, ref, watch } from 'vue';
-import ChatIcon from './ChatIcon.vue';
+import { computed, onMounted, onUnmounted, onUpdated, ref, watch } from 'vue';
 
 const message = ref('');
 const authStore = useAuthStore();
+const userStore = useUserStore();
 const chatStore = useChatStore();
 const stompStore = useStompStore();
 const messageStore = useMessageStore();
@@ -32,10 +34,15 @@ onMounted(() => {
   watch(current, (newChat) => {
     messageStore.fetchMessages(newChat.id)
       .then(() => scrollToBottom('instant'));
+
   });
 
   emitter.on('message', handleMessageReceived);
   emitter.on('notification', chatStore.fetchChatStatusCount)
+})
+
+onUnmounted(() => {
+  chatStore.reset();
 })
 
 //this will trigger whenever a new message is added
@@ -60,15 +67,15 @@ function formatTimestamp(timestamp: Date) {
   return format(timestamp, "HH:mm");
 }
 
-function isSameSender(sender: string, index: number) {
+function isSameSender(senderId: number, index: number) {
   if (index === 0) {
     return false;
   }
-  return messageStore.messages[index - 1].sender === sender;
+  return messageStore.messages[index - 1].sender.id === senderId;
 }
 
-function isMessageSender(sender: string) {
-  return sender === authStore.authentication.username;
+function isMessageSender(senderId: number) {
+  return senderId === authStore.authentication.userId;
 }
 
 function isGroupChat() {
@@ -83,14 +90,12 @@ function sameDay(current: Message, index: number) {
   if (index === 0) {
     return false;
   }
-
   const previous = messageStore.messages[index - 1];
-
   return isSameDay(previous.timestamp, current.timestamp);
 }
 
-function displaySender(sender: string) {
-  return sender === authStore.authentication.username ? '' : sender;
+function displaySender(username: string) {
+  return username === authStore.authentication.username ? '' : username;
 }
 
 function displayFullTimestamp(timestamp: Date) {
@@ -102,10 +107,19 @@ function displayFullTimestamp(timestamp: Date) {
 }
 
 function showMessageHeader(message: Message, index: number) {
-  const sameSenderDifferentDay = isSameSender(message.sender, index) && !sameDay(message, index);
+  const sameSenderDifferentDay = isSameSender(message.sender.id, index) && !sameDay(message, index);
 
-  return isGroupChat() && (!isSameSender(message.sender, index) || sameSenderDifferentDay);
+  return isGroupChat() && (!isSameSender(message.sender.id, index) || sameSenderDifferentDay);
 }
+
+function getSenderColor(sender: User) {
+  return userStore.getUserColor(sender);
+}
+
+function getAvatarName(sender: User) {
+  return userStore.generateNameAbreviation(sender);
+}
+
 </script>
 
 <template>
@@ -126,7 +140,7 @@ function showMessageHeader(message: Message, index: number) {
         <p class="font-bold">{{ current.name }}</p>
         <div class="text-xs text-slate-400">
           <div v-if="chatStore.isGroupChat(current)" class="flex items-center">
-            <p class="">{{ current.statusCount.members }} members - </p>
+            <p>{{ current.statusCount.members }} members - </p>
             <span class="w-2 flex aspect-square rounded-full mx-1 bg-green-600"></span>
             <p>{{ current.statusCount.online }} online</p>
           </div>
@@ -154,47 +168,50 @@ function showMessageHeader(message: Message, index: number) {
       </div>
 
       <div class="group mt-4 flex flex-col" v-for="(message, i) in messageStore.messages" :key="message.id"
-        :class="{ 'mt-[.125rem]': isSameSender(message.sender, i) }">
+        :class="{ 'mt-[.125rem]': isSameSender(message.sender.id, i) }">
 
         <span class="relative mt-4 mb-5 flex items-center justify-center text-sm w-full" v-if="!sameDay(message, i)">
-          <p class="z-10 bg-slate-800 px-4 text-slate-300 font-light text-xs">{{
-            displayFullTimestamp(message.timestamp) }}</p>
-          <span class="w-full border-b absolute border-slate-700 border-opacity-50"></span>
+          <p class="z-10 bg-slate-900/40 px-2 py-1 text-slate-400 font-light text-xs   rounded">
+            {{ displayFullTimestamp(message.timestamp) }}
+          </p>
+          <!-- <span class="w-full border-b absolute border-slate-700 border-opacity-50"></span> -->
         </span>
 
         <section class="grid"
-          :class="{ 'grid-columns': !isMessageSender(message.sender) && chatStore.current.type === ChatType.group }">
-          <div v-if="!isMessageSender(message.sender)">
-            <span v-if="showMessageHeader(message, i)"
-              class="mt-[1.125rem] grid place-items-center bg-slate-900 w-8 h-8 rounded-full shadow-lg">
-              <p class=" text-[12px] font-bold">OP</p>
-            </span>
+          :class="{ 'grid-columns': !isMessageSender(message.sender.id) && chatStore.current.type === ChatType.group }">
+          <div v-if="!isMessageSender(message.sender.id)">
+            <div v-if="showMessageHeader(message, i)"
+              class="mt-[1.125rem] grid place-items-center w-8 h-8 rounded-full bg-slate-900/60">
+
+              <p class="text-[12px] font-bold" :class="getSenderColor(message.sender)">
+                {{ getAvatarName(message.sender) }}
+              </p>
+            </div>
           </div>
 
           <div>
             <div class="text-xs font-bold mb-1" v-if="showMessageHeader(message, i)">
-              <p>{{ displaySender(message.sender) }}</p>
+              <p :class="getSenderColor(message.sender)">{{ displaySender(message.sender.username) }}</p>
             </div>
-            <div class="flex items-center gap-2" :class="{ 'flex-row-reverse': isMessageSender(message.sender) }">
+            <div class="flex items-center gap-2" :class="{ 'flex-row-reverse': isMessageSender(message.sender.id) }">
               <div class="relative flex items-center justify-between gap-2 rounded-xl max-w-[75%]"
-                :class="[isMessageSender(message.sender) ? 'bg-sky-600' : 'bg-slate-900']">
+                :class="[isMessageSender(message.sender.id) ? 'bg-sky-600' : 'bg-slate-900']">
                 <p class="pl-2.5 py-1.5 text-sm"
-                  :class="[isMessageSender(message.sender) ? 'font-medium' : 'font-normal']">
+                  :class="[isMessageSender(message.sender.id) ? 'font-medium' : 'font-normal']">
                   {{ message.content }}
                 </p>
                 <span class="mb-0.5 mr-1.5 text-xs font-medium self-end"
-                  :class="[isMessageSender(message.sender) ? 'text-sky-400' : 'text-slate-600']">
+                  :class="[isMessageSender(message.sender.id) ? 'text-sky-400' : 'text-slate-600']">
                   {{ formatTimestamp(message.timestamp) }}
                 </span>
                 <span class="absolute top-0 message-first-triangle"
-                  :class="[isMessageSender(message.sender) ? '-right-2 left-auto bg-sky-600' : '-left-2 bg-slate-900']"
-                  :style="{ 'display': isSameSender(message.sender, i) && sameDay(message, i) ? 'none' : 'block' }">
+                  :class="[isMessageSender(message.sender.id) ? '-right-2 left-auto bg-sky-600' : '-left-2 bg-slate-900']"
+                  :style="{ 'display': isSameSender(message.sender.id, i) && sameDay(message, i) ? 'none' : 'block' }">
                 </span>
               </div>
-              <span class="group-hover:block hidden text-xs text-gray-500">{{ format(message.timestamp, "P", {
-                locale: ptBR
-              })
-                }}</span>
+              <span class="group-hover:block hidden text-xs text-gray-500">
+                {{ format(message.timestamp, "P", { locale: ptBR }) }}
+              </span>
             </div>
           </div>
         </section>

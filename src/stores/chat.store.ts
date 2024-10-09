@@ -1,32 +1,14 @@
 import { http } from "@/services/http";
-import {
-  ChatType,
-  type Chat,
-  type ChatShort,
-  type ChatStatusCount,
-} from "@/types/chat.type";
+import { ChatType, type Chat, type ChatShort } from "@/types/chat.type";
 import type { Message } from "@/types/message.type";
+import { UserStatus } from "@/types/user.type";
 import { defineStore } from "pinia";
 import { reactive, ref, type Ref } from "vue";
-import { useAuthStore } from "./auth.store";
-import { UserStatus, type User } from "@/types/user.type";
 
 export const useChatStore = defineStore("chat", () => {
-  const chats: Ref<Chat[]> = ref([]);
-  const current: Ref<Chat> = ref<Chat>({} as Chat);
+  const chats = ref<Chat[]>([]);
+  const current = ref<Chat>({} as Chat);
   const state = reactive({ loading: false, error: false });
-
-  const colors = [
-    "text-sky-600",
-    "text-red-400",
-    "text-pink-400",
-    "text-teal-400",
-    "text-orange-800",
-    "text-yellow-400",
-    "text-emerald-400",
-    "text-violet-800",
-    "text-rose-900",
-  ];
 
   function fetchChats() {
     state.loading = true;
@@ -39,7 +21,6 @@ export const useChatStore = defineStore("chat", () => {
           chats.value.push(chat);
         });
 
-        chats.value.forEach((chat) => generateChatColor(chat));
         sortChatsByLastMessage();
       })
       .catch((e) => {
@@ -53,11 +34,6 @@ export const useChatStore = defineStore("chat", () => {
 
   function changeCurrent(chat: Chat) {
     current.value = chat;
-  }
-
-  function generateChatColor(chat: Chat) {
-    const index = Math.floor(Math.random() * colors.length);
-    chat.color = colors[index];
   }
 
   function currentIsEmpty() {
@@ -113,7 +89,13 @@ export const useChatStore = defineStore("chat", () => {
     return chat.type === ChatType.group;
   }
 
+  function reset() {
+    chats.value = [];
+    current.value = {} as Chat;
+  }
+
   return {
+    reset,
     chats,
     current,
     changeCurrent,

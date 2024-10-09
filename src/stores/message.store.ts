@@ -3,10 +3,12 @@ import type { Message } from "@/types/message.type";
 import { defineStore } from "pinia";
 import { reactive, ref, type Ref } from "vue";
 import { useAuthStore } from "./auth.store";
+import { useUserStore } from "./user.store";
 
 export const useMessageStore = defineStore("message", () => {
   const messages: Ref<Message[]> = ref([]);
   const authStore = useAuthStore();
+  const userStore = useUserStore();
   const state = reactive({ loading: false, error: false });
 
   function reset() {
@@ -28,6 +30,8 @@ export const useMessageStore = defineStore("message", () => {
       .then((response) => {
         response.data.map((message: Message) => {
           messages.value.push(message);
+
+          userStore.setUserColor(message.sender);
         });
       })
       .catch((e) => {
@@ -38,7 +42,7 @@ export const useMessageStore = defineStore("message", () => {
   }
 
   function isSender(message: Message) {
-    return authStore.authentication.username === message.sender;
+    return authStore.authentication.userId === message.sender.id;
   }
 
   return { messages, state, fetchMessages, reset, add, isSender };

@@ -27,7 +27,7 @@ window.addEventListener('beforeunload', () => {
 <template>
   <header class="header-container bg-slate-900 mx-auto col-span-3 p-4 flex items-center gap-4">
     <h1 class="font-bold text-3xl">WebSocket Chat</h1>
-    <fa-icon class="text-2xl" icon="fa-solid fa-comments" />
+    <fa-icon class="text-2xl text-sky-600" icon="fa-solid fa-comments" />
 
     <div class="ms-auto flex items-center gap-4">
       <p class="text-sm">Hello, {{ authStore.authentication.username }}</p>

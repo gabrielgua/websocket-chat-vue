@@ -7,9 +7,15 @@ import { useStompStore } from "./stomp.store";
 import { emitter } from "@/services/mitt";
 import { jwtDecode } from "jwt-decode";
 import { isAfter, isBefore } from "date-fns";
+import { useChatStore } from "./chat.store";
+import { useMessageStore } from "./message.store";
+import { useUserStore } from "./user.store";
 
 export const useAuthStore = defineStore("auth", () => {
   const router = useRouter();
+  const chatStore = useChatStore();
+  const messageStore = useMessageStore();
+  const userStore = useUserStore();
   const stompStore = useStompStore();
 
   type Authentication = {
@@ -55,9 +61,8 @@ export const useAuthStore = defineStore("auth", () => {
   }
 
   function logout() {
-    stompStore.disconnectAndUnsubscribe().then((message) => {
+    stompStore.disconnectAndUnsubscribe().then(() => {
       router.push("/login");
-      console.log(message);
       localStorage.clear();
       clearAuthentication();
       emitter.all.clear();

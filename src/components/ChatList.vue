@@ -3,18 +3,27 @@ import { emitter } from '@/services/mitt';
 import { useChatStore } from '@/stores/chat.store';
 import { useMessageStore } from '@/stores/message.store';
 import { useUnreadStore } from '@/stores/unread.store';
+import { useUserStore } from '@/stores/user.store';
 import { ChatType, type Chat } from '@/types/chat.type';
 import type { Message } from '@/types/message.type';
+import type { User } from '@/types/user.type';
 import { format, isSameWeek, isToday, isYesterday } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { onUnmounted } from 'vue';
 import ChatIcon from './ChatIcon.vue';
 
 defineProps<{
   chats: Chat[]
 }>();
 
+onUnmounted(() => {
+  userStore.reset();
+  messageStore.reset();
+})
+
 
 const chatStore = useChatStore();
+const userStore = useUserStore();
 const messageStore = useMessageStore();
 const unreadStore = useUnreadStore();
 
@@ -27,6 +36,7 @@ function isSender(message: Message) {
 }
 
 function changeCurrent(chat: Chat) {
+
   chatStore.changeCurrent(chat);
 
   if (chat.notifications > 0) {
@@ -70,6 +80,10 @@ function getAvatarName(chat: Chat) {
   return chat.name;
 }
 
+function getUserColor(user: User) {
+  return userStore.getUserColor(user);
+}
+
 </script>
 
 <template>
@@ -77,13 +91,15 @@ function getAvatarName(chat: Chat) {
     <button class="group w-full overflow-x-hidden flex items-center p-3 gap-4 hover:bg-slate-800 transition-all"
       v-for="chat in chats" :key="chat.id" @click="changeCurrent(chat)" :class="{ 'bg-slate-800': isCurrent(chat) }">
 
-      <ChatIcon :is-current="isCurrent(chat)" :name="getAvatarName(chat)" :color="chat.color" />
+      <ChatIcon :is-current="isCurrent(chat)" :name="getAvatarName(chat)"
+        :class="[chat.type === ChatType.private ? getUserColor(chat.receiver!) : 'text-white']" />
 
       <div class="flex flex-col truncate flex-grow items-start gap-1">
         <p class="font-bold">{{ chat.name }}</p>
         <p class="text-xs text-slate-400 truncate max-w-full" v-if="hasLastMessage(chat)">
-          <span class="font-semibold" v-if="chat.type === ChatType.group">{{ isSender(chat.lastMessage) ? 'You' :
-            chat.lastMessage.sender }}: </span>
+          <span class="font-semibold" v-if="chat.type === ChatType.group">
+            {{ isSender(chat.lastMessage) ? 'You' : chat.lastMessage.sender.username }}:
+          </span>
           {{ chat.lastMessage.content }}
         </p>
       </div>
