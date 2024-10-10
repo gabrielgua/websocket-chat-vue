@@ -6,7 +6,6 @@ import { useUnreadStore } from '@/stores/unread.store';
 import { useUserStore } from '@/stores/user.store';
 import { ChatType, type Chat } from '@/types/chat.type';
 import type { Message } from '@/types/message.type';
-import type { User } from '@/types/user.type';
 import { format, isSameWeek, isToday, isYesterday } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { onUnmounted } from 'vue';
@@ -68,31 +67,19 @@ function handleOnMessage(body: string) {
 }
 
 function hasLastMessage(chat: Chat): boolean {
-
   return Object.keys(chat.lastMessage).length > 0;
 }
 
-function getAvatarName(chat: Chat) {
-  if (chat.type === ChatType.private && chat.receiver) {
-    return chat.receiver?.name;
-  }
-
-  return chat.name;
-}
-
-function getUserColor(user: User) {
-  return userStore.getUserColor(user);
-}
 
 </script>
 
 <template>
   <TransitionGroup name="chat-list">
-    <button class="group w-full overflow-x-hidden flex items-center p-3 gap-4 hover:bg-slate-800 transition-all"
-      v-for="chat in chats" :key="chat.id" @click="changeCurrent(chat)" :class="{ 'bg-slate-800': isCurrent(chat) }">
+    <button class="group w-full flex items-center p-3 gap-4 transition-all" v-for="chat in chats" :key="chat.id"
+      @click="changeCurrent(chat)" :class="isCurrent(chat) ? 'bg-slate-800' : 'hover:bg-slate-800/50'">
 
-      <ChatIcon :is-current="isCurrent(chat)" :name="getAvatarName(chat)"
-        :class="[chat.type === ChatType.private ? getUserColor(chat.receiver!) : 'text-white']" />
+      <ChatIcon :chat="chat" />
+
 
       <div class="flex flex-col truncate flex-grow items-start gap-1">
         <p class="font-bold">{{ chat.name }}</p>

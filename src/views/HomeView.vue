@@ -88,8 +88,9 @@ function toggleModal() {
 
       </div>
 
-      <div class="flex flex-col pt-6">
+      <div class="flex flex-col pt-6 overflow-y-auto chat-list">
         <ChatList :chats="filteredChats"></ChatList>
+
       </div>
     </div>
 
@@ -115,5 +116,29 @@ function toggleModal() {
     --container-margin: 0;
     --container-height: 100dvh;
   }
+}
+
+.chat-list:hover ::-webkit-scrollbar-thumb {
+  display: block;
+}
+
+/* width */
+::-webkit-scrollbar {
+  width: .25rem;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: rgb(2 132 199);
+  border-radius: .25rem;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: white;
 }
 </style>

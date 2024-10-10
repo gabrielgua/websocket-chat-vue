@@ -1,21 +1,10 @@
 import { UserStatus, type User } from "@/types/user.type";
+import { getRadomColor } from "@/utils/colors";
 import { defineStore } from "pinia";
 import { ref } from "vue";
 
 export const useUserStore = defineStore("user", () => {
   const users = ref<User[]>([]);
-
-  const colors = [
-    "text-sky-600",
-    "text-red-400",
-    "text-pink-400",
-    "text-teal-400",
-    "text-orange-800",
-    "text-yellow-400",
-    "text-emerald-400",
-    "text-violet-800",
-    "text-rose-900",
-  ];
 
   function setUserColor(user: User) {
     if (users.value.find((u) => u.id === user.id)) {
@@ -35,20 +24,6 @@ export const useUserStore = defineStore("user", () => {
     return users.value[index].color;
   }
 
-  function getRadomColor() {
-    const index = Math.floor(Math.random() * colors.length);
-    return colors[index];
-  }
-
-  function generateNameAbreviation(user: User) {
-    const names = user.name.split(" ");
-    let initials = names[0].substring(0, 1).toUpperCase();
-    if (names.length > 1) {
-      initials += names[names.length - 1].substring(0, 1).toUpperCase();
-    }
-    return initials;
-  }
-
   function isOnline(user: User) {
     return user.status === UserStatus.Online;
   }
@@ -61,7 +36,6 @@ export const useUserStore = defineStore("user", () => {
     users,
     setUserColor,
     getUserColor,
-    generateNameAbreviation,
     isOnline,
     reset,
   };

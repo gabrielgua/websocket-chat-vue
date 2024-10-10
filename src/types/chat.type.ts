@@ -28,6 +28,7 @@ export interface Chat {
   receiver?: User;
   notifications: number;
   color?: string;
+  abreviation?: string;
 }
 
 export interface ChatShort {

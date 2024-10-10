@@ -8,5 +8,6 @@ export interface User {
   name: string;
   username: string;
   status: UserStatus;
+  avatarUrl: string;
   color?: string;
 }

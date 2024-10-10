@@ -11,6 +11,7 @@ import type { User } from '@/types/user.type';
 import { format, isSameDay, isToday, isYesterday } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { computed, onMounted, onUnmounted, onUpdated, ref, watch } from 'vue';
+import ChatIcon from './ChatIcon.vue';
 
 const message = ref('');
 const authStore = useAuthStore();
@@ -113,12 +114,9 @@ function showMessageHeader(message: Message, index: number) {
 }
 
 function getSenderColor(sender: User) {
-  return userStore.getUserColor(sender);
+  return `text-${userStore.getUserColor(sender)}`;
 }
 
-function getAvatarName(sender: User) {
-  return userStore.generateNameAbreviation(sender);
-}
 
 </script>
 
@@ -126,16 +124,8 @@ function getAvatarName(sender: User) {
   <span class="m-4 grid place-items-center" v-if="!showChat()">Welcome, star chatting now!</span>
   <div class=" bg-slate-800 m-4 ms-0 rounded-xl overflow-hidden flex flex-col" v-else>
     <div class="flex items-center gap-4 p-4 bg-slate-800 rounded-lg shadow-2xl">
-      <div
-        class="relative bg-slate-900 ring-slate-500 ring-opacity-20 w-12 grid place-items-center rounded-full aspect-square">
-        <fa-icon icon="fa-solid fa-users" class="block" v-if="isGroupChat()" />
-        <fa-icon icon="fa-solid fa-user" class="block" v-else />
 
-        <div class="absolute top-1 right-1 grid place-items-center" v-if="!isGroupChat()">
-          <span :class="[chatStore.isReceiverOnline(current) ? 'bg-emerald-500' : 'bg-slate-600']"
-            class="rounded-full w-2 aspect-square outline outline-4 outline-slate-800"></span>
-        </div>
-      </div>
+      <ChatIcon :chat="current" :status="true" />
       <div class="transition-all">
         <p class="font-bold">{{ current.name }}</p>
         <div class="text-xs text-slate-400">
@@ -181,11 +171,8 @@ function getAvatarName(sender: User) {
           :class="{ 'grid-columns': !isMessageSender(message.sender.id) && chatStore.current.type === ChatType.group }">
           <div v-if="!isMessageSender(message.sender.id)">
             <div v-if="showMessageHeader(message, i)"
-              class="mt-[1.125rem] grid place-items-center w-8 h-8 rounded-full bg-slate-900/60">
-
-              <p class="text-[12px] font-bold" :class="getSenderColor(message.sender)">
-                {{ getAvatarName(message.sender) }}
-              </p>
+              class="mt-[1.125rem] grid place-items-center w-8 h-8 rounded-full">
+              <img :src="message.sender.avatarUrl">
             </div>
           </div>
 
@@ -194,7 +181,7 @@ function getAvatarName(sender: User) {
               <p :class="getSenderColor(message.sender)">{{ displaySender(message.sender.username) }}</p>
             </div>
             <div class="flex items-center gap-2" :class="{ 'flex-row-reverse': isMessageSender(message.sender.id) }">
-              <div class="relative flex items-center justify-between gap-2 rounded-xl max-w-[75%]"
+              <div class="relative flex items-center justify-between gap-2 rounded-xl md:max-w-[75%] sm:max-w-full"
                 :class="[isMessageSender(message.sender.id) ? 'bg-sky-600' : 'bg-slate-900']">
                 <p class="pl-2.5 py-1.5 text-sm"
                   :class="[isMessageSender(message.sender.id) ? 'font-medium' : 'font-normal']">
@@ -268,7 +255,6 @@ function getAvatarName(sender: User) {
 ::-webkit-scrollbar-thumb {
   background: rgb(2 132 199);
   border-radius: .25rem;
-
 }
 
 /* Handle on hover */

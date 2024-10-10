@@ -2,6 +2,7 @@ import { http } from "@/services/http";
 import { ChatType, type Chat, type ChatShort } from "@/types/chat.type";
 import type { Message } from "@/types/message.type";
 import { UserStatus } from "@/types/user.type";
+import { getRadomColor } from "@/utils/colors";
 import { defineStore } from "pinia";
 import { reactive, ref, type Ref } from "vue";
 
@@ -18,6 +19,7 @@ export const useChatStore = defineStore("chat", () => {
       .then((response) => {
         state.error = false;
         response.data.map((chat: Chat) => {
+          chat.color = getRadomColor();
           chats.value.push(chat);
         });
 
