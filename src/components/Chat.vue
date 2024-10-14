@@ -126,6 +126,9 @@ function getSenderColor(sender: User) {
     <div class="flex items-center gap-4 p-4 bg-slate-800 rounded-lg shadow-2xl">
 
       <ChatIcon :chat="current" :status="true" />
+
+
+
       <div class="transition-all">
         <p class="font-bold">{{ current.name }}</p>
         <div class="text-xs text-slate-400">

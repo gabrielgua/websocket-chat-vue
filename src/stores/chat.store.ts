@@ -19,7 +19,6 @@ export const useChatStore = defineStore("chat", () => {
       .then((response) => {
         state.error = false;
         response.data.map((chat: Chat) => {
-          chat.color = getRadomColor();
           chats.value.push(chat);
         });
 

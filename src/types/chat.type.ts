@@ -27,7 +27,6 @@ export interface Chat {
   lastMessage: Message;
   receiver?: User;
   notifications: number;
-  color?: string;
   abreviation?: string;
 }
 
