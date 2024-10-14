@@ -12,6 +12,7 @@ import { format, isSameDay, isToday, isYesterday } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { computed, onMounted, onUnmounted, onUpdated, ref, watch } from 'vue';
 import ChatIcon from './ChatIcon.vue';
+import Spinner from './Spinner.vue';
 
 const message = ref('');
 const authStore = useAuthStore();
@@ -117,6 +118,10 @@ function getSenderColor(sender: User) {
   return `text-${userStore.getUserColor(sender)}`;
 }
 
+function isLoading() {
+  return messageStore.state.loading;
+}
+
 
 </script>
 
@@ -126,8 +131,6 @@ function getSenderColor(sender: User) {
     <div class="flex items-center gap-4 p-4 bg-slate-800 rounded-lg shadow-2xl">
 
       <ChatIcon :chat="current" :status="true" />
-
-
 
       <div class="transition-all">
         <p class="font-bold">{{ current.name }}</p>
@@ -152,15 +155,23 @@ function getSenderColor(sender: User) {
       </div>
     </div>
 
+
+
     <div class="p-4 max-h-full overflow-y-scroll chatbox" ref="chatbox">
-      <div v-if="!messageStore.messages.length" class="flex gap-3 text-sm text-slate-500 items-center">
+
+      <div class="flex flex-col items-center gap-5 py-10" v-if="true">
+        <Spinner />
+        <p class="text-sm text-slate-400">Loading messages</p>
+      </div>
+
+      <div v-else-if="!messageStore.messages.length" class="flex gap-3 text-sm text-slate-500 items-center">
         <fa-icon icon="fa-solid fa-comment" />
         <span>
           Send your first message here :)
         </span>
       </div>
 
-      <div class="group mt-4 flex flex-col" v-for="(message, i) in messageStore.messages" :key="message.id"
+      <div v-else class="group mt-4 flex flex-col" v-for="(message, i) in messageStore.messages" :key="message.id"
         :class="{ 'mt-[.125rem]': isSameSender(message.sender.id, i) }">
 
         <span class="relative mt-4 mb-5 flex items-center justify-center text-sm w-full" v-if="!sameDay(message, i)">
