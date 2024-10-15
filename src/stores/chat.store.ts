@@ -1,4 +1,6 @@
 import { http } from "@/services/http";
+import { emitter } from "@/services/mitt";
+import type { ChatRequest } from "@/types/chat.request.type";
 import { ChatType, type Chat, type ChatShort } from "@/types/chat.type";
 import type { Message } from "@/types/message.type";
 import { UserStatus } from "@/types/user.type";
@@ -7,6 +9,8 @@ import { defineStore } from "pinia";
 import { reactive, ref, type Ref } from "vue";
 
 export const useChatStore = defineStore("chat", () => {
+  const ENDPOINT = "/api/chats";
+
   const chats = ref<Chat[]>([]);
   const current = ref<Chat>({} as Chat);
   const state = reactive({ loading: false, error: false });
@@ -15,14 +19,14 @@ export const useChatStore = defineStore("chat", () => {
     state.loading = true;
     chats.value = [];
     return http
-      .get(`/api/chats`)
+      .get(ENDPOINT)
       .then((response) => {
         state.error = false;
         response.data.map((chat: Chat) => {
           chats.value.push(chat);
         });
 
-        sortChatsByLastMessage();
+        sortChatList();
       })
       .catch((e) => {
         state.error = true;
@@ -46,7 +50,7 @@ export const useChatStore = defineStore("chat", () => {
   }
 
   function fetchChatStatusCount() {
-    http.get(`/api/chats/status`).then((response) => {
+    http.get(`${ENDPOINT}/status`).then((response) => {
       response.data.map((short: ChatShort) => {
         const chat = find(short.id);
         const index = chats.value.findIndex((c) => c.id === short.id);
@@ -71,13 +75,33 @@ export const useChatStore = defineStore("chat", () => {
     }
   }
 
-  function sortChatsByLastMessage() {
+  function sortChatList() {
     chats.value = chats.value.sort((a: Chat, b: Chat) => {
-      return (
-        new Date(b.lastMessage.timestamp).getTime() -
-        new Date(a.lastMessage.timestamp).getTime()
-      );
+      if (hasLastMessage(a) && hasLastMessage(b)) {
+        return (
+          new Date(b.lastMessage.timestamp).getTime() -
+          new Date(a.lastMessage.timestamp).getTime()
+        );
+      } else if (hasLastMessage(a)) {
+        return (
+          new Date(b.createdAt).getTime() -
+          new Date(a.lastMessage.timestamp).getTime()
+        );
+      } else if (hasLastMessage(b)) {
+        return (
+          new Date(b.lastMessage.timestamp).getTime() -
+          new Date(a.createdAt).getTime()
+        );
+      } else {
+        return (
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+      }
     });
+  }
+
+  function hasLastMessage(chat: Chat) {
+    return Object.keys(chat.lastMessage).length;
   }
 
   function isReceiverOnline(chat: Chat) {
@@ -95,6 +119,26 @@ export const useChatStore = defineStore("chat", () => {
     current.value = {} as Chat;
   }
 
+  function createChat(chat: ChatRequest) {
+    state.loading = true;
+    state.error = true;
+
+    http
+      .post(ENDPOINT, chat)
+      .then((response) => {
+        chats.value.push(response.data);
+
+        sortChatList();
+
+        emitter.emit("chatCreated", response.data);
+      })
+      .catch((e) => {
+        state.error = true;
+        console.log(e);
+      })
+      .finally(() => (state.loading = false));
+  }
+
   return {
     reset,
     chats,
@@ -103,8 +147,9 @@ export const useChatStore = defineStore("chat", () => {
     state,
     fetchChats,
     fetchChatStatusCount,
+    createChat,
     updateLastMessage,
-    sortChatsByLastMessage,
+    sortChatList,
     isReceiverOnline,
     isGroupChat,
     find,

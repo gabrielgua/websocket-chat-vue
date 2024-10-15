@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { useAuthStore } from '@/stores/auth.store';
+import { useChatStore } from '@/stores/chat.store';
 import { useFriendStore } from '@/stores/friend.store';
+import type { ChatRequest } from '@/types/chat.request.type';
 import { ChatType } from '@/types/chat.type';
 import type { User } from '@/types/user.type';
 import { computed, onMounted, ref } from 'vue';
@@ -9,7 +11,8 @@ onMounted(() => {
   friendStore.fetchFriends();
 })
 
-type ChatFormType = 'group' | 'private';
+defineEmits(['submitted'])
+
 type UserForm = {
   id: number,
   username: string,
@@ -17,11 +20,12 @@ type UserForm = {
 }
 
 const authStore = useAuthStore();
+const chatStore = useChatStore();
 const friendStore = useFriendStore();
 
 
 
-const chatType = ref<ChatFormType>();
+const chatType = ref<ChatType>();
 const chatName = ref<string>('');
 const chatDescription = ref<string>('');
 
@@ -43,7 +47,7 @@ const chatUsers = ref<UserForm[]>([
   },
 ])
 
-function selectType(type: ChatFormType) {
+function selectType(type: ChatType) {
   chatType.value = type;
   nextStep('chat-info', false)
 }
@@ -65,7 +69,7 @@ function addMember(user: UserForm) {
 
 type ChatTypes = {
   name: string,
-  value: 'group' | 'private',
+  value: ChatType,
   icon?: string
 }
 
@@ -75,8 +79,8 @@ type FormSteps = {
 }
 
 const chatTypes: ChatTypes[] = [
-  { name: 'Group', value: 'group', icon: 'fa-user-group', },
-  { name: 'Private', value: 'private', icon: 'fa-user', }
+  { name: 'Group', value: ChatType.group, icon: 'fa-user-group', },
+  { name: 'Private', value: ChatType.private, icon: 'fa-user', }
 ]
 
 const steps = ref<FormSteps[]>([
@@ -110,7 +114,7 @@ function find(name: string) {
 }
 
 function canSelectMembers() {
-  return chatType.value === 'group' && chatName.value.length > 3 && (show('chat-info'));
+  return chatType.value === ChatType.group && chatName.value.length > 3 && (show('chat-info'));
 }
 
 function canConfirmGroup() {
@@ -121,10 +125,23 @@ function isAdded(userId: number) {
   return chatUsers.value.find(u => u.id === userId);
 }
 
+function createGroupChat() {
+
+  var newChat: ChatRequest = {
+    name: chatName.value,
+    description: chatDescription.value,
+    type: chatType.value!,
+    users: chatUsers.value.map(user => user.id)
+  }
+
+  chatStore.createChat(newChat);
+
+}
+
 </script>
 
 <template>
-  <form @submit.prevent="" class="flex flex-col h-full">
+  <form @submit.prevent="createGroupChat" class="flex flex-col h-full">
 
     <Transition name="step">
 
@@ -143,7 +160,7 @@ function isAdded(userId: number) {
     </Transition>
 
     <Transition name="step">
-      <section v-if="chatType === 'group' && show('chat-info')" class="mt-6">
+      <section v-if="chatType === ChatType.group && show('chat-info')" class="mt-6">
         <p class="text-slate-400 font-bold">Chat Information</p>
         <p class="mb-3 text-[12px] text-slate-500">What is your chat going to be called? Will it have a description?</p>
         <div>
@@ -160,7 +177,6 @@ function isAdded(userId: number) {
               placeholder="Description (optional)" type="text" />
           </div>
         </div>
-
       </section>
 
     </Transition>
@@ -231,7 +247,7 @@ function isAdded(userId: number) {
 
     <Transition name="step">
       <section class="mt-6" v-if="canSelectMembers()">
-        <button @click="nextStep('chat-members', true)"
+        <button type="button" @click="nextStep('chat-members', true)"
           class="p-3 px-4 transition-all bg-sky-600 text-sm text-white rounded-2xl flex gap-2 items-center">
           <p>Select members</p>
           <fa-icon icon="fa-solid fa-arrow-right" />
@@ -241,7 +257,8 @@ function isAdded(userId: number) {
 
     <Transition name="step">
       <section class="mt-6" v-if="canConfirmGroup()">
-        <button class="p-3 px-4 transition-all bg-sky-600 text-sm text-white rounded-2xl flex gap-2 items-center">
+        <button type="submit" @click="$emit('submitted')"
+          class="p-3 px-4 transition-all bg-sky-600 text-sm text-white rounded-2xl flex gap-2 items-center">
           <fa-icon icon="fa-solid fa-check" />
           <p>Create chat</p>
         </button>

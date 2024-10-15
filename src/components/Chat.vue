@@ -96,10 +96,6 @@ function sameDay(current: Message, index: number) {
   return isSameDay(previous.timestamp, current.timestamp);
 }
 
-function displaySender(username: string) {
-  return username === authStore.authentication.username ? '' : username;
-}
-
 function displayFullTimestamp(timestamp: Date) {
   let date = "PPPP";
   if (isToday(timestamp)) date = "'Hoje, 'P";
@@ -114,8 +110,8 @@ function showMessageHeader(message: Message, index: number) {
   return isGroupChat() && (!isSameSender(message.sender.id, index) || sameSenderDifferentDay);
 }
 
-function getSenderColor(sender: User) {
-  return `text-${userStore.getUserColor(sender)}`;
+function getUserColor(sender: User) {
+  return userStore.getUserColor(sender);
 }
 
 function isLoading() {
@@ -164,47 +160,51 @@ function isLoading() {
         <p class="text-sm text-slate-400">Loading messages</p>
       </div>
 
-      <div v-else-if="!messageStore.messages.length" class="flex gap-3 text-sm text-slate-500 items-center">
-        <fa-icon icon="fa-solid fa-comment" />
-        <span>
-          Send your first message here :)
+      <div class="gap-3 text-[13px] items-center border border-slate-400/20 p-2 rounded-full">
+        <span class="flex items-center justify-center gap-2 text-slate-500">
+          <img :src="current.creator.avatarUrl" alt="creator avatar pic" class="size-6 block">
+          <p>
+            <span class="font-semibold" :class="getUserColor(current.creator)">{{ current.creator.username }}</span>
+            created this chat at {{ displayFullTimestamp(current.createdAt) }}
+          </p>
         </span>
       </div>
 
-      <div v-else class="group mt-4 flex flex-col" v-for="(message, i) in messageStore.messages" :key="message.id"
-        :class="{ 'mt-[.125rem]': isSameSender(message.sender.id, i) }">
+      <div v-if="!isLoading()" class="group mt-4 flex flex-col" v-for="(message, i) in messageStore.messages"
+        :key="message.id" :class="{ 'mt-[.125rem]': isSameSender(message.sender.id, i) }">
 
         <span class="relative mt-4 mb-5 flex items-center justify-center text-sm w-full" v-if="!sameDay(message, i)">
           <p class="z-10 bg-slate-900/40 px-2 py-1 text-slate-400 font-light text-xs   rounded">
             {{ displayFullTimestamp(message.timestamp) }}
           </p>
-          <!-- <span class="w-full border-b absolute border-slate-700 border-opacity-50"></span> -->
         </span>
 
         <section class="grid"
           :class="{ 'grid-columns': !isMessageSender(message.sender.id) && chatStore.current.type === ChatType.group }">
           <div v-if="!isMessageSender(message.sender.id)">
-            <div v-if="showMessageHeader(message, i)"
-              class="mt-[1.125rem] grid place-items-center w-8 h-8 rounded-full">
+            <div v-if="showMessageHeader(message, i)" class="grid place-items-center w-8 h-8 rounded-full">
               <img :src="message.sender.avatarUrl">
             </div>
           </div>
 
           <div>
-            <div class="text-xs font-bold mb-1" v-if="showMessageHeader(message, i)">
-              <p :class="getSenderColor(message.sender)">{{ displaySender(message.sender.username) }}</p>
-            </div>
             <div class="flex items-center gap-2" :class="{ 'flex-row-reverse': isMessageSender(message.sender.id) }">
-              <div class="relative flex items-center justify-between gap-2 rounded-xl md:max-w-[75%] sm:max-w-full"
+              <div class="relative flex flex-col rounded-xl md:max-w-[75%] sm:max-w-full"
                 :class="[isMessageSender(message.sender.id) ? 'bg-sky-600' : 'bg-slate-900']">
-                <p class="pl-2.5 py-1.5 text-sm"
-                  :class="[isMessageSender(message.sender.id) ? 'font-medium' : 'font-normal']">
-                  {{ message.content }}
-                </p>
-                <span class="mb-0.5 mr-1.5 text-xs font-medium self-end"
-                  :class="[isMessageSender(message.sender.id) ? 'text-sky-400' : 'text-slate-600']">
-                  {{ formatTimestamp(message.timestamp) }}
-                </span>
+                <div class="text-xs font-bold mb-1 col-span-2 px-2.5 mt-2"
+                  v-if="showMessageHeader(message, i) && !isMessageSender(message.sender.id)">
+                  <p :class="getUserColor(message.sender)">{{ message.sender.username }}</p>
+                </div>
+                <div class="flex justify-between gap-2">
+                  <p class="py-1.5 px-2.5 text-sm font-normal"
+                    :class="{ 'pt-0.5': showMessageHeader(message, i) && !isMessageSender(message.sender.id) }">
+                    {{ message.content }}
+                  </p>
+                  <span class="mb-0.5 mr-1.5 text-xs font-medium self-end"
+                    :class="[isMessageSender(message.sender.id) ? 'text-sky-400' : 'text-slate-600']">
+                    {{ formatTimestamp(message.timestamp) }}
+                  </span>
+                </div>
                 <span class="absolute top-0 message-first-triangle"
                   :class="[isMessageSender(message.sender.id) ? '-right-2 left-auto bg-sky-600' : '-left-2 bg-slate-900']"
                   :style="{ 'display': isSameSender(message.sender.id, i) && sameDay(message, i) ? 'none' : 'block' }">

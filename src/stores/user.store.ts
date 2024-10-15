@@ -11,7 +11,7 @@ export const useUserStore = defineStore("user", () => {
       return;
     }
 
-    user.color = getRadomColor();
+    user.color = getRadomColor("text");
     users.value.push(user);
   }
 

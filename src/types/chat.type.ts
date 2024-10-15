@@ -21,8 +21,10 @@ export interface ChatStatusCount {
 export interface Chat {
   id: string;
   name: string;
+  description: string;
+  creator: User;
   type: ChatType;
-  created_at: Date;
+  createdAt: Date;
   statusCount: ChatStatusCount;
   lastMessage: Message;
   receiver?: User;

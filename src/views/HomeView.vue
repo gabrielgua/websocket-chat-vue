@@ -4,6 +4,8 @@ import ChatForm from '@/components/ChatForm.vue';
 import ChatList from '@/components/ChatList.vue';
 import Header from '@/components/Header.vue';
 import Modal from '@/components/Modal.vue';
+import Spinner from '@/components/Spinner.vue';
+import { emitter } from '@/services/mitt';
 import { useChatStore } from '@/stores/chat.store';
 import { ChatFilter, type Chat } from '@/types/chat.type';
 import { computed, ref, type ComputedRef } from 'vue';
@@ -13,6 +15,10 @@ const modalActive = ref(false);
 const chatStore = useChatStore();
 const chatSearch = ref('');
 const chatFilter = ref(ChatFilter.all);
+
+emitter.on('chatCreated', () => {
+  toggleModal();
+})
 
 const filteredChats: ComputedRef<Chat[]> = computed(() => {
   function filter(chat: Chat) {
@@ -97,7 +103,11 @@ function toggleModal() {
     <ChatComponent class="md:col-span-2 sm:col-span-1" />
 
     <Modal :modal-active="modalActive" @close-modal="toggleModal" title="Create a new chat" :action-buttons="false">
-      <ChatForm />
+      <span class="self-center grid place-items-center gap-4" v-if="chatStore.state.loading">
+        <Spinner />
+        <p class="text-sm text-slate-400">Creating chat</p>
+      </span>
+      <ChatForm v-else />
     </Modal>
   </div>
 </template>

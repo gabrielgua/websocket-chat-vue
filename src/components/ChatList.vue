@@ -6,10 +6,9 @@ import { useUnreadStore } from '@/stores/unread.store';
 import { useUserStore } from '@/stores/user.store';
 import { ChatType, type Chat } from '@/types/chat.type';
 import type { Message } from '@/types/message.type';
-import { format, isSameWeek, isToday, isYesterday } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
 import { onUnmounted } from 'vue';
 import ChatIcon from './ChatIcon.vue';
+import { formatTimestamp } from '@/utils/date';
 
 defineProps<{
   chats: Chat[]
@@ -43,14 +42,7 @@ function changeCurrent(chat: Chat) {
   }
 }
 
-function formatTimestamp(timestamp: Date) {
-  let date = "PP"
-  if (isToday(timestamp)) date = "HH:mm";
-  else if (isYesterday(timestamp)) date = "'Ontem'";
-  else if (isSameWeek(timestamp, new Date())) date = "EEEE' às 'HH:mm";
 
-  return format(timestamp, date, { locale: ptBR });
-}
 
 emitter.on('message', handleOnMessage);
 emitter.on('notification', chatStore.fetchChatStatusCount);
@@ -59,7 +51,7 @@ function handleOnMessage(body: string) {
   const message: Message = JSON.parse(body);
 
   chatStore.updateLastMessage(message);
-  chatStore.sortChatsByLastMessage();
+  chatStore.sortChatList();
 
   if (chatStore.current.id != message.chat && !isSender(message)) {
     unreadStore.add(message);
