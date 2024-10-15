@@ -159,7 +159,7 @@ function isLoading() {
 
     <div class="p-4 max-h-full overflow-y-scroll chatbox" ref="chatbox">
 
-      <div class="flex flex-col items-center gap-5 py-10" v-if="true">
+      <div class="flex flex-col items-center gap-5 py-10" v-if="isLoading()">
         <Spinner />
         <p class="text-sm text-slate-400">Loading messages</p>
       </div>

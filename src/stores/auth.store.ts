@@ -1,26 +1,21 @@
 import { http } from "@/services/http";
+import { emitter } from "@/services/mitt";
 import type { AxiosError } from "axios";
+import { isBefore } from "date-fns";
+import { jwtDecode } from "jwt-decode";
 import { defineStore } from "pinia";
 import { computed, reactive, type ComputedRef } from "vue";
 import { useRouter } from "vue-router";
 import { useStompStore } from "./stomp.store";
-import { emitter } from "@/services/mitt";
-import { jwtDecode } from "jwt-decode";
-import { isAfter, isBefore } from "date-fns";
-import { useChatStore } from "./chat.store";
-import { useMessageStore } from "./message.store";
-import { useUserStore } from "./user.store";
 
 export const useAuthStore = defineStore("auth", () => {
   const router = useRouter();
-  const chatStore = useChatStore();
-  const messageStore = useMessageStore();
-  const userStore = useUserStore();
   const stompStore = useStompStore();
 
   type Authentication = {
     userId: number;
     username: string;
+    avatarUrl: string;
     token: string;
   };
 
@@ -43,7 +38,8 @@ export const useAuthStore = defineStore("auth", () => {
         saveAuthentication(
           response.data.userId,
           response.data.username,
-          response.data.token
+          response.data.token,
+          response.data.avatarUrl
         );
         router.push("/chat");
       })
@@ -69,22 +65,30 @@ export const useAuthStore = defineStore("auth", () => {
     });
   }
 
-  function saveAuthentication(id: number, username: string, token: string) {
+  function saveAuthentication(
+    id: number,
+    username: string,
+    token: string,
+    avatarUrl: string
+  ) {
     authentication.userId = id;
     authentication.username = username;
     authentication.token = token;
+    authentication.avatarUrl = avatarUrl;
 
     localStorage.setItem("userId", id.toString());
     localStorage.setItem("token", token);
     localStorage.setItem("username", username);
+    localStorage.setItem("avatarUrl", avatarUrl);
   }
 
   function checkAuthentication(): boolean {
     const token = localStorage.getItem("token");
     const userId = localStorage.getItem("userId");
     const username = localStorage.getItem("username");
+    const avatarUrl = localStorage.getItem("avatarUrl");
 
-    if (token && username && userId) {
+    if (token && username && userId && avatarUrl) {
       const decodedToken = jwtDecode(token);
 
       const isSameUser = decodedToken.sub === username;
@@ -92,14 +96,15 @@ export const useAuthStore = defineStore("auth", () => {
       const isTokenValid = isBefore(new Date(), expiryDate);
 
       if (isSameUser && isTokenValid) {
-        saveAuthentication(+userId, username, token);
+        saveAuthentication(+userId, username, token, avatarUrl);
       }
     }
 
     return (
       !!authentication.token &&
       !!authentication.username &&
-      !!authentication.userId
+      !!authentication.userId &&
+      !!authentication.avatarUrl
     );
   }
 

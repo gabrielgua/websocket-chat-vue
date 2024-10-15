@@ -14,11 +14,11 @@ defineEmits(['close-modal', 'confirm'])
   <Teleport to="body">
     <Transition name="outer-modal">
       <div @click.self="$emit('close-modal')" v-show="modalActive"
-        class="absolute z-10 top-0 left-0 bg-black/60 w-full h-full grid place-items-center">
+        class="absolute z-10 top-0 left-0 bg-black/60 w-full h-full grid place-items-center ">
 
         <Transition name="content-modal">
           <div v-if="modalActive"
-            class="modal-container bg-slate-900 text-white p-6 shadow-sm rounded-md flex flex-col gap-6">
+            class="modal-container transition-all bg-slate-900 text-white p-6 shadow-sm rounded-md flex flex-col gap-6 max-h-dvh">
             <div class="relative flex items-center justify-between gap-5">
               <p class="text-lg font-bold mr-auto">{{ title ? title : 'Do you want to confirm the action?' }}</p>
               <button @click="$emit('close-modal')"

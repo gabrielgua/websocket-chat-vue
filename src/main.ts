@@ -23,6 +23,7 @@ import {
   faPaperPlane,
   faPen,
   faRightFromBracket,
+  faTrash,
   faUser,
   faUserGroup,
   faUsers,
@@ -30,6 +31,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 
 library.add(
+  faTrash,
   faPen,
   faAdd,
   faUser,

@@ -1,31 +1,66 @@
 <script setup lang="ts">
 import { useAuthStore } from '@/stores/auth.store';
+import { useFriendStore } from '@/stores/friend.store';
+import { ChatType } from '@/types/chat.type';
 import type { User } from '@/types/user.type';
-import { ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
+
+onMounted(() => {
+  friendStore.fetchFriends();
+})
 
 type ChatFormType = 'group' | 'private';
 type UserForm = {
   id: number,
-  username: string
+  username: string,
+  avatarUrl?: string
 }
 
-const auth = useAuthStore();
+const authStore = useAuthStore();
+const friendStore = useFriendStore();
 
-const chatType = ref<ChatFormType>('group');
+
+
+const chatType = ref<ChatFormType>();
+const chatName = ref<string>('');
+const chatDescription = ref<string>('');
+
+const memberSearch = ref<string>('');
+
+const friendsFiltered = computed<User[]>(() => {
+  return friendStore.friends
+    .filter(friend => {
+      let term = memberSearch.value.trim().toLocaleLowerCase();
+      return friend.name.toLocaleLowerCase().trim().includes(term) || friend.username.toLocaleLowerCase().includes(term);
+    })
+})
+
 const chatUsers = ref<UserForm[]>([
-  { id: auth.authentication.userId, username: auth.authentication.username },
-  { id: 2, username: 'gabrielgua' }
+  {
+    id: authStore.authentication.userId,
+    username: 'You',
+    avatarUrl: authStore.authentication.avatarUrl
+  },
 ])
 
 function selectType(type: ChatFormType) {
   chatType.value = type;
+  nextStep('chat-info', false)
 }
 
-function removeMember(user: UserForm) {
-  if (user.id === auth.authentication.userId) {
+function removeMember(userId: number) {
+  if (userId === authStore.authentication.userId) {
     return;
   }
-  chatUsers.value = chatUsers.value.filter(u => u.id !== user.id);
+  chatUsers.value = chatUsers.value.filter(u => u.id !== userId);
+}
+
+function addMember(user: UserForm) {
+  if (chatUsers.value.find(u => u.id === user.id)) {
+    return;
+  }
+
+  chatUsers.value.push(user);
 }
 
 type ChatTypes = {
@@ -34,86 +69,225 @@ type ChatTypes = {
   icon?: string
 }
 
+type FormSteps = {
+  name: string,
+  show: boolean
+}
+
 const chatTypes: ChatTypes[] = [
-  { name: 'Group', value: 'group', icon: 'fa-user-group' },
-  { name: 'Private', value: 'private', icon: 'fa-user' }
+  { name: 'Group', value: 'group', icon: 'fa-user-group', },
+  { name: 'Private', value: 'private', icon: 'fa-user', }
 ]
+
+const steps = ref<FormSteps[]>([
+  { name: 'chat-type', show: true },
+  { name: 'chat-info', show: false },
+  { name: 'chat-members', show: false },
+]);
+
+function nextStep(to: string, hidePrevious: boolean) {
+  if (hidePrevious) {
+    hideAll();
+  }
+
+  const next = steps.value.find(step => step.name === to);
+  if (!next) return;
+
+  next.show = !next.show;
+}
+
+function hideAll() {
+  steps.value.forEach(step => step.show = false);
+}
+
+function show(name: string) {
+  return find(name)?.show;
+}
+
+function find(name: string) {
+  const step = steps.value.find(step => step.name === name);
+  if (step) return step;
+}
+
+function canSelectMembers() {
+  return chatType.value === 'group' && chatName.value.length > 3 && (show('chat-info'));
+}
+
+function canConfirmGroup() {
+  return chatUsers.value.length > 1;
+}
+
+function isAdded(userId: number) {
+  return chatUsers.value.find(u => u.id === userId);
+}
 
 </script>
 
 <template>
-  <form @submit.prevent="" class="flex flex-col gap-6">
+  <form @submit.prevent="" class="flex flex-col h-full">
 
-    <section class="text-sm">
-      <p class="mb-3 text-slate-400 font-bold">Chat type</p>
-      <div class="flex">
-        <button v-for="type in chatTypes" type="button" @click="selectType(type.value)"
-          class="transition-all flex gap-2 items-center p-2 px-4 rounded-lg"
-          :class="[chatType === type.value ? 'text-slate-300 bg-slate-800' : 'text-slate-500']">
-          <fa-icon :icon="'fa-solid ' + type.icon" class="text-sky-600" />
-          <p>{{ type.name }}</p>
-        </button>
-      </div>
-    </section>
+    <Transition name="step">
 
-    <hr class="border-slate-800/80">
-
-    <section v-if="chatType === 'group'">
-      <p class="text-sm text-slate-400 font-bold mb-3">Chat information</p>
-      <div class="mb-5">
-        <div class="bg-slate-800 rounded-md flex items-center gap-1 ps-3 text-slate-500">
-          <fa-icon icon="fa-solid fa-comment" />
-          <input id="chatName" class="bg-transparent p-3 w-full outline-none text-white font-light text-sm"
-            placeholder="Chat name" type="text">
+      <section class="text-sm" v-if="show('chat-type')">
+        <p class="text-slate-400 font-bold">Chat Type</p>
+        <p class="mb-3 text-[12px] text-slate-500">What type will your chat be?</p>
+        <div class="flex gap-3">
+          <button v-for="type in chatTypes" type="button" @click="selectType(type.value)"
+            class="transition-all flex gap-2 items-center p-2 px-4 rounded-lg hover:bg-slate-800 "
+            :class="[chatType === type.value ? 'text-slate-300 bg-slate-800' : 'text-slate-500 bg-slate-800/30']">
+            <fa-icon :icon="'fa-solid ' + type.icon" class="text-sky-600" />
+            <p>{{ type.name }}</p>
+          </button>
         </div>
-        <div class="mt-2 bg-slate-800 rounded-md flex items-center gap-1 ps-3 text-slate-500">
-          <fa-icon icon="fa-solid fa-comment" class="self-start mt-4" />
-          <textarea id="chatDescription"
-            class="resize-none bg-transparent p-3 w-full outline-none text-white font-light text-sm"
-            placeholder="Description (optional)" type="text" />
-        </div>
+      </section>
+    </Transition>
 
-      </div>
-      <p class="text-sm text-slate-400 font-bold">Members</p>
-      <div class="mt-3 bg-slate-800 rounded-md flex items-center gap-1 ps-3 text-slate-500">
-        <fa-icon icon="fa-solid fa-magnifying-glass" />
-        <input id="chatName" class="bg-transparent p-3 w-full outline-none text-white font-light text-sm"
-          placeholder="Search for usernames for your new group" type="text">
-
-      </div>
-      <ul class="mt-3 flex items-center gap-2">
-        <li :title="chatUsers.length + ' total members. '" class="text-sm flex items-center gap-2 mr-2">
-          <fa-icon icon="fa-solid fa-users" class="text-sm text-sky-600 block" />
-          <p class="font-bold text-slate-300">{{ chatUsers.length }}</p>
-        </li>
-        <li v-for="user in chatUsers">
-          <div class="bg-slate-800 w-max pr-3 rounded-full  p-0.5  flex gap-2 items-center">
-            <div class="bg-slate-900 w-6 grid place-items-center aspect-square rounded-full">
-              <fa-icon icon="fa-solid fa-user" class="text-[9px] text-sky-600 block" />
-            </div>
-            <p class="text-[12px] text-slate-300">{{ user.id === auth.authentication.userId ? 'You' :
-              user.username }}</p>
-            <button v-if="user.id !== auth.authentication.userId" @click="removeMember(user)">
-              <fa-icon icon="fa-solid fa-xmark" class="text-sm text-slate-600 hover:text-red-300" />
-            </button>
+    <Transition name="step">
+      <section v-if="chatType === 'group' && show('chat-info')" class="mt-6">
+        <p class="text-slate-400 font-bold">Chat Information</p>
+        <p class="mb-3 text-[12px] text-slate-500">What is your chat going to be called? Will it have a description?</p>
+        <div>
+          <div class="bg-slate-800 rounded-md flex items-center gap-1 ps-3 text-slate-500">
+            <fa-icon icon="fa-solid fa-comment" />
+            <input v-model="chatName" id="chatName"
+              class="bg-transparent p-3 w-full outline-none text-white font-light text-sm" placeholder="Chat name"
+              type="text">
           </div>
-        </li>
-      </ul>
-    </section>
+          <div class="mt-2 bg-slate-800 rounded-md flex items-center gap-1 ps-3 text-slate-500">
+            <fa-icon icon="fa-solid fa-pen" class="self-start mt-4" />
+            <textarea v-model="chatDescription" id="chatDescription"
+              class="resize-none bg-transparent p-3 w-full outline-none text-white font-light text-sm"
+              placeholder="Description (optional)" type="text" />
+          </div>
+        </div>
 
-    <hr class="border-slate-800/80">
+      </section>
 
-    <section>
-      <button class="p-3 px-4  transition-all bg-sky-600 text-sm text-white rounded-2xl flex gap-2 items-center">
-        <fa-icon icon="fa-solid fa-check" />
-        <p>Create chat</p>
-      </button>
-    </section>
+    </Transition>
+
+    <Transition name="step">
+
+      <section v-if="show('chat-members')">
+        <p class="text-slate-400 font-bold">Chat Members</p>
+        <p class="mb-3 text-[12px] text-slate-500">
+          Select the members for the
+          <span class="text-white font-bold">'{{ chatName }}'</span>
+          chat.
+        </p>
+        <div class="mt-3 bg-slate-800 rounded-md flex items-center gap-1 ps-3 text-slate-500">
+          <fa-icon icon="fa-solid fa-magnifying-glass" />
+          <input v-model="memberSearch" class="bg-transparent p-3 w-full outline-none text-white font-light text-sm"
+            placeholder="Search for friends" type="text">
+        </div>
+
+        <ul class="flex flex-wrap gap-3 mt-3">
+          <li class="flex gap-2 items-center">
+            <fa-icon icon="fa-icon fa-users" class="text-sky-600" />
+            <p class="font-bold text-sm">{{ chatUsers.length }}</p>
+          </li>
+          <li v-for="user in chatUsers">
+            <div class="bg-slate-800 rounded-full flex gap-2 items-center pe-3">
+              <img :src="user.avatarUrl" class="w-6 rounded-full" />
+              <p class="text-sm text-slate-300">{{ user.username }}</p>
+            </div>
+          </li>
+        </ul>
+
+        <ul
+          class="mt-4 rounded-lg grid divide-y divide-slate-800 border border-slate-800 overflow-hidden overflow-y-auto max-h-[50rem] flex-grow">
+
+          <li class="p-3" v-if="!friendsFiltered.length">
+            <p class="text-sm text-slate-400 font-semibold">No friends found 😿</p>
+            <p class="text-[12px] text-slate-500">Try adding some friends before creating a group chat.</p>
+          </li>
+
+          <TransitionGroup name="friend-list">
+            <li v-if="friendsFiltered.length" v-for="friend in friendsFiltered">
+              <div class="flex gap-2 p-2 items-center transition-all" :class="{ 'bg-sky-600/30': isAdded(friend.id) }">
+                <img class="w-10 aspect-square block" :src="friend.avatarUrl" alt="profile pic">
+                <span class="text-sm">
+                  <p class="font-semibold">{{ friend.name }}</p>
+                  <p class="text-[12px] text-slate-400">@{{ friend.username }}</p>
+                </span>
+                <section class="flex gap-2 ms-auto">
+                  <button v-if="!isAdded(friend.id)"
+                    @click="addMember({ id: friend.id, username: friend.username, avatarUrl: friend.avatarUrl })"
+                    class="transition-all text-sm grid place-items-center bg-sky-600 size-9 rounded-full">
+                    <fa-icon icon="fa-solid fa-add" />
+                  </button>
+                  <button v-else @click="removeMember(friend.id)"
+                    class="transition-all text-sm grid place-items-center bg-red-600 size-9 rounded-full">
+                    <fa-icon icon="fa-solid fa-trash" />
+                  </button>
+                </section>
+              </div>
+            </li>
+          </TransitionGroup>
+
+        </ul>
+      </section>
+    </Transition>
 
 
+    <Transition name="step">
+      <section class="mt-6" v-if="canSelectMembers()">
+        <button @click="nextStep('chat-members', true)"
+          class="p-3 px-4 transition-all bg-sky-600 text-sm text-white rounded-2xl flex gap-2 items-center">
+          <p>Select members</p>
+          <fa-icon icon="fa-solid fa-arrow-right" />
+        </button>
+      </section>
+    </Transition>
 
+    <Transition name="step">
+      <section class="mt-6" v-if="canConfirmGroup()">
+        <button class="p-3 px-4 transition-all bg-sky-600 text-sm text-white rounded-2xl flex gap-2 items-center">
+          <fa-icon icon="fa-solid fa-check" />
+          <p>Create chat</p>
+        </button>
+      </section>
+    </Transition>
   </form>
 </template>
 
 
-<style scoped></style>
+<style scoped>
+.step-enter-active {
+  transition: all 250ms ease;
+}
+
+.step-leave-active {
+  transition: all 0ms;
+}
+
+.step-enter-from {
+  scale: .85;
+  opacity: 0;
+}
+
+.step-leave-to {
+  opacity: 0;
+  scale: .85;
+}
+
+.friend-list-enter-active
+
+/* .friend-list-leave-active { */
+  {
+  transition: all 250ms ease;
+}
+
+.friend-list-leave-active {
+  transition: all 0ms;
+}
+
+.friend-list-enter-from {
+  transform: translateX(50px);
+  opacity: 0;
+}
+
+.friend-list-leave-to {
+  transform: translateX(-50px);
+  opacity: 0;
+}
+</style>
