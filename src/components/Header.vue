@@ -29,9 +29,10 @@ window.addEventListener('beforeunload', () => {
     <h1 class="font-bold text-3xl">WebSocket Chat</h1>
     <fa-icon class="text-2xl text-sky-600" icon="fa-solid fa-comments" />
 
-    <div class="ms-auto flex items-center gap-4">
-      <p class="text-sm">Hello, {{ authStore.authentication.username }}</p>
-      <button @click="authStore.logout" class="hover:*:text-rose-400 ">
+    <div class="ms-auto flex items-center gap-2">
+      <img class="w-6" :src="authStore.authentication.avatarUrl" :alt="authStore.authentication.userId.toString()">
+      <p class="text-sm me-2">{{ authStore.authentication.username }}</p>
+      <button title="Logout" @click="authStore.logout" class="hover:*:text-rose-400 ">
         <fa-icon class="text-slate-500 block transition-all" icon="fa-solid fa-right-from-bracket" />
       </button>
     </div>

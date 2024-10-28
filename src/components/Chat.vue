@@ -76,8 +76,8 @@ function isSameSender(senderId: number, index: number) {
   return messageStore.messages[index - 1].sender.id === senderId;
 }
 
-function isMessageSender(senderId: number) {
-  return senderId === authStore.authentication.userId;
+function isMessageSender(userId: number) {
+  return userId === authStore.authentication.userId;
 }
 
 function isGroupChat() {
@@ -164,7 +164,8 @@ function isLoading() {
         <span class="flex items-center justify-center gap-2 text-slate-500">
           <img :src="current.creator.avatarUrl" alt="creator avatar pic" class="size-6 block">
           <p>
-            <span class="font-semibold" :class="getUserColor(current.creator)">{{ current.creator.username }}</span>
+            <span class="font-semibold" :class="getUserColor(current.creator)">{{ isMessageSender(current.creator.id) ?
+              'You' : current.creator.username }}</span>
             created this chat at {{ displayFullTimestamp(current.createdAt) }}
           </p>
         </span>
