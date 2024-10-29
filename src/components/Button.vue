@@ -1,4 +1,8 @@
 <script setup lang="ts">
+import { ref } from 'vue';
+import type { ToolTipPosition } from './Tooltip.vue';
+import Tooltip from './Tooltip.vue';
+
 
 type ButtonVariant = {
   name: string,
@@ -11,7 +15,9 @@ type ButtonProps = {
   variant?: string,
   rounded?: boolean
   submit?: boolean
-  inverted?: boolean
+  inverted?: boolean,
+  tooltip?: string,
+  tooltipPos?: ToolTipPosition
 }
 
 const props = defineProps<ButtonProps>()
@@ -39,22 +45,69 @@ const variants: ButtonVariant[] = [
   { name: 'link-danger', styles: 'text-rose-500 hover:underline' },
 ]
 
+
 const getButtonVariant = () => {
   return variants.find(v => v.name === props.variant)?.styles;
 }
 
+const showTooltip = ref(false);
+
 </script>
 
 <template>
-  <div>
+  <div class="relative grid place-items-center" @mouseenter="showTooltip = true" @mouseleave="showTooltip = false">
     <button :type="submit ? 'submit' : 'button'" @click="onClick"
       class="flex items-center justify-center text-sm gap-2 active:scale-95"
       :class="getButtonVariant(), [rounded ? 'rounded-full p-2 w-9 aspect-square ' : 'rounded-xl p-2 px-4'], { 'flex-row-reverse': inverted }">
       <slot />
       <fa-icon v-if="icon" class="text-sm" :icon="`fa-solid ${icon}`" />
     </button>
+
+    <Tooltip v-if="tooltip" :title="tooltip" :show="showTooltip" :position="tooltipPos" />
   </div>
 </template>
 
 
-<style scoped></style>
+<style scoped>
+.tooltip-wrapper {
+  --margin: .5rem;
+  z-index: 10;
+  position: absolute;
+}
+
+.tooltip-wrapper-bottom {
+  margin-block-start: var(--margin);
+  top: 100%;
+}
+
+.tooltip-wrapper-top {
+  margin-block-end: var(--margin);
+  bottom: 100%;
+}
+
+.tooltip-wrapper-right {
+  margin-inline-start: var(--margin);
+  left: 100%;
+}
+
+.tooltip-wrapper-left {
+  margin-inline-end: var(--margin);
+  right: 100%;
+}
+
+
+.tooltip-enter-active {
+  transition: all 0.125s ease 0.25s;
+}
+
+.tooltip-leave-active {
+  transition: all 0.125s ease;
+}
+
+
+.tooltip-enter-from,
+.tooltip-leave-to {
+  opacity: 0;
+  scale: .9;
+}
+</style>

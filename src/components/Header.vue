@@ -24,7 +24,6 @@ window.addEventListener('beforeunload', () => {
   stompStore.send('/app/user.disconnectUser', { id: authStore.authentication.userId })
 })
 
-const teste = () => { }
 
 </script>
 <template>
@@ -35,7 +34,8 @@ const teste = () => { }
     <div class="ms-auto flex items-center gap-2">
       <img class="w-6" :src="authStore.authentication.avatarUrl" :alt="authStore.authentication.userId.toString()">
       <p class="text-sm me-2">{{ authStore.authentication.username }}</p>
-      <Button :on-click="teste" icon="fa-right-from-bracket" variant="danger-text" rounded></Button>
+      <Button :on-click="authStore.logout" icon="fa-right-from-bracket" variant="danger-text" rounded tooltip="Logout"
+        tooltip-pos="bottom-end"></Button>
     </div>
   </header>
 </template>

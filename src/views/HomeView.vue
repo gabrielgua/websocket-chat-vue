@@ -66,12 +66,13 @@ function toggleModal() {
   <div
     class="antialiased grid md:grid-cols-3 sm:grid-cols-2 content-start bg-slate-900 mx-auto container-width text-white">
 
-    <div class="flex flex-col w-full overflow-auto h-[calc(100dvh-68px)]">
+    <div class="flex flex-col w-full  h-[calc(100dvh-68px)]">
       <div class="p-4 pb-0 flex flex-col gap-2">
 
-        <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2 justify-between">
           <h3 class="text-lg font-bold">Chats</h3>
-          <Button :on-click="toggleModal" icon="fa-add" variant="primary" rounded />
+          <Button :on-click="toggleModal" icon="fa-ellipsis-vertical" variant="secondary" tooltip="Configurações"
+            tooltip-pos="right" rounded />
         </div>
         <div class="bg-slate-800 rounded-md flex items-center gap-1 ps-3 text-slate-500">
           <fa-icon icon="fa-solid fa-magnifying-glass" />

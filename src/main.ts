@@ -7,50 +7,10 @@ import router from "./router";
 import "./assets/style.css";
 
 import { library } from "@fortawesome/fontawesome-svg-core";
-
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+import { fas } from "@fortawesome/free-solid-svg-icons";
 
-import {
-  faAdd,
-  faArrowRight,
-  faGear,
-  faCheck,
-  faChevronDown,
-  faComment,
-  faComments,
-  faEllipsisVertical,
-  faInfo,
-  faMagnifyingGlass,
-  faPaperPlane,
-  faPen,
-  faRightFromBracket,
-  faTrash,
-  faUser,
-  faUserGroup,
-  faUsers,
-  faXmark,
-} from "@fortawesome/free-solid-svg-icons";
-
-library.add(
-  faTrash,
-  faPen,
-  faAdd,
-  faUser,
-  faInfo,
-  faUsers,
-  faXmark,
-  faComment,
-  faComments,
-  faPaperPlane,
-  faMagnifyingGlass,
-  faEllipsisVertical,
-  faChevronDown,
-  faArrowRight,
-  faRightFromBracket,
-  faUserGroup,
-  faCheck,
-  faGear
-);
+library.add(fas);
 
 const app = createApp(App);
 
