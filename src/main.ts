@@ -13,6 +13,7 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import {
   faAdd,
   faArrowRight,
+  faGear,
   faCheck,
   faChevronDown,
   faComment,
@@ -47,7 +48,8 @@ library.add(
   faArrowRight,
   faRightFromBracket,
   faUserGroup,
-  faCheck
+  faCheck,
+  faGear
 );
 
 const app = createApp(App);

@@ -1,10 +1,13 @@
 <script setup lang="ts">
+import Button from './Button.vue';
+
 
 defineProps({
   modalActive: { type: Boolean, default: false },
-  actionButtons: { type: Boolean, default: true },
+  actionButtons: { type: Boolean, default: false },
   title: String
 })
+
 defineEmits(['close-modal', 'confirm'])
 
 
@@ -21,26 +24,18 @@ defineEmits(['close-modal', 'confirm'])
             class="modal-container transition-all bg-slate-900 text-white p-6 shadow-sm rounded-md flex flex-col gap-6 max-h-dvh">
             <div class="relative flex items-center justify-between gap-5">
               <p class="text-lg font-bold mr-auto">{{ title ? title : 'Do you want to confirm the action?' }}</p>
-              <button @click="$emit('close-modal')"
-                class="absolute -top-0 -right-0 text-slate-500 hover:text-sky-600 px-3 rounded-full hover:bg-slate-500/10 self-start transition-all  aspect-square grid place-items-center">
-                <fa-icon icon="fa-solid fa-xmark" />
-              </button>
+              <Button :on-click="() => $emit('close-modal')" class="absolute -top-0 -right-0 " icon="fa-xmark"
+                variant="primary-text" rounded />
             </div>
             <slot />
             <div v-if="actionButtons" class="flex justify-end gap-3">
-              <button
-                class="p-3 px-4 transition-all hover:bg-slate-800 hover:text-red-300 text-sm text-slate-400 rounded-2xl flex gap-2 items-center"
-                @click="$emit('close-modal')">
-                <fa-icon icon="fa-solid fa-xmark" />
-                <p>Close</p>
-              </button>
+              <Button :on-click="() => $emit('close-modal')" icon="fa-xmark" variant="danger-text" inverted>
+                Cancel
+              </Button>
 
-              <button
-                class="p-3 px-4 transition-all hover:bg-slate-800 hover:text-emerald-500 text-sm text-slate-400 rounded-2xl flex gap-2 items-center"
-                @click="$emit('confirm')">
-                <fa-icon icon="fa-solid fa-check" />
-                <p>Confirm</p>
-              </button>
+              <Button :on-click="() => $emit('confirm')" icon="fa-check" variant="primary" inverted>
+                Confirm
+              </Button>
 
             </div>
           </div>

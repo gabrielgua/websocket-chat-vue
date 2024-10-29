@@ -13,6 +13,7 @@ import { ptBR } from 'date-fns/locale';
 import { computed, onMounted, onUnmounted, onUpdated, ref, watch } from 'vue';
 import ChatIcon from './ChatIcon.vue';
 import Spinner from './Spinner.vue';
+import Button from './Button.vue';
 
 const message = ref('');
 const authStore = useAuthStore();
@@ -126,7 +127,7 @@ function isLoading() {
   <div class=" bg-slate-800 m-4 ms-0 rounded-xl overflow-hidden flex flex-col" v-else>
     <div class="flex items-center gap-4 p-4 bg-slate-800 rounded-lg shadow-2xl">
 
-      <ChatIcon :chat="current" :status="true" />
+      <ChatIcon :chat="current" status />
 
       <div class="transition-all">
         <p class="font-bold">{{ current.name }}</p>
@@ -143,12 +144,7 @@ function isLoading() {
           </div>
         </div>
       </div>
-      <div class="ms-auto me-2 flex items-center gap-4">
-        <button
-          class="aspect-square w-11 grid place-items-center hover:bg-slate-700 hover:text-sky-600 transition-all rounded-full  text-slate-500">
-          <fa-icon icon="fa-solid fa-chevron-down" />
-        </button>
-      </div>
+      <Button class="ms-auto" :on-click="() => { }" icon="fa-gear" variant="secondary-text" rounded />
     </div>
 
 
@@ -222,14 +218,12 @@ function isLoading() {
     </div>
 
     <form class="mt-auto p-4 flex items-center justify-between gap-4" @submit.prevent="sendMessage">
-      <input
-        class="transition-all text-sm outline-none focus:ring-2 focus:ring-sky-600 bg-slate-900 p-3 ps-4 w-full rounded-lg"
-        required v-model="message" type="text" placeholder="Type messages here" />
-      <button
-        class="hover:-translate-y-1 hover:shadow-lg transition-all grid place-items-center w-11 rounded-full aspect-square bg-sky-600"
-        type="submit">
-        <fa-icon icon="fa-solid fa-paper-plane" />
-      </button>
+      <div
+        class="flex items-center transition-all text-sm outline-none focus-within:ring-2 focus-within:ring-sky-600 bg-slate-900 w-full rounded-2xl p-2 ps-2">
+        <input class="p-2 bg-transparent focus:outline-none w-full" required v-model="message" type="text"
+          placeholder="Type messages here" />
+        <Button class="ms-auto" icon="fa-paper-plane" variant="primary-text" rounded submit />
+      </div>
     </form>
   </div>
 </template>

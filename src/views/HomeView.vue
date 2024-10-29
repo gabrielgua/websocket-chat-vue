@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import Button from '@/components/Button.vue';
 import ChatComponent from '@/components/Chat.vue';
 import ChatForm from '@/components/ChatForm.vue';
 import ChatList from '@/components/ChatList.vue';
@@ -70,10 +71,7 @@ function toggleModal() {
 
         <div class="flex items-center justify-between">
           <h3 class="text-lg font-bold">Chats</h3>
-          <button @click="toggleModal"
-            class="rounded-full bg-sky-600 hover:bg-sky-700 grid place-items-center w-9 aspect-square">
-            <fa-icon icon="fa-solid fa-add" />
-          </button>
+          <Button :on-click="toggleModal" icon="fa-add" variant="primary" rounded />
         </div>
         <div class="bg-slate-800 rounded-md flex items-center gap-1 ps-3 text-slate-500">
           <fa-icon icon="fa-solid fa-magnifying-glass" />
@@ -102,7 +100,7 @@ function toggleModal() {
 
     <ChatComponent class="md:col-span-2 sm:col-span-1" />
 
-    <Modal :modal-active="modalActive" @close-modal="toggleModal" title="Create a new chat" :action-buttons="false">
+    <Modal :modal-active="modalActive" @close-modal="toggleModal" title="Create a new chat">
       <span class="self-center grid place-items-center gap-4" v-if="chatStore.state.loading">
         <Spinner />
         <p class="text-sm text-slate-400">Creating chat</p>

@@ -6,6 +6,7 @@ import type { ChatRequest } from '@/types/chat.request.type';
 import { ChatType } from '@/types/chat.type';
 import type { User } from '@/types/user.type';
 import { computed, onMounted, ref } from 'vue';
+import Button from './Button.vue';
 
 onMounted(() => {
   friendStore.fetchFriends();
@@ -226,15 +227,11 @@ function createGroupChat() {
                   <p class="text-[12px] text-slate-400">@{{ friend.username }}</p>
                 </span>
                 <section class="flex gap-2 ms-auto">
-                  <button v-if="!isAdded(friend.id)"
-                    @click="addMember({ id: friend.id, username: friend.username, avatarUrl: friend.avatarUrl })"
-                    class="transition-all text-sm grid place-items-center bg-sky-600 size-9 rounded-full">
-                    <fa-icon icon="fa-solid fa-add" />
-                  </button>
-                  <button v-else @click="removeMember(friend.id)"
-                    class="transition-all text-sm grid place-items-center bg-red-600 size-9 rounded-full">
-                    <fa-icon icon="fa-solid fa-trash" />
-                  </button>
+                  <Button v-if="!isAdded(friend.id)"
+                    :on-click="() => addMember({ id: friend.id, username: friend.username, avatarUrl: friend.avatarUrl })"
+                    icon="fa-add" variant="primary" rounded />
+
+                  <Button v-else :on-click="() => removeMember(friend.id)" icon="fa-trash" variant="danger" rounded />
                 </section>
               </div>
             </li>
@@ -247,21 +244,17 @@ function createGroupChat() {
 
     <Transition name="step">
       <section class="mt-6" v-if="canSelectMembers()">
-        <button type="button" @click="nextStep('chat-members', true)"
-          class="p-3 px-4 transition-all bg-sky-600 text-sm text-white rounded-2xl flex gap-2 items-center">
-          <p>Select members</p>
-          <fa-icon icon="fa-solid fa-arrow-right" />
-        </button>
+        <Button :on-click="() => nextStep('chat-members', true)" icon="fa-arrow-right" variant="primary">
+          Select members
+        </Button>
       </section>
     </Transition>
 
     <Transition name="step">
       <section class="mt-6" v-if="canConfirmGroup()">
-        <button type="submit" @click="$emit('submitted')"
-          class="p-3 px-4 transition-all bg-sky-600 text-sm text-white rounded-2xl flex gap-2 items-center">
-          <fa-icon icon="fa-solid fa-check" />
-          <p>Create chat</p>
-        </button>
+        <Button :on-click="() => $emit('submitted')" icon="fa-check" variant="primary" submit>
+          Create chat
+        </Button>
       </section>
     </Transition>
   </form>
