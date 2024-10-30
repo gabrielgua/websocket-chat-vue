@@ -68,46 +68,4 @@ const showTooltip = ref(false);
 </template>
 
 
-<style scoped>
-.tooltip-wrapper {
-  --margin: .5rem;
-  z-index: 10;
-  position: absolute;
-}
-
-.tooltip-wrapper-bottom {
-  margin-block-start: var(--margin);
-  top: 100%;
-}
-
-.tooltip-wrapper-top {
-  margin-block-end: var(--margin);
-  bottom: 100%;
-}
-
-.tooltip-wrapper-right {
-  margin-inline-start: var(--margin);
-  left: 100%;
-}
-
-.tooltip-wrapper-left {
-  margin-inline-end: var(--margin);
-  right: 100%;
-}
-
-
-.tooltip-enter-active {
-  transition: all 0.125s ease 0.25s;
-}
-
-.tooltip-leave-active {
-  transition: all 0.125s ease;
-}
-
-
-.tooltip-enter-from,
-.tooltip-leave-to {
-  opacity: 0;
-  scale: .9;
-}
-</style>
+<style scoped></style>
