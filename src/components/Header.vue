@@ -3,7 +3,8 @@ import { emitter } from '@/services/mitt';
 import { useAuthStore } from '@/stores/auth.store';
 import { useStompStore } from '@/stores/stomp.store';
 import { onMounted } from 'vue';
-import Button from './Button.vue';
+import Dropdown from './Dropdown/Dropdown.vue';
+import DropdownItem from './Dropdown/DropdownItem.vue';
 const authStore = useAuthStore();
 const stompStore = useStompStore();
 
@@ -31,12 +32,19 @@ window.addEventListener('beforeunload', () => {
     <h1 class="font-bold text-3xl">WebSocket Chat</h1>
     <fa-icon class="text-2xl text-sky-600" icon="fa-solid fa-comments" />
 
-    <div class="ms-auto flex items-center gap-2">
-      <img class="w-6" :src="authStore.authentication.avatarUrl" :alt="authStore.authentication.userId.toString()">
-      <p class="text-sm me-2">{{ authStore.authentication.username }}</p>
-      <Button :on-click="authStore.logout" icon="fa-right-from-bracket" variant="danger-text" tooltip="Logout"
-        tooltip-pos="bottom-end" rounded />
-    </div>
+    <Dropdown class="ms-auto" variant="secondary-text" icon="fa-chevron-down" inverted>
+      <div class="flex items-center">
+        <p class="text-sm me-2">{{ authStore.authentication.username }}</p>
+        <img class="w-5" :src="authStore.authentication.avatarUrl" :alt="authStore.authentication.userId.toString()">
+      </div>
+
+      <template #dropdown-items>
+        <DropdownItem icon="fa-user">Profile</DropdownItem>
+        <DropdownItem icon="fa-gear">Settings</DropdownItem>
+        <DropdownItem :on-click="authStore.logout" variant="danger-text" icon="fa-right-from-bracket">Logout
+        </DropdownItem>
+      </template>
+    </Dropdown>
   </header>
 </template>
 

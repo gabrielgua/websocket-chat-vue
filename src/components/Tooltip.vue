@@ -45,7 +45,7 @@ const getTooltipPos = () => {
   <Transition name="tooltip">
     <div v-if="show" class="absolute tooltip" :class="getTooltipPos()">
       <div class="relative bg-white text-black px-2 py-1 rounded-xl text-sm grid">
-        <p>{{ props.title }}</p>
+        <p class="text-nowrap">{{ props.title }}</p>
         <div class="triangle absolute"></div>
       </div>
     </div>
@@ -139,6 +139,7 @@ const getTooltipPos = () => {
 .tooltip-enter-active,
 .tooltip-leave-active {
   transition: all 0.125s ease;
+
 }
 
 .tooltip-enter-from,

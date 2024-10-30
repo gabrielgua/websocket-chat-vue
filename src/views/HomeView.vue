@@ -71,8 +71,8 @@ function toggleModal() {
 
         <div class="flex items-center gap-2 justify-between">
           <h3 class="text-lg font-bold">Chats</h3>
-          <Button :on-click="toggleModal" icon="fa-ellipsis-vertical" variant="secondary" tooltip="Configurações"
-            tooltip-pos="right" rounded />
+          <Button :on-click="toggleModal" icon="fa-ellipsis-vertical" variant="secondary" tooltip="More actions"
+            tooltip-pos="bottom-end" rounded />
         </div>
         <div class="bg-slate-800 rounded-md flex items-center gap-1 ps-3 text-slate-500">
           <fa-icon icon="fa-solid fa-magnifying-glass" />

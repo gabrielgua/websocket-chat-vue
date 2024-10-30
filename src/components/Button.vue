@@ -3,16 +3,22 @@ import { ref } from 'vue';
 import type { ToolTipPosition } from './Tooltip.vue';
 import Tooltip from './Tooltip.vue';
 
+export type ButtonVariantType =
+  'primary' | 'primary-outlined' | 'primary-text' |
+  'secondary' | 'secondary-outlined' | 'secondary-text' |
+  'success' | 'success-outlined' | 'success-text' |
+  'danger' | 'danger-outlined' | 'danger-text' |
+  'link' | 'link-primary' | 'link-secondary' | 'link-success' | 'link-danger';
 
 type ButtonVariant = {
-  name: string,
+  name: ButtonVariantType,
   styles: string
 }
 
 type ButtonProps = {
   onClick?: () => void,
   icon?: string,
-  variant?: string,
+  variant?: ButtonVariantType,
   rounded?: boolean
   submit?: boolean
   inverted?: boolean,
@@ -64,6 +70,7 @@ const showTooltip = ref(false);
     </button>
 
     <Tooltip v-if="tooltip" :title="tooltip" :show="showTooltip" :position="tooltipPos" />
+
   </div>
 </template>
 

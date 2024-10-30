@@ -144,7 +144,8 @@ function isLoading() {
           </div>
         </div>
       </div>
-      <Button class="ms-auto" :on-click="() => { }" icon="fa-gear" variant="secondary-text" rounded />
+      <Button class="ms-auto" :on-click="() => { }" icon="fa-gear" variant="secondary-text" tooltip="Settings"
+        tooltip-pos="left" rounded />
     </div>
 
 
@@ -222,7 +223,8 @@ function isLoading() {
         class="flex items-center transition-all text-sm outline-none focus-within:ring-2 focus-within:ring-sky-600 bg-slate-900 w-full rounded-2xl p-2 ps-2">
         <input class="p-2 bg-transparent focus:outline-none w-full" required v-model="message" type="text"
           placeholder="Type messages here" />
-        <Button class="ms-auto" icon="fa-paper-plane" variant="primary-text" rounded submit />
+        <Button class="ms-auto" icon="fa-paper-plane" variant="primary-text" tooltip="Send" tooltip-pos="top" rounded
+          submit />
       </div>
     </form>
   </div>
