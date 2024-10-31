@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import Button, { type ButtonVariantType } from '../Button.vue';
 
-defineProps<{
+const props = defineProps<{
   icon?: string,
   variant?: ButtonVariantType
   onClick?: () => void

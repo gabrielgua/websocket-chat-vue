@@ -5,13 +5,15 @@ import Button, { type ButtonVariantType } from '../Button.vue';
 type DropdownPosition = 'start' | 'center' | 'end'
 type DropdownVariant = {
   name: DropdownPosition,
-  class: string
+  class: string,
 }
 
 const props = defineProps<{
   inverted?: boolean,
-  variant: ButtonVariantType,
-  position?: DropdownPosition
+  variant?: ButtonVariantType,
+  position?: DropdownPosition,
+  icon?: string,
+  rounded?: boolean
 }>()
 
 const showDropdown = ref(false);
@@ -36,13 +38,13 @@ const getPosition = () => {
 
 <template>
   <div class="relative grid">
-    <Button :on-click="() => showDropdown = !showDropdown" variant="secondary-text" icon="fa-chevron-down"
-      :inverted="inverted">
+    <Button :on-click="() => showDropdown = !showDropdown" :variant="variant ? variant : 'secondary'"
+      :icon="icon ? icon : showDropdown ? 'fa-chevron-up' : 'fa-chevron-down'" :inverted="inverted" :rounded="rounded">
       <slot />
     </Button>
     <Transition name="dropdown-menu">
-      <div v-if="showDropdown" v-click-outside="clickOutside"
-        class="absolute *:w-[100%] flex flex-col items-start border border-slate-800/60 shadow w-40 top-[100%] mt-2 z-20 bg-slate-900 p-2 rounded-xl"
+      <div v-if="showDropdown" v-click-outside="clickOutside" @click="clickOutside"
+        class="absolute *:w-[100%] flex flex-col items-start border border-slate-800/60 shadow min-w-40 w-max top-[100%] mt-2 z-20 bg-slate-900 p-2 rounded-xl"
         :class="getPosition()">
         <slot name="dropdown-items" />
       </div>
@@ -55,7 +57,6 @@ const getPosition = () => {
 .dropdown-menu-enter-active,
 .dropdown-menu-leave-active {
   transition: all 0.125s ease;
-
 }
 
 .dropdown-menu-enter-from,

@@ -30,7 +30,6 @@ const tooltipVariants: ToolTipVariant[] = [
 ]
 
 const getTooltipPos = () => {
-  console.log(props.position);
   if (!props.position) {
     return 'tooltip-top';
   }

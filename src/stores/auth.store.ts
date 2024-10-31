@@ -7,10 +7,12 @@ import { defineStore } from "pinia";
 import { computed, reactive, type ComputedRef } from "vue";
 import { useRouter } from "vue-router";
 import { useStompStore } from "./stomp.store";
+import { useFriendStore } from "./friend.store";
 
 export const useAuthStore = defineStore("auth", () => {
   const router = useRouter();
   const stompStore = useStompStore();
+  const friendStore = useFriendStore();
 
   type Authentication = {
     userId: number;
@@ -62,6 +64,7 @@ export const useAuthStore = defineStore("auth", () => {
       localStorage.clear();
       clearAuthentication();
       emitter.all.clear();
+      friendStore.reset();
     });
   }
 

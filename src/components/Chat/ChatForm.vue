@@ -6,7 +6,7 @@ import type { ChatRequest } from '@/types/chat.request.type';
 import { ChatType } from '@/types/chat.type';
 import type { User } from '@/types/user.type';
 import { computed, onMounted, ref } from 'vue';
-import Button from './Button.vue';
+import Button from '../Button.vue';
 
 onMounted(() => {
   friendStore.fetchFriends();
@@ -24,9 +24,7 @@ const authStore = useAuthStore();
 const chatStore = useChatStore();
 const friendStore = useFriendStore();
 
-
-
-const chatType = ref<ChatType>();
+const chatType = ChatType.group;
 const chatName = ref<string>('');
 const chatDescription = ref<string>('');
 
@@ -48,11 +46,6 @@ const chatUsers = ref<UserForm[]>([
   },
 ])
 
-function selectType(type: ChatType) {
-  chatType.value = type;
-  nextStep('chat-info', false)
-}
-
 function removeMember(userId: number) {
   if (userId === authStore.authentication.userId) {
     return;
@@ -68,25 +61,13 @@ function addMember(user: UserForm) {
   chatUsers.value.push(user);
 }
 
-type ChatTypes = {
-  name: string,
-  value: ChatType,
-  icon?: string
-}
-
 type FormSteps = {
   name: string,
   show: boolean
 }
 
-const chatTypes: ChatTypes[] = [
-  { name: 'Group', value: ChatType.group, icon: 'fa-user-group', },
-  { name: 'Private', value: ChatType.private, icon: 'fa-user', }
-]
-
 const steps = ref<FormSteps[]>([
-  { name: 'chat-type', show: true },
-  { name: 'chat-info', show: false },
+  { name: 'chat-info', show: true },
   { name: 'chat-members', show: false },
 ]);
 
@@ -115,7 +96,7 @@ function find(name: string) {
 }
 
 function canSelectMembers() {
-  return chatType.value === ChatType.group && chatName.value.length > 3 && (show('chat-info'));
+  return chatName.value.length > 3 && (show('chat-info'));
 }
 
 function canConfirmGroup() {
@@ -127,11 +108,15 @@ function isAdded(userId: number) {
 }
 
 function createGroupChat() {
+  if (!chatName.value || chatUsers.value.length < 2) {
+    return;
+  }
+
 
   var newChat: ChatRequest = {
     name: chatName.value,
     description: chatDescription.value,
-    type: chatType.value!,
+    type: chatType,
     users: chatUsers.value.map(user => user.id)
   }
 
@@ -145,23 +130,7 @@ function createGroupChat() {
   <form @submit.prevent="createGroupChat" class="flex flex-col h-full">
 
     <Transition name="step">
-
-      <section class="text-sm" v-if="show('chat-type')">
-        <p class="text-slate-400 font-bold">Chat Type</p>
-        <p class="mb-3 text-[12px] text-slate-500">What type will your chat be?</p>
-        <div class="flex gap-3">
-          <button v-for="type in chatTypes" type="button" @click="selectType(type.value)"
-            class="transition-all flex gap-2 items-center p-2 px-4 rounded-lg hover:bg-slate-800 "
-            :class="[chatType === type.value ? 'text-slate-300 bg-slate-800' : 'text-slate-500 bg-slate-800/30']">
-            <fa-icon :icon="'fa-solid ' + type.icon" class="text-sky-600" />
-            <p>{{ type.name }}</p>
-          </button>
-        </div>
-      </section>
-    </Transition>
-
-    <Transition name="step">
-      <section v-if="chatType === ChatType.group && show('chat-info')" class="mt-6">
+      <section v-if="show('chat-info')">
         <p class="text-slate-400 font-bold">Chat Information</p>
         <p class="mb-3 text-[12px] text-slate-500">What is your chat going to be called? Will it have a description?</p>
         <div>
@@ -185,13 +154,21 @@ function createGroupChat() {
     <Transition name="step">
 
       <section v-if="show('chat-members')">
-        <p class="text-slate-400 font-bold">Chat Members</p>
-        <p class="mb-3 text-[12px] text-slate-500">
-          Select the members for the
-          <span class="text-white font-bold">'{{ chatName }}'</span>
-          chat.
-        </p>
-        <div class="mt-3 bg-slate-800 rounded-md flex items-center gap-1 ps-3 text-slate-500">
+
+
+        <div class="flex items-center gap-3 mb-5">
+          <Button :on-click="() => nextStep('chat-info', true)" variant="secondary" icon="fa-arrow-left" rounded
+            tooltip="Chat information" tooltip-pos="top-start" />
+          <div>
+            <p class="text-slate-400 font-bold">Chat Members</p>
+            <p class="text-[12px] text-slate-500">
+              Select the members for the
+              <span class="text-white font-bold">'{{ chatName }}'</span>
+              chat.
+            </p>
+          </div>
+        </div>
+        <div class="bg-slate-800 rounded-md flex items-center gap-1 ps-3 text-slate-500">
           <fa-icon icon="fa-solid fa-magnifying-glass" />
           <input v-model="memberSearch" class="bg-transparent p-3 w-full outline-none text-white font-light text-sm"
             placeholder="Search for friends" type="text">
@@ -210,8 +187,7 @@ function createGroupChat() {
           </li>
         </ul>
 
-        <ul
-          class="mt-4 rounded-lg grid divide-y divide-slate-800 border border-slate-800 overflow-hidden overflow-y-auto max-h-[50rem] flex-grow">
+        <ul class="mt-4 rounded-lg grid divide-y divide-slate-800 border border-slate-800  max-h-[50rem] flex-grow">
 
           <li class="p-3" v-if="!friendsFiltered.length">
             <p class="text-sm text-slate-400 font-semibold">No friends found 😿</p>
@@ -220,18 +196,20 @@ function createGroupChat() {
 
           <TransitionGroup name="friend-list">
             <li v-if="friendsFiltered.length" v-for="friend in friendsFiltered">
-              <div class="flex gap-2 p-2 items-center transition-all" :class="{ 'bg-sky-600/30': isAdded(friend.id) }">
+              <div class="flex gap-2 p-2 items-center transition-all"
+                :class="{ 'bg-sky-600/10 rounded-md': isAdded(friend.id) }">
                 <img class="w-10 aspect-square block" :src="friend.avatarUrl" alt="profile pic">
                 <span class="text-sm">
                   <p class="font-semibold">{{ friend.name }}</p>
                   <p class="text-[12px] text-slate-400">@{{ friend.username }}</p>
                 </span>
                 <section class="flex gap-2 ms-auto">
-                  <Button v-if="!isAdded(friend.id)"
+                  <Button v-if="!isAdded(friend.id)" :tooltip="`Add ${friend.username}`" tooltip-pos="left"
                     :on-click="() => addMember({ id: friend.id, username: friend.username, avatarUrl: friend.avatarUrl })"
                     icon="fa-add" variant="primary" rounded />
 
-                  <Button v-else :on-click="() => removeMember(friend.id)" icon="fa-trash" variant="danger" rounded />
+                  <Button v-else :tooltip="`Remove ${friend.username}`" tooltip-pos="left"
+                    :on-click="() => removeMember(friend.id)" icon="fa-trash" variant="danger" rounded />
                 </section>
               </div>
             </li>
@@ -243,15 +221,15 @@ function createGroupChat() {
 
 
     <Transition name="step">
-      <section class="mt-6" v-if="canSelectMembers()">
+      <section class="mt-6 place-self-start" v-if="canSelectMembers()">
         <Button :on-click="() => nextStep('chat-members', true)" icon="fa-arrow-right" variant="primary">
-          Select members
+          Chat members
         </Button>
       </section>
     </Transition>
 
     <Transition name="step">
-      <section class="mt-6" v-if="canConfirmGroup()">
+      <section class="mt-6 place-self-start" v-if="canConfirmGroup()">
         <Button :on-click="() => $emit('submitted')" icon="fa-check" variant="primary" submit>
           Create chat
         </Button>
@@ -267,17 +245,15 @@ function createGroupChat() {
 }
 
 .step-leave-active {
-  transition: all 0ms;
+  transition: all 0ms ease;
 }
 
+.step-leave-to,
 .step-enter-from {
   scale: .85;
   opacity: 0;
-}
-
-.step-leave-to {
-  opacity: 0;
-  scale: .85;
+  position: absolute;
+  /* transform: translateX(1rem); */
 }
 
 .friend-list-enter-active

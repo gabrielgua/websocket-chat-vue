@@ -32,7 +32,7 @@ window.addEventListener('beforeunload', () => {
     <h1 class="font-bold text-3xl">WebSocket Chat</h1>
     <fa-icon class="text-2xl text-sky-600" icon="fa-solid fa-comments" />
 
-    <Dropdown class="ms-auto" variant="secondary-text" icon="fa-chevron-down" inverted>
+    <Dropdown class="ms-auto" variant="secondary-text" chevronIcon inverted>
       <div class="flex items-center">
         <p class="text-sm me-2">{{ authStore.authentication.username }}</p>
         <img class="w-5" :src="authStore.authentication.avatarUrl" :alt="authStore.authentication.userId.toString()">
@@ -41,7 +41,8 @@ window.addEventListener('beforeunload', () => {
       <template #dropdown-items>
         <DropdownItem icon="fa-user">Profile</DropdownItem>
         <DropdownItem icon="fa-gear">Settings</DropdownItem>
-        <DropdownItem :on-click="authStore.logout" variant="danger-text" icon="fa-right-from-bracket">Logout
+        <DropdownItem :on-click="authStore.logout" variant="danger-text" icon="fa-right-from-bracket">
+          Logout
         </DropdownItem>
       </template>
     </Dropdown>

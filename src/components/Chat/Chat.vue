@@ -12,8 +12,8 @@ import { format, isSameDay, isToday, isYesterday } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { computed, onMounted, onUnmounted, onUpdated, ref, watch } from 'vue';
 import ChatIcon from './ChatIcon.vue';
-import Spinner from './Spinner.vue';
-import Button from './Button.vue';
+import Spinner from '../Spinner.vue';
+import Button from '../Button.vue';
 
 const message = ref('');
 const authStore = useAuthStore();
