@@ -6,6 +6,7 @@ import ChatList from '@/components/Chat/ChatList.vue';
 import Dropdown from '@/components/Dropdown/Dropdown.vue';
 import DropdownItem from '@/components/Dropdown/DropdownItem.vue';
 import Header from '@/components/Header.vue';
+import Input from '@/components/Input.vue';
 import Modal from '@/components/Modal.vue';
 import Spinner from '@/components/Spinner.vue';
 import { emitter } from '@/services/mitt';
@@ -81,11 +82,7 @@ function toggleModal() {
           </Dropdown>
 
         </div>
-        <div class="bg-slate-800 rounded-md flex items-center gap-1 ps-3 text-slate-500">
-          <fa-icon icon="fa-solid fa-magnifying-glass" />
-          <input v-model="chatSearch" class="bg-transparent p-3 w-full outline-none text-white font-light text-sm"
-            placeholder="Search chats" type="text">
-        </div>
+        <Input v-model="chatSearch" type="search" placeholder="Search for chats" icon-start="fa-magnifying-glass" />
 
         <div class="grid grid-cols-3 mt-2">
           <button v-for="filter in filters" @click="changeFilter(filter.type)"
@@ -100,10 +97,8 @@ function toggleModal() {
 
       </div>
 
-      <div class="flex flex-col pt-6 overflow-y-auto chat-list">
-        <ChatList :chats="filteredChats"></ChatList>
+      <ChatList class="pt-6" :chats="filteredChats"></ChatList>
 
-      </div>
     </div>
 
     <ChatComponent class="md:col-span-2 sm:col-span-1" />
@@ -132,29 +127,5 @@ function toggleModal() {
     --container-margin: 0;
     --container-height: 100dvh;
   }
-}
-
-.chat-list:hover ::-webkit-scrollbar-thumb {
-  display: block;
-}
-
-/* width */
-::-webkit-scrollbar {
-  width: .25rem;
-}
-
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-/* Handle */
-::-webkit-scrollbar-thumb {
-  background: rgb(2 132 199);
-  border-radius: .25rem;
-}
-
-/* Handle on hover */
-::-webkit-scrollbar-thumb:hover {
-  background: white;
 }
 </style>

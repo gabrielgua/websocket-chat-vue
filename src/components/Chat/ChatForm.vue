@@ -7,6 +7,8 @@ import { ChatType } from '@/types/chat.type';
 import type { User } from '@/types/user.type';
 import { computed, onMounted, ref } from 'vue';
 import Button from '../Button.vue';
+import Input from '../Input.vue';
+import Textarea from '../Textarea.vue';
 
 onMounted(() => {
   friendStore.fetchFriends();
@@ -133,20 +135,9 @@ function createGroupChat() {
       <section v-if="show('chat-info')">
         <p class="text-slate-400 font-bold">Chat Information</p>
         <p class="mb-3 text-[12px] text-slate-500">What is your chat going to be called? Will it have a description?</p>
-        <div>
-          <div class="bg-slate-800 rounded-md flex items-center gap-1 ps-3 text-slate-500">
-            <fa-icon icon="fa-solid fa-comment" />
-            <input v-model="chatName" id="chatName"
-              class="bg-transparent p-3 w-full outline-none text-white font-light text-sm" placeholder="Chat name"
-              type="text">
-          </div>
-          <div class="mt-2 bg-slate-800 rounded-md flex items-center gap-1 ps-3 text-slate-500">
-            <fa-icon icon="fa-solid fa-pen" class="self-start mt-4" />
-            <textarea v-model="chatDescription" id="chatDescription"
-              class="resize-none bg-transparent p-3 w-full outline-none text-white font-light text-sm"
-              placeholder="Description (optional)" type="text" />
-          </div>
-        </div>
+        <Input as="input" type="text" v-model="chatName" placeholder="Chat name" icon-start="fa-comment" />
+
+        <Textarea class="mt-4" icon-start="fa-pen" placeholder="Description (optional)" v-model="chatDescription" />
       </section>
 
     </Transition>
@@ -154,7 +145,6 @@ function createGroupChat() {
     <Transition name="step">
 
       <section v-if="show('chat-members')">
-
 
         <div class="flex items-center gap-3 mb-5">
           <Button :on-click="() => nextStep('chat-info', true)" variant="secondary" icon="fa-arrow-left" rounded
@@ -168,11 +158,8 @@ function createGroupChat() {
             </p>
           </div>
         </div>
-        <div class="bg-slate-800 rounded-md flex items-center gap-1 ps-3 text-slate-500">
-          <fa-icon icon="fa-solid fa-magnifying-glass" />
-          <input v-model="memberSearch" class="bg-transparent p-3 w-full outline-none text-white font-light text-sm"
-            placeholder="Search for friends" type="text">
-        </div>
+        <Input icon-start="fa-magnifying-glass" placeholder="Search for friends" type="text" v-model="memberSearch" />
+
 
         <ul class="flex flex-wrap gap-3 mt-3">
           <li class="flex gap-2 items-center">
@@ -189,12 +176,14 @@ function createGroupChat() {
 
         <ul class="mt-4 rounded-lg grid divide-y divide-slate-800 border border-slate-800  max-h-[50rem] flex-grow">
 
-          <li class="p-3" v-if="!friendsFiltered.length">
-            <p class="text-sm text-slate-400 font-semibold">No friends found 😿</p>
-            <p class="text-[12px] text-slate-500">Try adding some friends before creating a group chat.</p>
-          </li>
+          <Transition name="step">
+            <li class="p-3" v-if="!friendsFiltered.length">
+              <p class="text-sm text-slate-400 font-semibold">No friends found 😿</p>
+              <p class="text-[12px] text-slate-500">Try adding some friends before creating a group chat.</p>
+            </li>
+          </Transition>
 
-          <TransitionGroup name="friend-list">
+          <TransitionGroup name="friend-list" tag="ul">
             <li v-if="friendsFiltered.length" v-for="friend in friendsFiltered">
               <div class="flex gap-2 p-2 items-center transition-all"
                 :class="{ 'bg-sky-600/10 rounded-md': isAdded(friend.id) }">
@@ -212,6 +201,7 @@ function createGroupChat() {
                     :on-click="() => removeMember(friend.id)" icon="fa-trash" variant="danger" rounded />
                 </section>
               </div>
+
             </li>
           </TransitionGroup>
 
@@ -253,27 +243,21 @@ function createGroupChat() {
   scale: .85;
   opacity: 0;
   position: absolute;
-  /* transform: translateX(1rem); */
 }
 
-.friend-list-enter-active
-
-/* .friend-list-leave-active { */
-  {
+.friend-list-move,
+.friend-list-enter-active,
+.friend-list-leave-active {
   transition: all 250ms ease;
 }
 
-.friend-list-leave-active {
-  transition: all 0ms;
-}
-
-.friend-list-enter-from {
-  transform: translateX(50px);
-  opacity: 0;
-}
-
+.friend-list-enter-from,
 .friend-list-leave-to {
-  transform: translateX(-50px);
   opacity: 0;
+  scale: .95;
+}
+
+.friend-list-leave-active {
+  position: absolute;
 }
 </style>

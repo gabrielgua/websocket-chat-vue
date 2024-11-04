@@ -9,6 +9,10 @@ import type { Message } from '@/types/message.type';
 import { onUnmounted } from 'vue';
 import ChatIcon from './ChatIcon.vue';
 import { formatTimestamp } from '@/utils/date';
+import { useAuthStore } from '@/stores/auth.store';
+import { format, formatDistance, isToday, isYesterday, subDays } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
+import type { User } from '@/types/user.type';
 
 defineProps<{
   chats: Chat[]
@@ -21,6 +25,7 @@ onUnmounted(() => {
 
 
 const chatStore = useChatStore();
+const authStore = useAuthStore();
 const userStore = useUserStore();
 const messageStore = useMessageStore();
 const unreadStore = useUnreadStore();
@@ -58,15 +63,27 @@ function handleOnMessage(body: string) {
   }
 }
 
+function isAuthenticatedUser(user: User) {
+  return authStore.authentication.userId === user.id;
+}
+
+function displayUsername(user: User) {
+  return isAuthenticatedUser(user) ? 'You' : user.username;
+}
+
 function hasLastMessage(chat: Chat): boolean {
   return Object.keys(chat.lastMessage).length > 0;
+}
+
+function displayFullTimestamp(timestamp: Date) {
+  return formatDistance(timestamp, new Date(), { addSuffix: true, locale: ptBR });
 }
 
 
 </script>
 
 <template>
-  <TransitionGroup name="chat-list">
+  <TransitionGroup name="chat-list" tag="ul" class="relative overflow-y-scroll">
     <button class="group w-full flex items-center p-3 gap-4 transition-all" v-for="chat in chats" :key="chat.id"
       @click="changeCurrent(chat)" :class="isCurrent(chat) ? 'bg-slate-800' : 'hover:bg-slate-800/50'">
 
@@ -77,9 +94,12 @@ function hasLastMessage(chat: Chat): boolean {
         <p class="font-bold">{{ chat.name }}</p>
         <p class="text-xs text-slate-400 truncate max-w-full" v-if="hasLastMessage(chat)">
           <span class="font-semibold" v-if="chat.type === ChatType.group">
-            {{ isSender(chat.lastMessage) ? 'You' : chat.lastMessage.sender.username }}:
+            {{ displayUsername(chat.lastMessage.sender) }}:
           </span>
           {{ chat.lastMessage.content }}
+        </p>
+        <p v-else class="text-xs text-slate-400 truncate max-w-full">
+          {{ displayUsername(chat.creator) }} created this chat.
         </p>
       </div>
 
@@ -87,7 +107,9 @@ function hasLastMessage(chat: Chat): boolean {
         <div class="flex flex-col h-full items-end">
           <p class="text-[11px] mb-auto" :class="{ 'text-sky-400': chat.notifications > 0 }"
             v-if="hasLastMessage(chat)">
-            {{ formatTimestamp(chat.lastMessage.timestamp) }}</p>
+            {{ formatTimestamp(chat.lastMessage.timestamp) }}
+          </p>
+          <p v-else class="text-[11px] mb-auto">{{ displayFullTimestamp(chat.createdAt) }}</p>
           <div class="text-right flex items-center gap-3 ">
             <Transition name="chat-notification">
               <p class="rounded-full grid place-items-center w-5 bg-sky-600 aspect-square text-white font-semibold"
@@ -103,15 +125,45 @@ function hasLastMessage(chat: Chat): boolean {
 
 
 <style scoped>
+/* width */
+::-webkit-scrollbar {
+  width: .25rem;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: rgb(2 132 199);
+  border-radius: .25rem;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: white;
+}
+
+.chat-list-move,
 .chat-list-enter-active,
 .chat-list-leave-active {
-  transition: all 0.25s ease;
+  transition: all 250ms ease;
 }
 
 .chat-list-enter-from,
 .chat-list-leave-to {
   opacity: 0;
-  scale: .9;
+  scale: .95;
+  /* position: absolute; */
+  /* transform: translateX(30px); */
+
+}
+
+.chat-list-leave-active {
+  /* transition: all 250ms ease; */
+  position: absolute;
+  /* width: max-content;; */
 }
 
 .chat-notification-enter-active,
