@@ -5,23 +5,28 @@ import ChatForm from '@/components/Chat/ChatForm.vue';
 import ChatList from '@/components/Chat/ChatList.vue';
 import Dropdown from '@/components/Dropdown/Dropdown.vue';
 import DropdownItem from '@/components/Dropdown/DropdownItem.vue';
+import FriendForm from '@/components/FriendForm.vue';
 import Header from '@/components/Header.vue';
 import Input from '@/components/Input.vue';
 import Modal from '@/components/Modal.vue';
 import Spinner from '@/components/Spinner.vue';
 import { emitter } from '@/services/mitt';
 import { useChatStore } from '@/stores/chat.store';
+import { useUserSearchStore } from '@/stores/userSearch.store';
 import { ChatFilter, type Chat } from '@/types/chat.type';
 import { computed, ref, type ComputedRef } from 'vue';
 
 
-const modalActive = ref(false);
+const groupModalActive = ref(false);
+const friendModalActive = ref(false);
+
+const searchStore = useUserSearchStore();
 const chatStore = useChatStore();
 const chatSearch = ref('');
 const chatFilter = ref(ChatFilter.all);
 
 emitter.on('chatCreated', () => {
-  toggleModal();
+  toggleGroupModal();
 })
 
 const filteredChats: ComputedRef<Chat[]> = computed(() => {
@@ -57,8 +62,13 @@ const filters: Filter[] = [
   { name: 'Group', type: ChatFilter.group, icon: 'fa-user-group' }
 ]
 
-function toggleModal() {
-  modalActive.value = !modalActive.value;
+function toggleGroupModal() {
+  groupModalActive.value = !groupModalActive.value;
+}
+
+function toggleFriendModal() {
+  searchStore.reset();
+  friendModalActive.value = !friendModalActive.value;
 }
 
 </script>
@@ -76,8 +86,8 @@ function toggleModal() {
           <h3 class="text-lg font-bold">Chats</h3>
           <Dropdown icon="fa-ellipsis-vertical" rounded>
             <template #dropdown-items>
-              <DropdownItem icon="fa-user-plus">Add friend</DropdownItem>
-              <DropdownItem :on-click="toggleModal" icon="fa-comments">New group</DropdownItem>
+              <DropdownItem :on-click="toggleFriendModal" icon="fa-user-plus">Add friend</DropdownItem>
+              <DropdownItem :on-click="toggleGroupModal" icon="fa-comments">New group</DropdownItem>
             </template>
           </Dropdown>
 
@@ -103,12 +113,16 @@ function toggleModal() {
 
     <ChatComponent class="md:col-span-2 sm:col-span-1" />
 
-    <Modal :modal-active="modalActive" @close-modal="toggleModal" title="Create a new group chat">
+    <Modal :modal-active="groupModalActive" @close-modal="toggleGroupModal" title="Create a new group chat">
       <span class="self-center grid place-items-center gap-4" v-if="chatStore.state.loading">
         <Spinner />
         <p class="text-sm text-slate-400">Creating chat</p>
       </span>
       <ChatForm v-else />
+    </Modal>
+
+    <Modal :modal-active="friendModalActive" @close-modal="toggleFriendModal" title="Find and add users">
+      <FriendForm />
     </Modal>
   </div>
 </template>

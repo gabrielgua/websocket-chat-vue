@@ -1,3 +1,4 @@
+import vueDebounce from "vue-debounce";
 import { createPinia } from "pinia";
 import { createApp } from "vue";
 
@@ -18,6 +19,10 @@ const app = createApp(App);
 app.use(router);
 app.use(createPinia());
 app.use(vClickOutside);
+app.directive(
+  "debounce",
+  vueDebounce({ lock: true, trim: true, cancelOnEmpty: true })
+);
 app.component("fa-icon", FontAwesomeIcon);
 
 app.mount("#app");
