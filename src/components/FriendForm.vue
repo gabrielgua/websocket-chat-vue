@@ -20,7 +20,7 @@ const findByTerm = () => {
 </script>
 
 <template>
-  <form class="flex flex-col gap-3">
+  <form class="flex flex-col gap-10">
     <section>
       <label for="search" class="text-slate-400 font-bold">Search for users</label>
       <p class="mb-3 text-[12px] text-slate-500">Find users to start new chats with.</p>
@@ -38,11 +38,11 @@ const findByTerm = () => {
     <Transition name="fade">
       <section v-if="searchStore.state.empty && !searchStore.state.loading"
         class="border border-slate-800 p-3 rounded-lg">
-        <p class="text-slate-300 text-sm mb-2">No user found 😿, try searching again!</p>
-        <p class="text-slate-400 text-[11px]">This could have happend either because the search term was wrong or we
-          don't
-          have any user with the search term
-          name or username.</p>
+        <p class="text-slate-400 font-semibold text-sm mb-2">No user found 😿</p>
+        <p class="text-slate-500 text-[12px]">
+          This could have happend either because the search term was wrong or we don't have any user with the search
+          term name or username.
+        </p>
       </section>
     </Transition>
 

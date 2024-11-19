@@ -143,7 +143,6 @@ function createGroupChat() {
     </Transition>
 
     <Transition name="step">
-
       <section v-if="show('chat-members')">
 
         <div class="flex items-center gap-3 mb-5">
@@ -174,20 +173,21 @@ function createGroupChat() {
           </li>
         </ul>
 
-        <ul class="mt-4 rounded-lg grid divide-y divide-slate-800 border border-slate-800  max-h-[50rem] flex-grow">
+        <Transition name="step">
+          <div class="border border-slate-800 rounded-xl p-3 mt-10" v-if="!friendsFiltered.length">
+            <p class="text-sm text-slate-400 font-semibold">No friends found 😿</p>
+            <p class="text-[12px] text-slate-500">Try adding some friends before creating a group chat.</p>
+          </div>
+        </Transition>
 
-          <Transition name="step">
-            <li class="p-3" v-if="!friendsFiltered.length">
-              <p class="text-sm text-slate-400 font-semibold">No friends found 😿</p>
-              <p class="text-[12px] text-slate-500">Try adding some friends before creating a group chat.</p>
-            </li>
-          </Transition>
-
-          <TransitionGroup name="friend-list" tag="ul">
-            <li v-if="friendsFiltered.length" v-for="friend in friendsFiltered">
-              <div class="flex gap-2 p-2 items-center transition-all"
+        <Transition name="step">
+          <div v-if="friendsFiltered.length" class="mt-10">
+            <TransitionGroup name="friend-list" tag="ul" class="flex flex-col gap-2 relative">
+              <li v-for="friend in friendsFiltered"
+                class="flex gap-3 items-center transition-all border border-slate-800 p-3 rounded-xl w-full"
                 :class="{ 'bg-sky-600/10 rounded-md': isAdded(friend.id) }">
-                <img class="w-10 aspect-square block" :src="friend.avatarUrl" alt="profile pic">
+                <img class="rounded-full w-10 ring-2 ring-sky-600 ring-offset-2 ring-offset-slate-800"
+                  :src="friend.avatarUrl" alt="profile pic">
                 <span class="text-sm">
                   <p class="font-semibold">{{ friend.name }}</p>
                   <p class="text-[12px] text-slate-400">@{{ friend.username }}</p>
@@ -200,12 +200,13 @@ function createGroupChat() {
                   <Button v-else :tooltip="`Remove ${friend.username}`" tooltip-pos="left"
                     :on-click="() => removeMember(friend.id)" icon="fa-trash" variant="danger" rounded />
                 </section>
-              </div>
 
-            </li>
-          </TransitionGroup>
+              </li>
+            </TransitionGroup>
 
-        </ul>
+          </div>
+        </Transition>
+
       </section>
     </Transition>
 
@@ -235,7 +236,7 @@ function createGroupChat() {
 }
 
 .step-leave-active {
-  transition: all 0ms ease;
+  transition: all 0ms;
 }
 
 .step-leave-to,
