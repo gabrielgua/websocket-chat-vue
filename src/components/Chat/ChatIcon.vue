@@ -26,7 +26,7 @@ function isPrivate(chat: Chat) {
 </script>
 
 <template>
-  <div class="relative min-w-12 grid place-items-center rounded-full aspect-square bg-slate-600/50">
+  <div class="transition-all relative min-w-12 grid place-items-center rounded-full aspect-square bg-slate-600/50">
     <img :src="chat.receiver.avatarUrl" v-if="chat.receiver" />
     <p class="font-bold" v-else>{{ generateNameAbreviation(chat.name) }}</p>
 

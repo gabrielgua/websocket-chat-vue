@@ -55,7 +55,7 @@ const findByTerm = () => {
               :src="user.avatarUrl">
             <div>
               <h5 class="font-bold">{{ user.name }}</h5>
-              <p class="text-sm text-slate-400">@{{ user.username }} </p>
+              <p class="text-[12px] text-slate-400">@{{ user.username }} </p>
             </div>
             <div class="ml-auto">
               <Button icon="fa-user-plus" inverted variant="primary">

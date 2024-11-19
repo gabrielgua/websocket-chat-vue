@@ -129,23 +129,24 @@ function isLoading() {
 
       <ChatIcon :chat="current" status />
 
-      <div class="transition-all">
+      <div class="flex flex-col transition-all">
+
         <p class="font-bold">{{ current.name }}</p>
-        <div class="text-xs text-slate-400">
-          <div v-if="chatStore.isGroupChat(current)" class="flex items-center">
+        <div v-if="chatStore.isGroupChat(current)">
+          <div class="flex items-center text-xs text-slate-400">
             <p>{{ current.statusCount.members }} members - </p>
             <span class="w-2 flex aspect-square rounded-full mx-1 bg-green-600"></span>
             <p>{{ current.statusCount.online }} online</p>
           </div>
-          <div v-else>
-            <Transition name="online">
-              <p v-if="chatStore.isReceiverOnline(current)">online</p>
-            </Transition>
-          </div>
         </div>
+        <Transition name="online">
+          <div v-if="chatStore.isReceiverOnline(current)">
+            <p class="text-xs text-slate-400">online</p>
+          </div>
+        </Transition>
       </div>
-      <Button class="ms-auto" :on-click="() => { }" icon="fa-gear" variant="secondary-text" tooltip="Settings"
-        tooltip-pos="left" rounded />
+
+      <Button class="ms-auto" icon="fa-gear" variant="secondary-text" tooltip="Settings" tooltip-pos="left" rounded />
     </div>
 
 
@@ -273,14 +274,18 @@ function isLoading() {
   background: white;
 }
 
-.online-enter-active,
+.online-enter-active {
+  transition: all 250ms ease;
+}
+
 .online-leave-active {
-  transition: opacity 0.5s ease;
+  transition: all 0ms;
 }
 
 .online-enter-from,
 .online-leave-to {
   opacity: 0;
+  scale: .8;
 }
 
 .grid-columns {
