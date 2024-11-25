@@ -5,21 +5,20 @@ import { useChatStore } from '@/stores/chat.store';
 import { useMessageStore } from '@/stores/message.store';
 import { useStompStore } from '@/stores/stomp.store';
 import { useUserStore } from '@/stores/user.store';
-import { ChatType, type Chat } from '@/types/chat.type';
+import { ChatType } from '@/types/chat.type';
 import type { Message } from '@/types/message.type';
 import type { User } from '@/types/user.type';
 import { format, isSameDay, isToday, isYesterday } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { computed, onMounted, onUnmounted, onUpdated, ref, watch } from 'vue';
-import ChatIcon from './ChatIcon.vue';
-import Spinner from '../Spinner.vue';
 import Button from '../Button.vue';
+import Spinner from '../Spinner.vue';
+import ChatIcon from './ChatIcon.vue';
 
 const message = ref('');
 const authStore = useAuthStore();
 const userStore = useUserStore();
 const chatStore = useChatStore();
-const stompStore = useStompStore();
 const messageStore = useMessageStore();
 
 const current = computed(() => chatStore.current);
@@ -56,13 +55,7 @@ function scrollToBottom(behavior: ScrollBehavior) {
 }
 
 function sendMessage() {
-  const messageRequest = {
-    senderId: authStore.authentication.userId,
-    chatId: current.value.id,
-    content: message.value.trim(),
-  };
-
-  stompStore.send(`/app/chats/${messageRequest.chatId}.sendMessage`, messageRequest);
+  chatStore.sendMessage({ chatId: current.value.id, content: message.value.trim() });
   message.value = '';
 }
 

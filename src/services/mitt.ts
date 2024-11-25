@@ -6,6 +6,8 @@ type Events = {
   disconnected: string;
   notification: string;
   chatCreated: string;
+
+  requestReceived: string;
 };
 
 export const emitter = mitt<Events>();

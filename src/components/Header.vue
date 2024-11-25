@@ -5,6 +5,7 @@ import { useStompStore } from '@/stores/stomp.store';
 import { onMounted } from 'vue';
 import Dropdown from './Dropdown/Dropdown.vue';
 import DropdownItem from './Dropdown/DropdownItem.vue';
+
 const authStore = useAuthStore();
 const stompStore = useStompStore();
 

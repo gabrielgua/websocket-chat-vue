@@ -2,11 +2,11 @@ import { http } from "@/services/http";
 import { emitter } from "@/services/mitt";
 import type { ChatRequest } from "@/types/chat.request.type";
 import { ChatType, type Chat, type ChatShort } from "@/types/chat.type";
+import type { MessageRequest } from "@/types/message.request.type";
 import type { Message } from "@/types/message.type";
 import { UserStatus } from "@/types/user.type";
-import { getRadomColor } from "@/utils/colors";
 import { defineStore } from "pinia";
-import { reactive, ref, type Ref } from "vue";
+import { reactive, ref } from "vue";
 
 export const useChatStore = defineStore("chat", () => {
   const ENDPOINT = "/api/chats";
@@ -15,7 +15,7 @@ export const useChatStore = defineStore("chat", () => {
   const current = ref<Chat>({} as Chat);
   const state = reactive({ loading: false, error: false });
 
-  function fetchChats() {
+  function fetch() {
     state.loading = true;
     chats.value = [];
     return http
@@ -66,6 +66,12 @@ export const useChatStore = defineStore("chat", () => {
         }
       });
     });
+  }
+
+  function sendMessage(message: MessageRequest) {
+    http
+      .post(`/api/chats/${message.chatId}/messages`, message)
+      .then(() => console.log("Message sent!"));
   }
 
   function updateLastMessage(message: Message) {
@@ -145,7 +151,7 @@ export const useChatStore = defineStore("chat", () => {
     current,
     changeCurrent,
     state,
-    fetchChats,
+    fetchChats: fetch,
     fetchChatStatusCount,
     createChat,
     updateLastMessage,
@@ -154,5 +160,6 @@ export const useChatStore = defineStore("chat", () => {
     isGroupChat,
     find,
     currentIsEmpty,
+    sendMessage,
   };
 });
