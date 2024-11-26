@@ -84,7 +84,7 @@ function displayFullTimestamp(timestamp: Date) {
 
 <template>
   <TransitionGroup name="chat-list" tag="ul" class="relative overflow-y-auto">
-    <button class="group w-full flex items-center p-3 gap-4 transition-all" v-for="chat in chats" :key="chat.id"
+    <button class="group w-full flex items-center p-3 px-4 gap-4 transition-all" v-for="chat in chats" :key="chat.id"
       @click="changeCurrent(chat)" :class="isCurrent(chat) ? 'bg-slate-800' : 'hover:bg-slate-800/50'">
 
       <ChatIcon :chat="chat" />
