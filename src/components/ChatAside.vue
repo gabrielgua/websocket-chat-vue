@@ -72,45 +72,48 @@ function toggleFriendModal() {
 </script>
 
 <template>
-  <div class="px-4 mt-6 grid gap-3">
-    <div class="flex items-center gap-2 justify-between ">
-      <h3 class="text-lg font-bold">Chats</h3>
-      <Dropdown icon="fa-ellipsis-vertical" rounded>
-        <template #dropdown-items>
-          <DropdownItem :on-click="toggleFriendModal" icon="fa-user-plus">Add friend</DropdownItem>
-          <DropdownItem :on-click="toggleGroupModal" icon="fa-comments">New group</DropdownItem>
-        </template>
-      </Dropdown>
+  <section>
+
+    <div class="px-4 mt-6 grid gap-3">
+      <div class="flex items-center gap-2 justify-between ">
+        <h3 class="text-lg font-bold">Chats</h3>
+        <Dropdown icon="fa-ellipsis-vertical" rounded>
+          <template #dropdown-items>
+            <DropdownItem :on-click="toggleFriendModal" icon="fa-user-plus">Add friend</DropdownItem>
+            <DropdownItem :on-click="toggleGroupModal" icon="fa-comments">New group</DropdownItem>
+          </template>
+        </Dropdown>
+      </div>
+      <Input v-model="chatSearch" type="search" placeholder="Search for chats" icon-start="fa-magnifying-glass" />
+
+      <div class="grid grid-cols-3 mt-2">
+        <button v-for="filter in filters" @click="changeFilter(filter.type)"
+          class="flex items-center gap-2 justify-center py-1 rounded-2xl hover:bg-slate-800 transition-all"
+          :class="{ 'bg-slate-800': isFilter(filter.type) }">
+          <fa-icon :icon="'fa-solid ' + filter.icon" class="text-sm text-sky-600"></fa-icon>
+          <p class="text-sm">{{ filter.name }}</p>
+        </button>
+      </div>
+
     </div>
-    <Input v-model="chatSearch" type="search" placeholder="Search for chats" icon-start="fa-magnifying-glass" />
+    <hr class="border-slate-800 my-4" />
 
-    <div class="grid grid-cols-3 mt-2">
-      <button v-for="filter in filters" @click="changeFilter(filter.type)"
-        class="flex items-center gap-2 justify-center py-1 rounded-2xl hover:bg-slate-800 transition-all"
-        :class="{ 'bg-slate-800': isFilter(filter.type) }">
-        <fa-icon :icon="'fa-solid ' + filter.icon" class="text-sm text-sky-600"></fa-icon>
-        <p class="text-sm">{{ filter.name }}</p>
-      </button>
-    </div>
-
-  </div>
-  <hr class="border-slate-800 my-4" />
-
-  <ChatList :chats="filteredChats" />
+    <ChatList :chats="filteredChats" />
 
 
 
-  <Modal :modal-active="groupModalActive" @close-modal="toggleGroupModal" title="Create a new group chat">
-    <span class="self-center grid place-items-center gap-4" v-if="chatStore.state.loading">
-      <Spinner />
-      <p class="text-sm text-slate-400">Creating chat</p>
-    </span>
-    <ChatForm v-else />
-  </Modal>
+    <Modal :modal-active="groupModalActive" @close-modal="toggleGroupModal" title="Create a new group chat">
+      <span class="self-center grid place-items-center gap-4" v-if="chatStore.state.loading">
+        <Spinner />
+        <p class="text-sm text-slate-400">Creating chat</p>
+      </span>
+      <ChatForm v-else />
+    </Modal>
 
-  <Modal :modal-active="friendModalActive" @close-modal="toggleFriendModal" title="Find and add users">
-    <FriendForm />
-  </Modal>
+    <Modal :modal-active="friendModalActive" @close-modal="toggleFriendModal" title="Find and add users">
+      <FriendForm />
+    </Modal>
+  </section>
 </template>
 
 

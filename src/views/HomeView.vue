@@ -2,22 +2,34 @@
 import ChatComponent from '@/components/Chat/Chat.vue';
 import ChatAside from '@/components/ChatAside.vue';
 import Logo from '@/components/Logo.vue';
-import Menu from '@/components/Menu.vue';
+import AsideMenu from '@/components/AsideMenu.vue';
+import { useAsideStore, type AsideType } from '@/stores/aside.store';
+import RequestAside from '@/components/RequestAside.vue';
+import { computed, shallowRef, Transition } from 'vue';
+
+const asideStore = useAsideStore();
+
+const isCurrent = (type: AsideType) => {
+  return asideStore.current === type;
+}
+
+const activeComponent = computed(() => {
+  if (isCurrent('chats')) return ChatAside;
+  if (isCurrent('requests')) return RequestAside;
+});
 
 </script>
 
 <template>
-
-
   <div class="antialiased flex  content-start bg-slate-900 mx-auto container-width text-white">
-
     <div class="grid grid-cols-[1fr_auto] overflow-hidden min-h-dvh">
-      <Menu />
-
+      <AsideMenu />
 
       <div class="flex flex-col h-full min-w-[400px]">
         <Logo />
-        <ChatAside />
+        <Transition name="aside" mode="out-in">
+          <component :is="activeComponent" />
+        </Transition>
       </div>
     </div>
 
@@ -35,6 +47,21 @@ import Menu from '@/components/Menu.vue';
   width: min(var(--container-width), 100%);
   height: 100dvh;
 }
+
+.aside-enter-active {
+  transition: all 250ms ease;
+}
+
+.aside-leave-active {
+  transition: all 50ms ease;
+}
+
+.aside-enter-from,
+.aside-leave-to {
+  opacity: 0;
+  transform: translateX(-30px);
+}
+
 
 @media (max-width: 1500px) {
   .container-width {
