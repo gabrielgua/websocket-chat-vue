@@ -27,7 +27,6 @@ function toggleFriendModal() {
         </Button>
       </div>
     </div>
-    <hr class="border-slate-800 my-4" />
 
     <Modal :modal-active="friendModalActive" @close-modal="toggleFriendModal" title="Find and add users">
       <FriendForm />

@@ -155,15 +155,11 @@ function hasLastMessage(chat: Chat): boolean {
 .chat-list-leave-to {
   opacity: 0;
   scale: .95;
-  /* position: absolute; */
-  /* transform: translateX(30px); */
 
 }
 
 .chat-list-leave-active {
-  /* transition: all 250ms ease; */
   position: absolute;
-  /* width: max-content;; */
 }
 
 .chat-notification-enter-active,

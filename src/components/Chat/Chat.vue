@@ -116,7 +116,9 @@ function isLoading() {
 </script>
 
 <template>
-  <span class="m-4 grid place-items-center" v-if="!showChat()">Welcome, star chatting now!</span>
+  <span class="m-4 ml-0 bg-slate-800 rounded-xl grid place-items-center" v-if="!showChat()">
+    Welcome, star chatting now!
+  </span>
   <div class=" bg-slate-800 m-4 ms-0 rounded-xl overflow-hidden flex flex-col" v-else>
     <div class="flex items-center gap-4 p-4 bg-slate-800 rounded-lg shadow-2xl">
 

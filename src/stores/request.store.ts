@@ -10,12 +10,18 @@ export const useRequestStore = defineStore("request", () => {
   const received = ref<FriendRequest[]>([]);
   const state = reactive({ loading: false, error: false });
 
+  const sortByDate = (requests: FriendRequest[]) => {
+    return requests.sort((a, b) => {
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    });
+  };
+
   const fetchSent = () => {
     state.loading = true;
     http
       .get(`${REQUEST_ENPOINT}/sent`)
       .then((res) => {
-        res.data.map((request: FriendRequest) => sent.value.push(request));
+        sent.value = sortByDate(res.data);
       })
       .catch((e) => {
         state.error = true;
@@ -29,13 +35,18 @@ export const useRequestStore = defineStore("request", () => {
     http
       .get(`${REQUEST_ENPOINT}/received`)
       .then((res) => {
-        res.data.map((request: FriendRequest) => received.value.push(request));
+        received.value = sortByDate(res.data);
       })
       .catch((e) => {
         state.error = true;
         console.log(e);
       })
       .finally(() => (state.loading = false));
+  };
+
+  const addReceived = (request: FriendRequest) => {
+    received.value.push(request);
+    received.value = sortByDate(received.value);
   };
 
   const reset = () => {
@@ -45,5 +56,13 @@ export const useRequestStore = defineStore("request", () => {
     sent.value = [];
   };
 
-  return { fetchReceived, fetchSent, sent, received, state, reset };
+  return {
+    fetchReceived,
+    fetchSent,
+    sent,
+    received,
+    state,
+    reset,
+    addReceived,
+  };
 });

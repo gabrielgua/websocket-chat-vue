@@ -58,7 +58,7 @@ export const useStompStore = defineStore("stomp", () => {
     );
     const requestSub = stomp.subscribe(
       `/user/${authStore.authentication.username}/request-notifications`,
-      () => {}
+      handleRequestReceived
     );
 
     subscriptions.value.push(publicSub);

@@ -1,68 +1,79 @@
 <script setup lang="ts">
-import { useAuthStore } from '@/stores/auth.store';
-import Button from './Button.vue';
+import type { FriendRequest, FriendRequestId } from '@/types/friendRequest.type';
+import RequestCard from './Request/RequestCard.vue';
 import { computed } from 'vue';
-import type { FriendRequest } from '@/types/friendRequest.type';
-import { displayFullTimestamp } from '@/utils/date';
 
 export type RequestListType = 'sent' | 'received';
-
-const authStore = useAuthStore();
-
-const sent = computed(() => {
-  return props.type === 'sent';
-})
-
-const received = computed(() => {
-  return props.type === 'received';
-})
 
 const props = defineProps<{
   requests: FriendRequest[],
   type: RequestListType
 }>();
 
+const getRequestId = (id: FriendRequestId) => {
+  return `${id.requesterId}, ${id.receiverId}`;
+}
+
 </script>
 
 <template>
   <div>
-    <div class="m-4">
-      <!-- <h3 class="font-semibold text-slate-400">{{ title }}</h3> -->
-      <p class="text-xs text-slate-600">
-        {{ type === 'sent' ? 'Here are the requests that you send to users.' : 'Requests that were received.' }}
+    <div class="mx-4 mt-6 mb-2">
+      <p class="font-semibold text-sm text-slate-400">
+        {{ type === 'sent' ? 'Sent' : 'Received' }}
       </p>
     </div>
 
-    <ul class="px-4 divide-y divide-slate-800">
-      <li class="flex flex-col py-4" v-for="request in requests">
-        <div class="flex items-center gap-4">
-          <img class="w-10" :src="sent ? request.receiver?.avatarUrl : request.requester?.avatarUrl" />
-          <div>
-            <p class="font-semibold text-sm">{{ sent ? request.receiver?.name : request.requester?.name }} </p>
-            <p class="text-slate-500 text-xs">@{{ sent ? request.receiver?.username : request.requester?.username }}</p>
-          </div>
-        </div>
-        <div class="flex gap-3 items-end text-xs">
-          <div class="flex items-center gap-1">
-            <fa-icon icon="fa-solid fa-clock" class="text-slate-500" />
-            <p class="text-xs">{{ type }} {{ displayFullTimestamp(request.createdAt) }}</p>
-          </div>
-          <span v-if="sent" class="text-slate-500">-</span>
-          <div v-if="sent" class="flex items-center gap-1">
-            <fa-icon icon="fa-solid fa-info-circle" class="text-slate-500" />
-            <p class="text-xs">{{ request.status }}</p>
-          </div>
-
-          <Button class="ml-auto" rounded variant="secondary" icon="fa-trash" :tooltip="sent ? 'Cancel' : 'Deny'" />
-          <Button v-if="received" rounded variant="success" icon="fa-check" tooltip="Accept" />
-        </div>
+    <TransitionGroup class="divide-y divide-slate-800 overflow-y-auto relative h-[calc(100dvh-265px)]" tag="ul"
+      name="request-list">
+      <li v-for="request in requests" :key="getRequestId(request.id)">
+        <RequestCard :type="type" :user="request.receiver ? request.receiver : request.requester!"
+          :status="request.status" :created-at="request.createdAt.toString()" />
       </li>
-    </ul>
+
+    </TransitionGroup>
 
   </div>
-
-
 </template>
 
 
-<style scoped></style>
+<style scoped>
+.request-list-move,
+.request-list-enter-active,
+.request-list-leave-active {
+  transition: all 250ms ease;
+}
+
+.request-list-enter-from,
+.request-list-leave-to {
+  opacity: 0;
+  scale: .95;
+  transform: translateX(-30px);
+}
+
+.request-list-leave-active {
+  position: absolute;
+  width: 100%;
+
+}
+
+
+::-webkit-scrollbar {
+  width: .25rem;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: rgb(2 132 199);
+  border-radius: .25rem;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: white;
+}
+</style>
