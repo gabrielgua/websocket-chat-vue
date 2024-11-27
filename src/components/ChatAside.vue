@@ -1,25 +1,23 @@
 <script setup lang="ts">
+import Modal from '@/components/Modal.vue';
+import Spinner from '@/components/Spinner.vue';
+import { emitter } from '@/services/mitt';
 import { useChatStore } from '@/stores/chat.store';
 import { useUserSearchStore } from '@/stores/userSearch.store';
 import { type Chat, ChatFilter } from '@/types/chat.type';
 import { type ComputedRef, computed, ref } from 'vue';
-import { emitter } from '@/services/mitt';
-import Modal from '@/components/Modal.vue';
-import Spinner from '@/components/Spinner.vue';
 
-import FriendForm from '@/components/FriendForm.vue';
 import ChatForm from '@/components/Chat/ChatForm.vue';
 import ChatList from './Chat/ChatList.vue';
-import Input from './Input.vue';
 import Dropdown from './Dropdown/Dropdown.vue';
 import DropdownItem from './Dropdown/DropdownItem.vue';
+import Input from './Input.vue';
 
 
 
 const chatSearch = ref('');
 const chatFilter = ref(ChatFilter.all);
 const groupModalActive = ref(false);
-const friendModalActive = ref(false);
 const chatStore = useChatStore();
 const searchStore = useUserSearchStore();
 
@@ -65,22 +63,21 @@ function toggleGroupModal() {
   groupModalActive.value = !groupModalActive.value;
 }
 
-function toggleFriendModal() {
-  searchStore.reset();
-  friendModalActive.value = !friendModalActive.value;
-}
+
 </script>
 
 <template>
-  <section>
+  <section class="h-full">
 
     <div class="px-4 mt-6 grid gap-3">
       <div class="flex items-center gap-2 justify-between ">
         <h3 class="text-lg font-bold">Chats</h3>
         <Dropdown icon="fa-ellipsis-vertical" rounded>
           <template #dropdown-items>
-            <DropdownItem :on-click="toggleFriendModal" icon="fa-user-plus">Add friend</DropdownItem>
             <DropdownItem :on-click="toggleGroupModal" icon="fa-comments">New group</DropdownItem>
+            <DropdownItem icon="fa-cog">Settings</DropdownItem>
+            <DropdownItem icon="fa-lock">Privacy</DropdownItem>
+
           </template>
         </Dropdown>
       </div>
@@ -100,8 +97,6 @@ function toggleFriendModal() {
 
     <ChatList :chats="filteredChats" />
 
-
-
     <Modal :modal-active="groupModalActive" @close-modal="toggleGroupModal" title="Create a new group chat">
       <span class="self-center grid place-items-center gap-4" v-if="chatStore.state.loading">
         <Spinner />
@@ -110,9 +105,7 @@ function toggleFriendModal() {
       <ChatForm v-else />
     </Modal>
 
-    <Modal :modal-active="friendModalActive" @close-modal="toggleFriendModal" title="Find and add users">
-      <FriendForm />
-    </Modal>
+
   </section>
 </template>
 

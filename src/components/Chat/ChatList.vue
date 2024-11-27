@@ -8,7 +8,7 @@ import { ChatType, type Chat } from '@/types/chat.type';
 import type { Message } from '@/types/message.type';
 import { onUnmounted } from 'vue';
 import ChatIcon from './ChatIcon.vue';
-import { formatTimestamp } from '@/utils/date';
+import { displayFullTimestamp, formatTimestamp } from '@/utils/date';
 import { useAuthStore } from '@/stores/auth.store';
 import { format, formatDistance, isToday, isYesterday, subDays } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -75,15 +75,13 @@ function hasLastMessage(chat: Chat): boolean {
   return Object.keys(chat.lastMessage).length > 0;
 }
 
-function displayFullTimestamp(timestamp: Date) {
-  return formatDistance(timestamp, new Date(), { addSuffix: true, locale: ptBR });
-}
+
 
 
 </script>
 
 <template>
-  <TransitionGroup name="chat-list" tag="ul" class="relative overflow-y-auto">
+  <TransitionGroup name="chat-list" tag="ul" class="relative overflow-y-auto h-[calc(100dvh-265px)] ">
     <button class="group w-full flex items-center p-3 px-4 gap-4 transition-all" v-for="chat in chats" :key="chat.id"
       @click="changeCurrent(chat)" :class="isCurrent(chat) ? 'bg-slate-800' : 'hover:bg-slate-800/50'">
 
@@ -119,6 +117,8 @@ function displayFullTimestamp(timestamp: Date) {
         </div>
       </div>
     </button>
+
+
   </TransitionGroup>
 </template>
 

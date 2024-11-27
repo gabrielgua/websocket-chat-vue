@@ -8,11 +8,13 @@ import { computed, reactive, type ComputedRef } from "vue";
 import { useRouter } from "vue-router";
 import { useStompStore } from "./stomp.store";
 import { useFriendStore } from "./friend.store";
+import { useRequestStore } from "./request.store";
 
 export const useAuthStore = defineStore("auth", () => {
   const router = useRouter();
   const stompStore = useStompStore();
   const friendStore = useFriendStore();
+  const requestStore = useRequestStore();
 
   type Authentication = {
     userId: number;
@@ -65,6 +67,7 @@ export const useAuthStore = defineStore("auth", () => {
       clearAuthentication();
       emitter.all.clear();
       friendStore.reset();
+      requestStore.reset();
     });
   }
 

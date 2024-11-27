@@ -24,7 +24,7 @@ type ButtonProps = {
   inverted?: boolean,
   tooltip?: string,
   tooltipPos?: ToolTipPosition,
-  noPadding?: boolean
+  noPadding?: boolean,
 }
 
 const props = defineProps<ButtonProps>()
@@ -74,7 +74,7 @@ const showTooltip = ref(false);
     @mouseleave="showTooltip = false" :class="{ 'rounded-full': rounded }">
     <button :type="submit ? 'submit' : 'button'" @click="handleClick"
       class="flex items-center justify-center text-sm gap-2 active:scale-95"
-      :class="getButtonVariant(), [rounded ? 'rounded-full w-9 aspect-square ' : 'rounded-xl px-4'], { 'flex-row-reverse': inverted }, [noPadding ? '' : 'p-2']">
+      :class="getButtonVariant(), [rounded ? 'rounded-full w-9 aspect-square ' : 'rounded-xl px-4 w-full'], { 'flex-row-reverse': inverted }, [noPadding ? '' : 'p-2']">
       <slot />
       <fa-icon v-if="icon" class="text-sm" :icon="`fa-solid ${icon}`" />
     </button>

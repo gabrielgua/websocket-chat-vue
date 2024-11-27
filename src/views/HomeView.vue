@@ -21,8 +21,8 @@ const activeComponent = computed(() => {
 </script>
 
 <template>
-  <div class="antialiased flex  content-start bg-slate-900 mx-auto container-width text-white">
-    <div class="grid grid-cols-[1fr_auto] overflow-hidden min-h-dvh">
+  <div class="antialiased flex content-start bg-slate-900 mx-auto container-width text-white">
+    <div class="grid grid-cols-[1fr_auto] min-h-dvh">
       <AsideMenu />
 
       <div class="flex flex-col h-full min-w-[400px]">
