@@ -52,6 +52,14 @@ const variants: ButtonVariant[] = [
   { name: 'link-danger', styles: 'text-rose-500 hover:underline' },
 ]
 
+const handleClick = () => {
+  showTooltip.value = false;
+
+  if (props.onClick) {
+    props.onClick();
+  }
+
+}
 
 const getButtonVariant = () => {
   return variants.find(v => v.name === props.variant)?.styles;
@@ -64,7 +72,7 @@ const showTooltip = ref(false);
 <template>
   <div class="relative grid place-items-center transition-all" @mouseenter="showTooltip = true"
     @mouseleave="showTooltip = false" :class="{ 'rounded-full': rounded }">
-    <button :type="submit ? 'submit' : 'button'" @click="onClick"
+    <button :type="submit ? 'submit' : 'button'" @click="handleClick"
       class="flex items-center justify-center text-sm gap-2 active:scale-95"
       :class="getButtonVariant(), [rounded ? 'rounded-full w-9 aspect-square ' : 'rounded-xl px-4'], { 'flex-row-reverse': inverted }, [noPadding ? '' : 'p-2']">
       <slot />
