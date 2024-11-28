@@ -48,7 +48,11 @@ export const useStompStore = defineStore("stomp", () => {
   }
 
   function handleRequestReceived(message: Stomp.Message) {
-    emitter.emit("requestReceived", message.body);
+    emitter.emit("requestNotification", message.body);
+  }
+
+  function handleConnectionNotification(message: Stomp.Message) {
+    emitter.emit("connectionNotification", message.body);
   }
 
   function subscribePublicNotifications() {
@@ -60,9 +64,14 @@ export const useStompStore = defineStore("stomp", () => {
       `/user/${authStore.authentication.username}/request-notifications`,
       handleRequestReceived
     );
+    const connectionSub = stomp.subscribe(
+      `/user/${authStore.authentication.username}/connection-notifications`,
+      handleConnectionNotification
+    );
 
     subscriptions.value.push(publicSub);
     subscriptions.value.push(requestSub);
+    subscriptions.value.push(connectionSub);
   }
 
   function subscribeAll() {

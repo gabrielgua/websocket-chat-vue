@@ -7,7 +7,8 @@ type Events = {
   notification: string;
   chatCreated: string;
 
-  requestReceived: string;
+  requestNotification: string;
+  connectionNotification: string;
 };
 
 export const emitter = mitt<Events>();

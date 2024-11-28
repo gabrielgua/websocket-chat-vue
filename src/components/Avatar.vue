@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { UserStatus } from '@/types/user.type';
 import { computed } from 'vue';
+import JumpInTransition from './Transitions/JumpInTransition.vue';
 
 const props = defineProps<{
   url: string,
@@ -14,8 +15,12 @@ const online = computed(() => props.status === UserStatus.Online);
   <div class="relative transition-all">
     <img class="min-w-12 min-h-12" :src="url" alt="Profile pic">
 
-    <span class="w-2 h-2 rounded-full ring ring-slate-900 absolute right-1 top-0.5"
-      :class="[online ? 'bg-emerald-500' : 'bg-slate-600']"></span>
+    <div class="rounded-full bg-slate-900 w-4 h-4 grid place-items-center absolute -right-0 -top-0.5">
+      <JumpInTransition name="jump-in" mode="out-in">
+        <span v-if="online" class="w-2 h-2 rounded-full bg-emerald-500" />
+        <span v-else class="w-2 h-2 rounded-full bg-slate-600" />
+      </JumpInTransition>
+    </div>
   </div>
 </template>
 
