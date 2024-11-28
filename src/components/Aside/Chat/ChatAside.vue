@@ -8,10 +8,10 @@ import { type Chat, ChatFilter } from '@/types/chat.type';
 import { type ComputedRef, computed, ref } from 'vue';
 
 import ChatForm from '@/components/Chat/ChatForm.vue';
-import ChatList from './Chat/ChatList.vue';
-import Dropdown from './Dropdown/Dropdown.vue';
-import DropdownItem from './Dropdown/DropdownItem.vue';
-import Input from './Input.vue';
+import ChatList from './ChatList.vue';
+import Dropdown from '../../Dropdown/Dropdown.vue';
+import DropdownItem from '../../Dropdown/DropdownItem.vue';
+import Input from '../../Input.vue';
 
 
 

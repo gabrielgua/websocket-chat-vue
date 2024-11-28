@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { useUserSearchStore } from '@/stores/userSearch.store';
 import { ref } from 'vue';
-import Button from '../Button.vue';
-import Modal from '../Modal.vue';
-import FriendForm from '../FriendForm.vue';
+import Button from '../../Button.vue';
+import Modal from '../../Modal.vue';
+import FriendForm from '../../FriendForm.vue';
 import { useRequestStore } from '@/stores/request.store';
 
 const friendModalActive = ref(false);

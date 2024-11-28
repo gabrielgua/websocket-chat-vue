@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import type { RequestListType } from '../RequestList.vue';
+import type { RequestListType } from './RequestList.vue';
 import { displayFullTimestamp } from '@/utils/date';
 import type { User } from '@/types/user.type';
-import Button from '../Button.vue';
+import Button from '../../Button.vue';
 
 
 const props = defineProps<{
@@ -35,7 +35,7 @@ const received = computed(() => {
     <div class="flex gap-3 items-end text-xs">
       <div class="flex items-center gap-1">
         <fa-icon icon="fa-solid fa-clock" class="text-slate-500" />
-        <p class="text-xs">{{ type }} {{ displayFullTimestamp(new Date(createdAt)) }}</p>
+        <p class="text-xs">{{ displayFullTimestamp(new Date(createdAt)) }}</p>
       </div>
       <span v-if="sent" class="text-slate-500">-</span>
       <div v-if="sent" class="flex items-center gap-1">

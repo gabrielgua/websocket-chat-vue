@@ -1,18 +1,31 @@
+import type { RequestListType } from "@/components/Aside/Request/RequestList.vue";
 import { defineStore } from "pinia";
 import { ref } from "vue";
 
-export type AsideType = "profile" | "chats" | "requests";
+export type AsideType = "profile" | "chats" | "requests" | "friends";
 
 export const useAsideStore = defineStore("aside", () => {
-  const current = ref<AsideType>("chats");
+  const currentMenu = ref<AsideType>("chats");
+  const currentRequestType = ref<RequestListType>("sent");
 
-  const changeCurrent = (to: AsideType) => {
-    current.value = to;
+  const changeRequestType = (type: RequestListType) => {
+    currentRequestType.value = type;
+  };
+
+  const changeMenu = (to: AsideType) => {
+    currentMenu.value = to;
   };
 
   const reset = () => {
-    current.value = "chats";
+    currentMenu.value = "chats";
+    currentRequestType.value = "sent";
   };
 
-  return { current, changeCurrent, reset };
+  return {
+    currentMenu,
+    currentRequestType,
+    changeMenu,
+    changeRequestType,
+    reset,
+  };
 });

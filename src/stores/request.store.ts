@@ -1,4 +1,3 @@
-import type { RequestListType } from "@/components/RequestList.vue";
 import { http } from "@/services/http";
 import type { FriendRequest } from "@/types/friendRequest.type";
 import { defineStore } from "pinia";
@@ -9,11 +8,6 @@ export const useRequestStore = defineStore("request", () => {
 
   const sent = ref<FriendRequest[]>([]);
   const received = ref<FriendRequest[]>([]);
-
-  const currentType = ref<RequestListType>("sent");
-  const changeCurrentType = (type: RequestListType) => {
-    currentType.value = type;
-  };
 
   const state = reactive({ loading: false, error: false });
 
@@ -94,7 +88,6 @@ export const useRequestStore = defineStore("request", () => {
   const reset = () => {
     state.error = false;
     state.loading = false;
-    currentType.value = "sent";
 
     resetIndividualState();
 
@@ -113,8 +106,6 @@ export const useRequestStore = defineStore("request", () => {
     fetchSent,
     sent,
     received,
-    currentType,
-    changeCurrentType,
     state,
     reset,
     resetIndividualState,

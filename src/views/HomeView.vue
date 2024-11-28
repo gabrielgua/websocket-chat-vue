@@ -1,16 +1,17 @@
 <script setup lang="ts">
+import AsideMenu from '@/components/Aside/AsideMenu.vue';
+import ChatAside from '@/components/Aside/Chat/ChatAside.vue';
+import RequestAside from '@/components/Aside/Request/RequestAside.vue';
 import ChatComponent from '@/components/Chat/Chat.vue';
-import ChatAside from '@/components/ChatAside.vue';
 import Logo from '@/components/Logo.vue';
-import AsideMenu from '@/components/AsideMenu.vue';
+
 import { useAsideStore, type AsideType } from '@/stores/aside.store';
-import RequestAside from '@/components/RequestAside.vue';
-import { computed, shallowRef, Transition } from 'vue';
+import { computed, Transition } from 'vue';
 
 const asideStore = useAsideStore();
 
 const isCurrent = (type: AsideType) => {
-  return asideStore.current === type;
+  return asideStore.currentMenu === type;
 }
 
 const activeComponent = computed(() => {

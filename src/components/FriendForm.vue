@@ -30,12 +30,11 @@ const findByTerm = () => {
 
 const closeForm = () => {
   emit('close-modal')
-  console.log('close-modal');
 }
 
 const goToChat = (receiverId: number) => {
   closeForm();
-  asideStore.changeCurrent('chats');
+  asideStore.changeMenu('chats');
 
   const chat = chatStore.findPrivateByReceiver(receiverId);
   if (chat) {
@@ -45,14 +44,14 @@ const goToChat = (receiverId: number) => {
 
 const goToReceived = () => {
   closeForm();
-  asideStore.changeCurrent('requests');
-  requestStore.changeCurrentType('received');
+  asideStore.changeMenu('requests');
+  asideStore.changeRequestType('received');
 }
 
 const goToSent = () => {
   closeForm();
-  asideStore.changeCurrent('requests');
-  requestStore.changeCurrentType('sent');
+  asideStore.changeMenu('requests');
+  asideStore.changeRequestType('sent');
 }
 
 const sendRequest = (receivedId: number) => {

@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import type { FriendRequest, FriendRequestId } from '@/types/friendRequest.type';
-import RequestCard from './Request/RequestCard.vue';
+import RequestCard from './RequestCard.vue';
 
 export type RequestListType = 'sent' | 'received';
 
-defineProps<{
+const props = defineProps<{
   requests: FriendRequest[],
   type: RequestListType
 }>();
@@ -16,14 +16,19 @@ const getRequestId = (id: FriendRequestId) => {
 </script>
 
 <template>
-  <div>
+  <section>
+
     <div class="mx-4 mt-6 mb-2">
       <p class="font-semibold text-sm text-slate-400">
         {{ type === 'sent' ? 'Sent' : 'Received' }}
       </p>
     </div>
+    <TransitionGroup class="overflow-y-auto relative h-[calc(100dvh-265px)]" tag="ul" name="request-list">
 
-    <TransitionGroup class=" overflow-y-auto relative h-[calc(100dvh-265px)]" tag="ul" name="request-list">
+      <div v-if="!requests.length" class="px-4">
+        <p class="text-xs text-slate-400">No {{ type }} requests.</p>
+      </div>
+
       <li v-for="request in requests" :key="getRequestId(request.id)"
         class="border-b border-slate-800 last:border-none">
         <RequestCard :type="type" :user="request.receiver ? request.receiver : request.requester!"
@@ -31,7 +36,8 @@ const getRequestId = (id: FriendRequestId) => {
       </li>
     </TransitionGroup>
 
-  </div>
+
+  </section>
 </template>
 
 

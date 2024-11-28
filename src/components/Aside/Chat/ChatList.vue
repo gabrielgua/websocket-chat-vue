@@ -1,18 +1,16 @@
 <script setup lang="ts">
 import { emitter } from '@/services/mitt';
+import { useAuthStore } from '@/stores/auth.store';
 import { useChatStore } from '@/stores/chat.store';
 import { useMessageStore } from '@/stores/message.store';
 import { useUnreadStore } from '@/stores/unread.store';
 import { useUserStore } from '@/stores/user.store';
 import { ChatType, type Chat } from '@/types/chat.type';
 import type { Message } from '@/types/message.type';
-import { onUnmounted } from 'vue';
-import ChatIcon from './ChatIcon.vue';
-import { displayFullTimestamp, formatTimestamp } from '@/utils/date';
-import { useAuthStore } from '@/stores/auth.store';
-import { format, formatDistance, isToday, isYesterday, subDays } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
 import type { User } from '@/types/user.type';
+import { displayFullTimestamp, formatTimestamp } from '@/utils/date';
+import { onUnmounted } from 'vue';
+import ChatIcon from '../../Chat/ChatIcon.vue';
 
 defineProps<{
   chats: Chat[]

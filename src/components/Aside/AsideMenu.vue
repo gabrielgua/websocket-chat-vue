@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useAuthStore } from '@/stores/auth.store';
-import Button from './Button.vue';
+import Button from '../Button.vue';
 import { ref } from 'vue';
 import { useAsideStore, type AsideType } from '@/stores/aside.store';
 
@@ -9,11 +9,11 @@ const asideStore = useAsideStore();
 
 
 const isCurrent = (type: AsideType) => {
-  return asideStore.current === type;
+  return asideStore.currentMenu === type;
 }
 
 const changeCurrent = (type: AsideType) => {
-  asideStore.changeCurrent(type);
+  asideStore.changeMenu(type);
 }
 
 </script>
@@ -29,12 +29,16 @@ const changeCurrent = (type: AsideType) => {
       </li>
       <hr class="border-slate-600 rounded">
       <li>
-        <Button icon="fa-comment-dots" :on-click="() => changeCurrent('chats')"
+        <Button icon="fa-comments" :on-click="() => changeCurrent('chats')"
           :variant="isCurrent('chats') ? 'primary' : 'secondary'" rounded tooltip="Chats" tooltip-pos="right" />
       </li>
       <li>
-        <Button :on-click="() => changeCurrent('requests')" icon="fa-user-group"
+        <Button icon="fa-envelope" :on-click="() => changeCurrent('requests')"
           :variant="isCurrent('requests') ? 'primary' : 'secondary'" rounded tooltip="Requests" tooltip-pos="right" />
+      </li>
+      <li>
+        <Button icon="fa-user-group" :on-click="() => changeCurrent('friends')"
+          :variant="isCurrent('friends') ? 'primary' : 'secondary'" rounded tooltip="Friends" tooltip-pos="right" />
       </li>
     </ul>
     <ul class="flex flex-col gap-5 mt-auto">
