@@ -5,7 +5,7 @@ import { ref } from "vue";
 export type AsideType = "profile" | "chats" | "requests" | "friends";
 
 export const useAsideStore = defineStore("aside", () => {
-  const currentMenu = ref<AsideType>("chats");
+  const currentMenu = ref<AsideType>("friends");
   const currentRequestType = ref<RequestListType>("sent");
 
   const changeRequestType = (type: RequestListType) => {

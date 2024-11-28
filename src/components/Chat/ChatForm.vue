@@ -5,14 +5,11 @@ import { useFriendStore } from '@/stores/friend.store';
 import type { ChatRequest } from '@/types/chat.request.type';
 import { ChatType } from '@/types/chat.type';
 import type { User } from '@/types/user.type';
-import { computed, onMounted, ref } from 'vue';
+import { computed, ref } from 'vue';
 import Button from '../Button.vue';
 import Input from '../Input.vue';
 import Textarea from '../Textarea.vue';
 
-onMounted(() => {
-  friendStore.fetchFriends();
-})
 
 defineEmits(['submitted'])
 

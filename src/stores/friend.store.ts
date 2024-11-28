@@ -10,14 +10,12 @@ export const useFriendStore = defineStore("friend", () => {
   const state = reactive({ loading: false, error: false });
 
   const fetchFriends = () => {
-    if (friends.value.length) return;
-
     startLoading();
 
     http
       .get(ENDPOINT)
       .then((response) => {
-        response.data.map((f: User) => friends.value.push(f));
+        friends.value = response.data;
       })
       .catch((e) => {
         state.error = true;

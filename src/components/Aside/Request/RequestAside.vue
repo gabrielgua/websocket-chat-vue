@@ -1,24 +1,15 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { emitter } from '@/services/mitt';
+import { useAsideStore } from '@/stores/aside.store';
+import { useRequestStore } from '@/stores/request.store';
+import type { FriendRequest } from '@/types/friendRequest.type';
+import { computed } from 'vue';
+import Button from '../../Button.vue';
 import RequestHeader from './RequestHeader.vue';
 import RequestList, { type RequestListType } from './RequestList.vue';
-import Button from '../../Button.vue';
-import { useRequestStore } from '@/stores/request.store';
-import { emitter } from '@/services/mitt';
-import type { FriendRequest } from '@/types/friendRequest.type';
-import { useFriendStore } from '@/stores/friend.store';
-import { request } from 'node_modules/axios/index.cjs';
-import { useAsideStore } from '@/stores/aside.store';
 
 const requestStore = useRequestStore();
-const friendStore = useFriendStore();
 const asideStore = useAsideStore();
-
-onMounted(() => {
-  requestStore.fetchSent();
-  requestStore.fetchReceived();
-  friendStore.fetchFriends();
-})
 
 const handleRequestReceived = (body: string) => {
   const request: FriendRequest = JSON.parse(body);

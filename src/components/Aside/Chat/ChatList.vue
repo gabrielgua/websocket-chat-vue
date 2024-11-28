@@ -21,7 +21,6 @@ onUnmounted(() => {
   messageStore.reset();
 })
 
-
 const chatStore = useChatStore();
 const authStore = useAuthStore();
 const userStore = useUserStore();

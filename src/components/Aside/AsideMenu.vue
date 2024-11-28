@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { useAuthStore } from '@/stores/auth.store';
 import Button from '../Button.vue';
-import { ref } from 'vue';
 import { useAsideStore, type AsideType } from '@/stores/aside.store';
 
 const authStore = useAuthStore();

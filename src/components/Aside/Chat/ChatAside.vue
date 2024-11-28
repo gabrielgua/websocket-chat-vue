@@ -3,15 +3,14 @@ import Modal from '@/components/Modal.vue';
 import Spinner from '@/components/Spinner.vue';
 import { emitter } from '@/services/mitt';
 import { useChatStore } from '@/stores/chat.store';
-import { useUserSearchStore } from '@/stores/userSearch.store';
 import { type Chat, ChatFilter } from '@/types/chat.type';
 import { type ComputedRef, computed, ref } from 'vue';
 
 import ChatForm from '@/components/Chat/ChatForm.vue';
-import ChatList from './ChatList.vue';
 import Dropdown from '../../Dropdown/Dropdown.vue';
 import DropdownItem from '../../Dropdown/DropdownItem.vue';
 import Input from '../../Input.vue';
+import ChatList from './ChatList.vue';
 
 
 
@@ -19,7 +18,6 @@ const chatSearch = ref('');
 const chatFilter = ref(ChatFilter.all);
 const groupModalActive = ref(false);
 const chatStore = useChatStore();
-const searchStore = useUserSearchStore();
 
 function changeFilter(filter: ChatFilter) {
   chatFilter.value = filter;

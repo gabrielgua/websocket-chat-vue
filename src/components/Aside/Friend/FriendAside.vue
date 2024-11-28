@@ -1,10 +1,11 @@
 <script setup lang="ts">
+import Button from '@/components/Button.vue';
+import FriendForm from '@/components/FriendForm.vue';
+import Modal from '@/components/Modal.vue';
+import { useRequestStore } from '@/stores/request.store';
 import { useUserSearchStore } from '@/stores/userSearch.store';
 import { ref } from 'vue';
-import Button from '../../Button.vue';
-import Modal from '../../Modal.vue';
-import FriendForm from '../../FriendForm.vue';
-import { useRequestStore } from '@/stores/request.store';
+import FriendList from './FriendList.vue';
 
 const friendModalActive = ref(false);
 
@@ -16,7 +17,6 @@ function toggleFriendModal() {
   requestStore.resetIndividualState();
   friendModalActive.value = !friendModalActive.value;
 }
-
 </script>
 
 <template>
@@ -24,16 +24,20 @@ function toggleFriendModal() {
     <div class="px-4 mt-6 grid gap-3">
 
       <div class="flex items-center gap-2 justify-between">
-        <h3 class="text-lg font-bold">Requests</h3>
-        <Button icon="fa-plus" :on-click="toggleFriendModal" variant="secondary" inverted rounded tooltip="New Request"
-          tooltip-pos="right" />
+        <h3 class="text-lg font-bold">Friends</h3>
+        <Button icon="fa-user-plus" :on-click="toggleFriendModal" variant="secondary" inverted rounded
+          tooltip="Add friend" tooltip-pos="right" />
       </div>
     </div>
+    <hr class="border-slate-800 mt-4" />
+
+    <FriendList />
 
     <Modal :modal-active="friendModalActive" @close-modal="toggleFriendModal" title="Find and add users">
       <FriendForm @close-modal="toggleFriendModal" />
     </Modal>
   </section>
 </template>
+
 
 <style scoped></style>

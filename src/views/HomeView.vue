@@ -1,14 +1,25 @@
 <script setup lang="ts">
 import AsideMenu from '@/components/Aside/AsideMenu.vue';
 import ChatAside from '@/components/Aside/Chat/ChatAside.vue';
+import FriendAside from '@/components/Aside/Friend/FriendAside.vue';
 import RequestAside from '@/components/Aside/Request/RequestAside.vue';
 import ChatComponent from '@/components/Chat/Chat.vue';
 import Logo from '@/components/Logo.vue';
 
 import { useAsideStore, type AsideType } from '@/stores/aside.store';
-import { computed, Transition } from 'vue';
+import { useFriendStore } from '@/stores/friend.store';
+import { useRequestStore } from '@/stores/request.store';
+import { computed, onMounted } from 'vue';
 
 const asideStore = useAsideStore();
+const friendStore = useFriendStore();
+const requestStore = useRequestStore();
+
+onMounted(() => {
+  friendStore.fetchFriends();
+  requestStore.fetchReceived();
+  requestStore.fetchSent();
+})
 
 const isCurrent = (type: AsideType) => {
   return asideStore.currentMenu === type;
@@ -16,6 +27,7 @@ const isCurrent = (type: AsideType) => {
 
 const activeComponent = computed(() => {
   if (isCurrent('chats')) return ChatAside;
+  if (isCurrent('friends')) return FriendAside;
   if (isCurrent('requests')) return RequestAside;
 });
 
@@ -26,7 +38,7 @@ const activeComponent = computed(() => {
     <div class="grid grid-cols-[1fr_auto] min-h-dvh">
       <AsideMenu />
 
-      <div class="flex flex-col h-full min-w-[400px]">
+      <div class="flex flex-col h-full w-[400px]">
         <Logo />
         <Transition name="aside" mode="out-in">
           <component :is="activeComponent" />
