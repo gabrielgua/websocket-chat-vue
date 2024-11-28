@@ -1,11 +1,10 @@
 <script setup lang="ts">
 import type { FriendRequest, FriendRequestId } from '@/types/friendRequest.type';
 import RequestCard from './Request/RequestCard.vue';
-import { computed } from 'vue';
 
 export type RequestListType = 'sent' | 'received';
 
-const props = defineProps<{
+defineProps<{
   requests: FriendRequest[],
   type: RequestListType
 }>();
@@ -24,13 +23,12 @@ const getRequestId = (id: FriendRequestId) => {
       </p>
     </div>
 
-    <TransitionGroup class="divide-y divide-slate-800 overflow-y-auto relative h-[calc(100dvh-265px)]" tag="ul"
-      name="request-list">
-      <li v-for="request in requests" :key="getRequestId(request.id)">
+    <TransitionGroup class=" overflow-y-auto relative h-[calc(100dvh-265px)]" tag="ul" name="request-list">
+      <li v-for="request in requests" :key="getRequestId(request.id)"
+        class="border-b border-slate-800 last:border-none">
         <RequestCard :type="type" :user="request.receiver ? request.receiver : request.requester!"
           :status="request.status" :created-at="request.createdAt.toString()" />
       </li>
-
     </TransitionGroup>
 
   </div>
@@ -48,7 +46,7 @@ const getRequestId = (id: FriendRequestId) => {
 .request-list-leave-to {
   opacity: 0;
   scale: .95;
-  transform: translateX(-30px);
+
 }
 
 .request-list-leave-active {

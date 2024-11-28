@@ -1,13 +1,24 @@
 <script setup lang="ts">
+import { useRequestStore } from '@/stores/request.store';
 import { useUserSearchStore } from '@/stores/userSearch.store';
 import { ref } from 'vue';
 import Button from './Button.vue';
 import Input from './Input.vue';
 import Spinner from './Spinner.vue';
+import { useFriendStore } from '@/stores/friend.store';
+import { useAsideStore } from '@/stores/aside.store';
+import { useChatStore } from '@/stores/chat.store';
 
 
 const searchStore = useUserSearchStore();
+const requestStore = useRequestStore();
+const friendStore = useFriendStore();
+const asideStore = useAsideStore();
+const chatStore = useChatStore();
+
 const term = ref('');
+
+const emit = defineEmits(['close-modal'])
 
 const findByTerm = () => {
   if (!term.value.length) {
@@ -15,6 +26,37 @@ const findByTerm = () => {
   }
 
   searchStore.findByNameOrUsername(term.value);
+}
+
+const closeForm = () => {
+  emit('close-modal')
+  console.log('close-modal');
+}
+
+const goToChat = (receiverId: number) => {
+  closeForm();
+  asideStore.changeCurrent('chats');
+
+  const chat = chatStore.findPrivateByReceiver(receiverId);
+  if (chat) {
+    chatStore.changeCurrent(chat);
+  }
+}
+
+const goToReceived = () => {
+  closeForm();
+  asideStore.changeCurrent('requests');
+  requestStore.changeCurrentType('received');
+}
+
+const goToSent = () => {
+  closeForm();
+  asideStore.changeCurrent('requests');
+  requestStore.changeCurrentType('sent');
+}
+
+const sendRequest = (receivedId: number) => {
+  requestStore.sendRequest(receivedId);
 }
 
 </script>
@@ -58,8 +100,32 @@ const findByTerm = () => {
               <p class="text-[12px] text-slate-400">@{{ user.username }} </p>
             </div>
             <div class="ml-auto">
-              <Button icon="fa-user-plus" inverted variant="primary">
-                Send request
+              <Spinner v-if="requestStore.individualState.loading && requestStore.individualState.id === user.id"
+                type="spinner" />
+
+              <div v-else-if="requestStore.alreadySent(user.id)" class="flex items-center gap-2 ">
+                <p class="text-slate-400 text-xs">Request sent</p>
+                <Button :on-click="goToSent" icon="fa-user-group" rounded variant="primary"
+                  tooltip="Go to sent requests" />
+              </div>
+              <p v-else-if="requestStore.individualState.error" class="text-xs text-rose-400 px-2">
+                Something went wrong
+              </p>
+
+              <div v-else-if="friendStore.alreadyFriends(user.id)" class="flex items-center gap-2 ">
+                <p class="text-slate-400 text-xs">Friends</p>
+                <Button :on-click="() => goToChat(user.id)" icon="fa-comment" rounded variant="primary"
+                  tooltip="Go to chat" tooltip-pos="right" />
+              </div>
+
+              <div v-else-if="requestStore.alreadyReceived(user.id)" class="flex items-center gap-2 ">
+                <p class="text-slate-400 text-xs">Sent you a request</p>
+                <Button :on-click="goToReceived" icon="fa-user-group" rounded variant="primary"
+                  tooltip="Go to requests" />
+              </div>
+
+              <Button v-else icon="fa-user-plus" :on-click="() => sendRequest(user.id)" inverted variant="primary">
+                <p>Send request</p>
               </Button>
             </div>
           </li>
@@ -86,6 +152,5 @@ const findByTerm = () => {
   opacity: 0;
   scale: .95;
   position: absolute;
-
 }
 </style>

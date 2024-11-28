@@ -4,13 +4,16 @@ import { ref } from 'vue';
 import Button from '../Button.vue';
 import Modal from '../Modal.vue';
 import FriendForm from '../FriendForm.vue';
+import { useRequestStore } from '@/stores/request.store';
 
 const friendModalActive = ref(false);
 
 const searchStore = useUserSearchStore();
+const requestStore = useRequestStore();
 
 function toggleFriendModal() {
   searchStore.reset();
+  requestStore.resetIndividualState();
   friendModalActive.value = !friendModalActive.value;
 }
 
@@ -29,7 +32,7 @@ function toggleFriendModal() {
     </div>
 
     <Modal :modal-active="friendModalActive" @close-modal="toggleFriendModal" title="Find and add users">
-      <FriendForm />
+      <FriendForm @close-modal="toggleFriendModal" />
     </Modal>
   </section>
 </template>

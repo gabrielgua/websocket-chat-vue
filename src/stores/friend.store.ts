@@ -9,7 +9,7 @@ export const useFriendStore = defineStore("friend", () => {
   const friends = ref<User[]>([]);
   const state = reactive({ loading: false, error: false });
 
-  function fetchFriends() {
+  const fetchFriends = () => {
     if (friends.value.length) return;
 
     startLoading();
@@ -24,18 +24,22 @@ export const useFriendStore = defineStore("friend", () => {
         console.log(e);
       })
       .finally(() => (state.loading = false));
-  }
+  };
 
-  function startLoading() {
+  const startLoading = () => {
     state.error = false;
     state.loading = true;
-  }
+  };
 
-  function reset() {
+  const reset = () => {
     friends.value = [];
     state.loading = false;
     state.error = false;
-  }
+  };
 
-  return { state, friends, fetchFriends, reset };
+  const alreadyFriends = (id: number) => {
+    return !!friends.value.find((friend) => friend.id === id);
+  };
+
+  return { state, friends, fetchFriends, reset, alreadyFriends };
 });

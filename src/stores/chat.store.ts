@@ -145,6 +145,10 @@ export const useChatStore = defineStore("chat", () => {
       .finally(() => (state.loading = false));
   }
 
+  const findPrivateByReceiver = (receiverId: number) => {
+    return chats.value.find((chat) => chat.receiver?.id === receiverId);
+  };
+
   return {
     reset,
     chats,
@@ -161,5 +165,6 @@ export const useChatStore = defineStore("chat", () => {
     find,
     currentIsEmpty,
     sendMessage,
+    findPrivateByReceiver,
   };
 });

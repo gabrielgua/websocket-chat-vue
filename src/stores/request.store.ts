@@ -1,3 +1,4 @@
+import type { RequestListType } from "@/components/RequestList.vue";
 import { http } from "@/services/http";
 import type { FriendRequest } from "@/types/friendRequest.type";
 import { defineStore } from "pinia";
@@ -8,7 +9,19 @@ export const useRequestStore = defineStore("request", () => {
 
   const sent = ref<FriendRequest[]>([]);
   const received = ref<FriendRequest[]>([]);
+
+  const currentType = ref<RequestListType>("sent");
+  const changeCurrentType = (type: RequestListType) => {
+    currentType.value = type;
+  };
+
   const state = reactive({ loading: false, error: false });
+
+  const individualState = reactive({
+    id: 0,
+    loading: false,
+    error: false,
+  });
 
   const sortByDate = (requests: FriendRequest[]) => {
     return requests.sort((a, b) => {
@@ -44,16 +57,55 @@ export const useRequestStore = defineStore("request", () => {
       .finally(() => (state.loading = false));
   };
 
+  const alreadySent = (receiverId: number) => {
+    return !!sent.value.find((request) => request.id.receiverId === receiverId);
+  };
+
+  const alreadyReceived = (requesterId: number) => {
+    return !!received.value.find(
+      (request) => request.id.requesterId === requesterId
+    );
+  };
+
   const addReceived = (request: FriendRequest) => {
     received.value.push(request);
     received.value = sortByDate(received.value);
   };
 
+  const sendRequest = (receiverId: number) => {
+    individualState.id = receiverId;
+    individualState.loading = true;
+
+    setTimeout(() => {
+      http
+        .post(`${REQUEST_ENPOINT}/send`, { receiverId: receiverId })
+        .then((res) => {
+          console.log(res);
+          fetchSent();
+        })
+        .catch((e) => {
+          console.log(e);
+          individualState.error = true;
+        })
+        .finally(() => (individualState.loading = false));
+    }, 500);
+  };
+
   const reset = () => {
     state.error = false;
     state.loading = false;
+    currentType.value = "sent";
+
+    resetIndividualState();
+
     received.value = [];
     sent.value = [];
+  };
+
+  const resetIndividualState = () => {
+    individualState.id = 0;
+    individualState.loading = false;
+    individualState.error = false;
   };
 
   return {
@@ -61,8 +113,15 @@ export const useRequestStore = defineStore("request", () => {
     fetchSent,
     sent,
     received,
+    currentType,
+    changeCurrentType,
     state,
     reset,
+    resetIndividualState,
     addReceived,
+    sendRequest,
+    individualState,
+    alreadySent,
+    alreadyReceived,
   };
 });
