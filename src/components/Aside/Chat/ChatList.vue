@@ -10,7 +10,8 @@ import type { Message } from '@/types/message.type';
 import type { User } from '@/types/user.type';
 import { displayFullTimestamp, formatTimestamp } from '@/utils/date';
 import { onUnmounted } from 'vue';
-import ChatIcon from '../../Chat/ChatIcon.vue';
+import ChatAvatar from '../../Chat/ChatAvatar.vue';
+import Avatar from '@/components/Avatar.vue';
 
 defineProps<{
   chats: Chat[]
@@ -44,10 +45,7 @@ function changeCurrent(chat: Chat) {
   }
 }
 
-
-
 emitter.on('message', handleOnMessage);
-emitter.on('notification', chatStore.fetchChatStatusCount);
 
 function handleOnMessage(body: string) {
   const message: Message = JSON.parse(body);
@@ -82,7 +80,8 @@ function hasLastMessage(chat: Chat): boolean {
     <button class="group w-full flex items-center p-3 px-4 gap-4 transition-all" v-for="chat in chats" :key="chat.id"
       @click="changeCurrent(chat)" :class="isCurrent(chat) ? 'bg-slate-800' : 'hover:bg-slate-800/50'">
 
-      <ChatIcon :chat="chat" />
+      <Avatar v-if="chatStore.isPrivate(chat)" :url="chat.receiver!.avatarUrl" no-status />
+      <ChatAvatar v-else :chat="chat" />
 
 
       <div class="flex flex-col truncate flex-grow items-start gap-1">

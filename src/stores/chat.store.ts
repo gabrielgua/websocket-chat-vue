@@ -4,22 +4,22 @@ import type { ChatRequest } from "@/types/chat.request.type";
 import { ChatType, type Chat, type ChatShort } from "@/types/chat.type";
 import type { MessageRequest } from "@/types/message.request.type";
 import type { Message } from "@/types/message.type";
-import { UserStatus } from "@/types/user.type";
+import { UserStatus, type User } from "@/types/user.type";
 import { defineStore } from "pinia";
 import { reactive, ref } from "vue";
 
 export const useChatStore = defineStore("chat", () => {
-  const ENDPOINT = "/api/chats";
+  const CHATS_ENDPOINT = "/api/chats";
 
   const chats = ref<Chat[]>([]);
   const current = ref<Chat>({} as Chat);
   const state = reactive({ loading: false, error: false });
 
-  function fetch() {
+  function fetchChats() {
     state.loading = true;
     chats.value = [];
     return http
-      .get(ENDPOINT)
+      .get(CHATS_ENDPOINT)
       .then((response) => {
         state.error = false;
         response.data.map((chat: Chat) => {
@@ -37,36 +37,60 @@ export const useChatStore = defineStore("chat", () => {
       });
   }
 
+  const fetchChatUsers = (chat: Chat) => {
+    if (chat.type === ChatType.private) {
+      return;
+    }
+
+    http.get(`${CHATS_ENDPOINT}/${chat.id}/users`).then((res) => {
+      current.value.users = res.data;
+    });
+  };
+
   function changeCurrent(chat: Chat) {
     current.value = chat;
+    updateChatStatus();
   }
 
   function currentIsEmpty() {
     return Object.keys(current.value).length === 0;
   }
 
-  function find(chatId: string) {
+  function findChat(chatId: string) {
     return chats.value.find((chat) => chat.id === chatId);
   }
 
-  function fetchChatStatusCount() {
-    http.get(`${ENDPOINT}/status`).then((response) => {
-      response.data.map((short: ChatShort) => {
-        const chat = find(short.id);
-        const index = chats.value.findIndex((c) => c.id === short.id);
-        if (chat && index != -1) {
-          if (chat.type === ChatType.private) {
-            chat.receiver = short.receiver;
-            return;
-          }
+  const updateChatUserStatus = (user: User) => {
+    if (isPrivate() && current.value.receiver) {
+      current.value.receiver.status = user.status;
+      return;
+    }
 
-          chat.statusCount.online = short.statusCount.online;
-          chat.statusCount.members = short.statusCount.members;
-          chat.statusCount.offline = short.statusCount.offline;
-        }
-      });
-    });
-  }
+    const exists = current.value.users.find((u) => u.id === user.id);
+    if (exists) {
+      exists.status = user.status;
+      updateChatStatus();
+    }
+  };
+
+  const updateChatStatus = () => {
+    if (isPrivate()) {
+      return;
+    }
+
+    if (current.value.users) {
+      const members = current.value.users.length;
+      const online = current.value.users.filter(
+        (u) => u.status === UserStatus.Online
+      ).length;
+
+      const offline = members - online;
+
+      current.value.statusCount.members = members;
+      current.value.statusCount.online = online;
+      current.value.statusCount.offline = offline;
+    }
+  };
 
   function sendMessage(message: MessageRequest) {
     http
@@ -116,9 +140,21 @@ export const useChatStore = defineStore("chat", () => {
     }
   }
 
-  function isGroupChat(chat: Chat) {
-    return chat.type === ChatType.group;
+  function isGroup(chat?: Chat) {
+    if (chat) {
+      return chat.type === ChatType.group;
+    }
+
+    return current.value.type === ChatType.group;
   }
+
+  const isPrivate = (chat?: Chat) => {
+    if (chat) {
+      return chat.type === ChatType.private;
+    }
+
+    return current.value.type === ChatType.private;
+  };
 
   function reset() {
     chats.value = [];
@@ -130,7 +166,7 @@ export const useChatStore = defineStore("chat", () => {
     state.error = true;
 
     http
-      .post(ENDPOINT, chat)
+      .post(CHATS_ENDPOINT, chat)
       .then((response) => {
         chats.value.push(response.data);
 
@@ -155,14 +191,16 @@ export const useChatStore = defineStore("chat", () => {
     current,
     changeCurrent,
     state,
-    fetchChats: fetch,
-    fetchChatStatusCount,
+    fetchChats,
+    fetchChatUsers,
     createChat,
     updateLastMessage,
     sortChatList,
     isReceiverOnline,
-    isGroupChat,
-    find,
+    updateChatUserStatus,
+    isGroup,
+    isPrivate,
+    findChat,
     currentIsEmpty,
     sendMessage,
     findPrivateByReceiver,

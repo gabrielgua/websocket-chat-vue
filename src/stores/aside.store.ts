@@ -9,7 +9,7 @@ export type AsideType = "profile" | "chats" | "requests" | "friends";
 export const useAsideStore = defineStore("aside", () => {
   const chatStore = useChatStore();
 
-  const currentMenu = ref<AsideType>("friends");
+  const currentMenu = ref<AsideType>("chats");
   const currentRequestType = ref<RequestListType>("sent");
 
   const changeRequestType = (type: RequestListType) => {

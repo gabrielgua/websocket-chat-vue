@@ -13,7 +13,7 @@ import { ptBR } from 'date-fns/locale';
 import { computed, onMounted, onUnmounted, onUpdated, ref, watch } from 'vue';
 import Button from '../Button.vue';
 import Spinner from '../Spinner.vue';
-import ChatIcon from './ChatIcon.vue';
+import ChatHeader from './ChatHeader.vue';
 
 const message = ref('');
 const authStore = useAuthStore();
@@ -24,7 +24,26 @@ const messageStore = useMessageStore();
 const current = computed(() => chatStore.current);
 const chatbox = ref({} as HTMLElement);
 
-function handleMessageReceived(body: string) {
+
+
+onMounted(() => {
+  watch(current, (newChat) => {
+    chatStore.fetchChatUsers(newChat);
+    messageStore.fetchMessages(newChat.id)
+      .then(() => scrollToBottom('instant'));
+
+  });
+})
+
+onUnmounted(() => {
+  chatStore.reset();
+})
+
+
+//will trigger whenever a new message is added
+onUpdated(() => scrollToBottom('smooth'));
+
+const handleMessageReceived = (body: string) => {
   const message: Message = JSON.parse(body);
 
   if (message.chat === current.value.id) {
@@ -32,23 +51,13 @@ function handleMessageReceived(body: string) {
   }
 }
 
-onMounted(() => {
-  watch(current, (newChat) => {
-    messageStore.fetchMessages(newChat.id)
-      .then(() => scrollToBottom('instant'));
+const handleConnectionNotification = (body: string) => {
+  chatStore.updateChatUserStatus(JSON.parse(body));
+}
 
-  });
+emitter.on('message', handleMessageReceived);
+emitter.on('connectionNotification', handleConnectionNotification);
 
-  emitter.on('message', handleMessageReceived);
-  emitter.on('notification', chatStore.fetchChatStatusCount)
-})
-
-onUnmounted(() => {
-  chatStore.reset();
-})
-
-//this will trigger whenever a new message is added
-onUpdated(() => scrollToBottom('smooth'));
 
 function scrollToBottom(behavior: ScrollBehavior) {
   chatbox.value.scrollTo({ top: chatbox.value.scrollHeight, behavior: behavior });
@@ -120,31 +129,7 @@ function isLoading() {
     Welcome, star chatting now!
   </span>
   <div class=" bg-slate-800 m-4 ms-0 rounded-xl overflow-hidden flex flex-col" v-else>
-    <div class="flex items-center gap-4 p-4 bg-slate-800 rounded-lg shadow-2xl">
-
-      <ChatIcon :chat="current" status />
-
-      <div class="flex flex-col transition-all">
-
-        <p class="font-bold">{{ current.name }}</p>
-        <div v-if="chatStore.isGroupChat(current)">
-          <div class="flex items-center text-xs text-slate-400">
-            <p>{{ current.statusCount.members }} members - </p>
-            <span class="w-2 flex aspect-square rounded-full mx-1 bg-green-600"></span>
-            <p>{{ current.statusCount.online }} online</p>
-          </div>
-        </div>
-        <Transition name="online">
-          <div v-if="chatStore.isReceiverOnline(current)">
-            <p class="text-xs text-slate-400">online</p>
-          </div>
-        </Transition>
-      </div>
-
-      <Button class="ms-auto" icon="fa-gear" variant="secondary-text" tooltip="Settings" tooltip-pos="left" rounded />
-    </div>
-
-
+    <ChatHeader />
 
     <div class="p-4 max-h-full overflow-y-scroll chatbox" ref="chatbox">
 
@@ -269,19 +254,7 @@ function isLoading() {
   background: white;
 }
 
-.online-enter-active {
-  transition: all 250ms ease;
-}
 
-.online-leave-active {
-  transition: all 0ms;
-}
-
-.online-enter-from,
-.online-leave-to {
-  opacity: 0;
-  scale: .8;
-}
 
 .grid-columns {
   grid-template-columns: 2.75rem 1fr;

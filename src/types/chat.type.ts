@@ -18,7 +18,7 @@ export interface ChatStatusCount {
   members: number;
 }
 
-export interface Chat {
+export type Chat = {
   id: string;
   name: string;
   description: string;
@@ -30,7 +30,8 @@ export interface Chat {
   receiver?: User;
   notifications: number;
   abreviation?: string;
-}
+  users: User[];
+};
 
 export interface ChatShort {
   id: string;
