@@ -6,6 +6,7 @@ type Events = {
   disconnected: string;
   notification: string;
   chatCreated: string;
+  chatConnectionNotification: string;
 
   requestNotification: string;
   connectionNotification: string;

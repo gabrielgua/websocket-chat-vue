@@ -1,9 +1,9 @@
 import type { User } from "./user.type";
 
-export interface Message {
+export type Message = {
   id: number;
   chat: string;
   sender: User;
   content: string;
   timestamp: Date;
-}
+};

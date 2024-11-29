@@ -39,24 +39,10 @@ onUnmounted(() => {
   chatStore.reset();
 })
 
-
 //will trigger whenever a new message is added
 onUpdated(() => scrollToBottom('smooth'));
 
-const handleMessageReceived = (body: string) => {
-  const message: Message = JSON.parse(body);
 
-  if (message.chat === current.value.id) {
-    messageStore.add(message);
-  }
-}
-
-const handleConnectionNotification = (body: string) => {
-  chatStore.updateChatUserStatus(JSON.parse(body));
-}
-
-emitter.on('message', handleMessageReceived);
-emitter.on('connectionNotification', handleConnectionNotification);
 
 
 function scrollToBottom(behavior: ScrollBehavior) {

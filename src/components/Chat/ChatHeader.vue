@@ -38,7 +38,7 @@ const isPrivate = computed(() => chatStore.isPrivate());
             <p>{{ chat.statusCount.online }} online</p>
           </div>
         </div>
-        <p v-if="chat.receiver?.status === UserStatus.Online" class="text-xs text-slate-400">online</p>
+        <p v-else-if="chat.receiver?.status === UserStatus.Online" class="text-xs text-slate-400">online</p>
         <p v-else class="text-xs text-slate-400">offline</p>
       </SlideInTransition>
     </div>

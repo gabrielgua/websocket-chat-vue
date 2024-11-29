@@ -1,14 +1,15 @@
 <script setup lang="ts">
+import { useAsideStore, type AsideType } from '@/stores/aside.store';
 import { useAuthStore } from '@/stores/auth.store';
 import Button from '../Button.vue';
-import { useAsideStore, type AsideType } from '@/stores/aside.store';
+import JumpInTransition from '../Transitions/JumpInTransition.vue';
 
 const authStore = useAuthStore();
 const asideStore = useAsideStore();
 
 
 const isCurrent = (type: AsideType) => {
-  return asideStore.currentMenu === type;
+  return asideStore.currentMenu.type === type;
 }
 
 const changeCurrent = (type: AsideType) => {
@@ -27,18 +28,18 @@ const changeCurrent = (type: AsideType) => {
         </Button>
       </li>
       <hr class="border-slate-600 rounded">
-      <li>
-        <Button icon="fa-comments" :on-click="() => changeCurrent('chats')"
-          :variant="isCurrent('chats') ? 'primary' : 'secondary'" rounded tooltip="Chats" tooltip-pos="right" />
+      <li v-for="menu in asideStore.menus" :key="menu.name" class="relative">
+        <Button :icon="menu.icon" :on-click="() => changeCurrent(menu.type)"
+          :variant="isCurrent(menu.type) ? 'primary' : 'secondary-text'" rounded :tooltip="menu.name"
+          tooltip-pos="right" />
+
+        <JumpInTransition>
+          <span v-if="menu.notification"
+            class="w-2.5 h-2.5 ring ring-slate-800 bg-sky-600 absolute right-0.5 top-0.5 rounded-full"></span>
+
+        </JumpInTransition>
       </li>
-      <li>
-        <Button icon="fa-envelope" :on-click="() => changeCurrent('requests')"
-          :variant="isCurrent('requests') ? 'primary' : 'secondary'" rounded tooltip="Requests" tooltip-pos="right" />
-      </li>
-      <li>
-        <Button icon="fa-user-group" :on-click="() => changeCurrent('friends')"
-          :variant="isCurrent('friends') ? 'primary' : 'secondary'" rounded tooltip="Friends" tooltip-pos="right" />
-      </li>
+
     </ul>
     <ul class="flex flex-col gap-5 mt-auto">
       <li>

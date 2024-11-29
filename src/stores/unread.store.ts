@@ -34,7 +34,7 @@ export const useUnreadStore = defineStore("unread", () => {
   function add(message: Message) {
     http.put(`${API_URL}/add/${message.id}`).then(() => {
       unread.value.push(message);
-      var chat = chatStore.find(message.chat);
+      var chat = chatStore.findChat(message.chat);
       if (chat) {
         setUnreadCountForChat(chat);
       }

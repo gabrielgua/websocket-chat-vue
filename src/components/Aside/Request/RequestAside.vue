@@ -11,14 +11,7 @@ import RequestList, { type RequestListType } from './RequestList.vue';
 const requestStore = useRequestStore();
 const asideStore = useAsideStore();
 
-const handleRequestNotification = (body: string) => {
-  const request: FriendRequest = JSON.parse(body);
-  if (request.requester) {
-    requestStore.addReceived(request);
-  }
-}
 
-emitter.on('requestNotification', handleRequestNotification);
 
 
 const currentList = computed(() => {

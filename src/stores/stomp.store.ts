@@ -6,6 +6,7 @@ import { useChatStore } from "./chat.store";
 import { useAuthStore } from "./auth.store";
 import { useUnreadStore } from "./unread.store";
 import type { FriendRequest } from "@/types/friendRequest.type";
+import type { Chat } from "@/types/chat.type";
 
 export const useStompStore = defineStore("stomp", () => {
   const chatStore = useChatStore();
@@ -76,9 +77,27 @@ export const useStompStore = defineStore("stomp", () => {
 
   function subscribeAll() {
     chatStore.chats.forEach((chat) => {
-      subscriptions.value.push(subscribe(chat.id));
+      subscribeToChat(chat);
     });
   }
+
+  const subscribeToChat = (chat: Chat) => {
+    const chatSub = stomp.subscribe(
+      `/topic/chats/${chat.id}`,
+      handleChatNotification
+    );
+    const chatConnectionSub = stomp.subscribe(
+      `/topic/chats/${chat.id}/connection-notifications`,
+      handleChatConnectionNotification
+    );
+
+    subscriptions.value.push(chatSub);
+    subscriptions.value.push(chatConnectionSub);
+  };
+
+  const handleChatConnectionNotification = (message: Stomp.Message) => {
+    emitter.emit("chatConnectionNotification", message.body);
+  };
 
   function unsubscribeAll() {
     subscriptions.value.forEach((sub) => {
@@ -88,10 +107,10 @@ export const useStompStore = defineStore("stomp", () => {
   }
 
   function subscribe(chat: string) {
-    return stomp.subscribe(`/topic/chats/${chat}`, emitReceived);
+    return stomp.subscribe(`/topic/chats/${chat}`, handleChatNotification);
   }
 
-  function emitReceived(message: Stomp.Message) {
+  function handleChatNotification(message: Stomp.Message) {
     emitter.emit("message", message.body);
   }
 

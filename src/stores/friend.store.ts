@@ -1,12 +1,13 @@
 import { http } from "@/services/http";
-import type { User } from "@/types/user.type";
+import { UserStatus, type User } from "@/types/user.type";
 import { defineStore } from "pinia";
-import { reactive, ref } from "vue";
+import { computed, reactive, ref } from "vue";
 
 export const useFriendStore = defineStore("friend", () => {
   const ENDPOINT = "/api/users/friends";
 
   const friends = ref<User[]>([]);
+
   const state = reactive({ loading: false, error: false });
 
   const fetchFriends = () => {

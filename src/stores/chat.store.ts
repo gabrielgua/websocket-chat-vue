@@ -38,12 +38,13 @@ export const useChatStore = defineStore("chat", () => {
   }
 
   const fetchChatUsers = (chat: Chat) => {
-    if (chat.type === ChatType.private) {
+    if (isPrivate()) {
       return;
     }
 
     http.get(`${CHATS_ENDPOINT}/${chat.id}/users`).then((res) => {
       current.value.users = res.data;
+      updateChatStatus();
     });
   };
 
@@ -66,10 +67,12 @@ export const useChatStore = defineStore("chat", () => {
       return;
     }
 
-    const exists = current.value.users.find((u) => u.id === user.id);
-    if (exists) {
-      exists.status = user.status;
-      updateChatStatus();
+    if (current.value.users) {
+      const exists = current.value.users.find((u) => u.id === user.id);
+      if (exists) {
+        exists.status = user.status;
+        updateChatStatus();
+      }
     }
   };
 

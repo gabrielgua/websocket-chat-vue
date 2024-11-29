@@ -12,6 +12,7 @@ import { displayFullTimestamp, formatTimestamp } from '@/utils/date';
 import { onUnmounted } from 'vue';
 import ChatAvatar from '../../Chat/ChatAvatar.vue';
 import Avatar from '@/components/Avatar.vue';
+import { useAsideStore } from '@/stores/aside.store';
 
 defineProps<{
   chats: Chat[]
@@ -27,6 +28,7 @@ const authStore = useAuthStore();
 const userStore = useUserStore();
 const messageStore = useMessageStore();
 const unreadStore = useUnreadStore();
+const asideStore = useAsideStore();
 
 function isCurrent(chat: Chat): boolean {
   return chatStore.current.id === chat.id;
@@ -37,6 +39,9 @@ function isSender(message: Message) {
 }
 
 function changeCurrent(chat: Chat) {
+  if (chat.id === chatStore.current.id) {
+    return;
+  }
 
   chatStore.changeCurrent(chat);
 
@@ -55,6 +60,7 @@ function handleOnMessage(body: string) {
 
   if (chatStore.current.id != message.chat && !isSender(message)) {
     unreadStore.add(message);
+    asideStore.addNotification('chats');
   }
 }
 

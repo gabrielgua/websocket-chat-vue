@@ -20,10 +20,10 @@
 }
 
 .slide-in-enter-from {
-  transform: translateX(-35px);
+  transform: translateX(-30px);
 }
 
 .slide-in-leave-to {
-  transform: translateX(35px);
+  transform: translateX(30px);
 }
 </style>

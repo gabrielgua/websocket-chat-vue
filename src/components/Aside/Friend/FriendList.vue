@@ -8,30 +8,37 @@ import { emitter } from '@/services/mitt';
 import { useAsideStore } from '@/stores/aside.store';
 import { useFriendStore } from '@/stores/friend.store';
 import { useUserStore } from '@/stores/user.store';
-import type { User } from '@/types/user.type';
+import { UserStatus, type User } from '@/types/user.type';
+import { computed } from 'vue';
 
 const friendStore = useFriendStore();
 const asideStore = useAsideStore();
-const userStore = useUserStore();
+
+const friends = computed(() => sortFriendList())
 
 emitter.on('connectionNotification', (body) => {
   friendStore.updateFriendStatus(JSON.parse(body));
 })
 
 const isOnline = (user: User) => {
-  return userStore.isOnline(user)
+  return user.status === UserStatus.Online;
 }
 
 const goToChat = (user: User) => {
   asideStore.goToUserChat(user);
 }
 
+
+const sortFriendList = () => {
+  return friendStore.friends.sort((a, b) => Number(isOnline(b)) - Number(isOnline(a)))
+}
+
 </script>
 <template>
   <section>
-    <ul class="grid">
-      <li v-for="user in friendStore.friends" :key="user.id"
-        class="flex items-center gap-3 p-4 border-b border-b-slate-800 last:border-none">
+    <TransitionGroup name="friend-list" tag="ul" class="grid mt-6">
+      <li v-for="user in friends" :key="user.id"
+        class="transition-all flex items-center gap-3 p-4 hover:bg-slate-800/50">
         <Avatar :status="user.status" :url="user.avatarUrl" />
         <div>
           <p class="text-sm font-semibold">{{ user.username }}</p>
@@ -52,8 +59,25 @@ const goToChat = (user: User) => {
           </Dropdown>
         </div>
       </li>
-    </ul>
+    </TransitionGroup>
   </section>
 </template>
 
-<style scoped></style>
+<style scoped>
+.friend-list-move,
+.friend-list-enter-active,
+.friend-list-leave-active {
+  transition: all 250ms ease;
+}
+
+.friend-list-enter-from,
+.friend-list-leave-to {
+  opacity: 0;
+  scale: .95;
+  transform: translateX(-30px);
+}
+
+.friend-list-leave-active {
+  position: absolute;
+}
+</style>
