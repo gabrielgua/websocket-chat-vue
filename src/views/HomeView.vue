@@ -10,7 +10,7 @@ import { useAsideStore, type AsideType } from '@/stores/aside.store';
 import { useFriendStore } from '@/stores/friend.store';
 import { useRequestStore } from '@/stores/request.store';
 import Handler from '@/utils/handler';
-import { computed, onMounted } from 'vue';
+import { computed, onMounted, shallowRef } from 'vue';
 
 const asideStore = useAsideStore();
 const friendStore = useFriendStore();
@@ -24,12 +24,6 @@ onMounted(() => {
   new Handler().init();
 })
 
-
-
-
-const isCurrent = (type: AsideType) => {
-  return asideStore.currentMenu.type === type;
-}
 
 const activeComponent = computed(() => asideStore.currentMenu.component);
 

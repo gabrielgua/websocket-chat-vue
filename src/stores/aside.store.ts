@@ -1,6 +1,6 @@
 import type { RequestListType } from "@/components/Aside/Request/RequestList.vue";
 import { defineStore } from "pinia";
-import { ref, type Component } from "vue";
+import { ref, shallowRef, type Component } from "vue";
 import { useChatStore } from "./chat.store";
 import type { User } from "@/types/user.type";
 import ChatAside from "@/components/Aside/Chat/ChatAside.vue";
@@ -23,7 +23,7 @@ export const useAsideStore = defineStore("aside", () => {
     type: "chats",
     icon: "fa-comments",
     notification: false,
-    component: ChatAside,
+    component: shallowRef(ChatAside),
   };
 
   const requestsMenu: Menu = {
@@ -31,7 +31,7 @@ export const useAsideStore = defineStore("aside", () => {
     type: "requests",
     icon: "fa-envelope",
     notification: false,
-    component: RequestAside,
+    component: shallowRef(RequestAside),
   };
 
   const friendsMenu: Menu = {
@@ -39,12 +39,12 @@ export const useAsideStore = defineStore("aside", () => {
     type: "friends",
     icon: "fa-user-group",
     notification: false,
-    component: FriendAside,
+    component: shallowRef(FriendAside),
   };
 
-  const initialMenus: Menu[] = Array.of(chatsMenu, requestsMenu, friendsMenu);
-  const chatStore = useChatStore();
+  const initialMenus: Menu[] = [chatsMenu, requestsMenu, friendsMenu];
 
+  const chatStore = useChatStore();
   const currentMenu = ref<Menu>(chatsMenu);
   const menus = ref<Menu[]>(initialMenus);
 
