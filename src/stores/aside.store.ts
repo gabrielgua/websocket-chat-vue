@@ -18,6 +18,8 @@ type Menu = {
 };
 
 export const useAsideStore = defineStore("aside", () => {
+  const defaultRequestListType: RequestListType = "received";
+
   const chatsMenu: Menu = {
     name: "Chats",
     type: "chats",
@@ -48,7 +50,7 @@ export const useAsideStore = defineStore("aside", () => {
   const currentMenu = ref<Menu>(chatsMenu);
   const menus = ref<Menu[]>(initialMenus);
 
-  const currentRequestType = ref<RequestListType>("sent");
+  const currentRequestType = ref<RequestListType>(defaultRequestListType);
 
   const changeRequestType = (type: RequestListType) => {
     currentRequestType.value = type;
@@ -78,7 +80,7 @@ export const useAsideStore = defineStore("aside", () => {
 
   const reset = () => {
     currentMenu.value = chatsMenu;
-    currentRequestType.value = "sent";
+    currentRequestType.value = defaultRequestListType;
     menus.value = initialMenus;
   };
 

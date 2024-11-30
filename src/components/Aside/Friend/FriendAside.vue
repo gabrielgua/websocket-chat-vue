@@ -3,7 +3,7 @@ import Button from '@/components/Button.vue';
 import FriendForm from '@/components/FriendForm.vue';
 import Modal from '@/components/Modal.vue';
 import { useRequestStore } from '@/stores/request.store';
-import { useUserSearchStore } from '@/stores/userSearch.store';
+import { useUserSearchStore } from '@/stores/user.search.store';
 import { ref } from 'vue';
 import FriendList from './FriendList.vue';
 
@@ -33,7 +33,7 @@ function toggleFriendModal() {
 
     <FriendList />
 
-    <Modal :modal-active="friendModalActive" @close-modal="toggleFriendModal" title="Find and add users">
+    <Modal :modal-active="friendModalActive" @on-close="toggleFriendModal" title="Find and add users">
       <FriendForm @close-modal="toggleFriendModal" />
     </Modal>
   </section>

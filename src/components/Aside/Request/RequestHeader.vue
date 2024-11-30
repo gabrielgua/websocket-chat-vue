@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useUserSearchStore } from '@/stores/userSearch.store';
+import { useUserSearchStore } from '@/stores/user.search.store';
 import { ref } from 'vue';
 import Button from '../../Button.vue';
 import Modal from '../../Modal.vue';
@@ -30,7 +30,7 @@ function toggleFriendModal() {
       </div>
     </div>
 
-    <Modal :modal-active="friendModalActive" @close-modal="toggleFriendModal" title="Find and add users">
+    <Modal :modal-active="friendModalActive" @on-close="toggleFriendModal" title="Find and add users">
       <FriendForm @close-modal="toggleFriendModal" />
     </Modal>
   </section>

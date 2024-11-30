@@ -11,9 +11,6 @@ import RequestList, { type RequestListType } from './RequestList.vue';
 const requestStore = useRequestStore();
 const asideStore = useAsideStore();
 
-
-
-
 const currentList = computed(() => {
   if (asideStore.currentRequestType === 'sent') return requestStore.sent;
   return requestStore.received;
@@ -30,13 +27,13 @@ const changeCurrentType = (type: RequestListType) => {
   <section>
     <RequestHeader />
     <div class="flex items-center px-4 mt-4 gap-4 justify-center">
-      <Button class="w-full" :on-click="() => changeCurrentType('sent')"
-        :variant="asideStore.currentRequestType === 'sent' ? 'primary' : 'secondary'" icon="fa-arrow-up" inverted>
-        Sent
-      </Button>
       <Button class="w-full" :on-click="() => changeCurrentType('received')"
         :variant="asideStore.currentRequestType === 'received' ? 'primary' : 'secondary'" icon="fa-arrow-down" inverted>
         Received
+      </Button>
+      <Button class="w-full" :on-click="() => changeCurrentType('sent')"
+        :variant="asideStore.currentRequestType === 'sent' ? 'primary' : 'secondary'" icon="fa-arrow-up" inverted>
+        Sent
       </Button>
     </div>
 

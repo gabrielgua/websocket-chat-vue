@@ -95,7 +95,7 @@ function toggleGroupModal() {
 
     <ChatList :chats="filteredChats" />
 
-    <Modal :modal-active="groupModalActive" @close-modal="toggleGroupModal" title="Create a new group chat">
+    <Modal :modal-active="groupModalActive" @on-close="toggleGroupModal" title="Create a new group chat">
       <span class="self-center grid place-items-center gap-4" v-if="chatStore.state.loading">
         <Spinner />
         <p class="text-sm text-slate-400">Creating chat</p>

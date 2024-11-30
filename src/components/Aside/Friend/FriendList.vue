@@ -7,7 +7,6 @@ import JumpInTransition from '@/components/Transitions/JumpInTransition.vue';
 import { emitter } from '@/services/mitt';
 import { useAsideStore } from '@/stores/aside.store';
 import { useFriendStore } from '@/stores/friend.store';
-import { useUserStore } from '@/stores/user.store';
 import { UserStatus, type User } from '@/types/user.type';
 import { computed } from 'vue';
 
@@ -28,10 +27,11 @@ const goToChat = (user: User) => {
   asideStore.goToUserChat(user);
 }
 
-
 const sortFriendList = () => {
   return friendStore.friends.sort((a, b) => Number(isOnline(b)) - Number(isOnline(a)))
 }
+
+
 
 </script>
 <template>
@@ -60,6 +60,7 @@ const sortFriendList = () => {
         </div>
       </li>
     </TransitionGroup>
+
   </section>
 </template>
 

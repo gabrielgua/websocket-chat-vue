@@ -19,7 +19,7 @@ const changeCurrent = (type: AsideType) => {
 </script>
 
 <template>
-  <div class="p-4 bg-slate-800 shadow-lg flex flex-col justify-between shadow-slate-900 z-10">
+  <div class="p-4 bg-slate-800 shadow-lg max-h-dvh flex flex-col justify-between shadow-slate-900 z-10">
     <ul class="flex flex-col gap-5">
       <li>
         <Button :on-click="() => changeCurrent('profile')" :class="{ 'ring ring-slate-200/30': isCurrent('profile') }"
@@ -63,6 +63,5 @@ const changeCurrent = (type: AsideType) => {
     </ul>
   </div>
 </template>
-
 
 <style scoped></style>

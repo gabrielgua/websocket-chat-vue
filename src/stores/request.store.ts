@@ -61,9 +61,20 @@ export const useRequestStore = defineStore("request", () => {
     );
   };
 
+  const addSent = (request: FriendRequest) => {
+    sent.value.push(request);
+    sent.value = sortByDate(sent.value);
+  };
+
   const addReceived = (request: FriendRequest) => {
     received.value.push(request);
     received.value = sortByDate(received.value);
+  };
+
+  const removeSent = (receiverId: number) => {
+    sent.value = sent.value.filter(
+      (request) => request.receiver?.id !== receiverId
+    );
   };
 
   const sendRequest = (receiverId: number) => {
@@ -74,8 +85,7 @@ export const useRequestStore = defineStore("request", () => {
       http
         .post(`${REQUEST_ENPOINT}/send`, { receiverId: receiverId })
         .then((res) => {
-          console.log(res);
-          fetchSent();
+          addSent(res.data);
         })
         .catch((e) => {
           console.log(e);
@@ -110,9 +120,10 @@ export const useRequestStore = defineStore("request", () => {
     reset,
     resetIndividualState,
     addReceived,
-    sendRequest,
     individualState,
     alreadySent,
     alreadyReceived,
+    sendRequest,
+    removeSent,
   };
 });

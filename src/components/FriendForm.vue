@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useRequestStore } from '@/stores/request.store';
-import { useUserSearchStore } from '@/stores/userSearch.store';
+import { useUserSearchStore } from '@/stores/user.search.store';
 import { ref } from 'vue';
 import Button from './Button.vue';
 import Input from './Input.vue';
