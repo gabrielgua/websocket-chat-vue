@@ -26,7 +26,6 @@ onMounted(() => {
 
 
 const activeComponent = computed(() => asideStore.currentMenu.component);
-const { append } = useToastStore();
 
 </script>
 

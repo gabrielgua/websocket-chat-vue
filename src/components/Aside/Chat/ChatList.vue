@@ -46,6 +46,9 @@ function changeCurrent(chat: Chat) {
   }
 
   chatStore.changeCurrent(chat);
+  messageStore.fetchMessages(chat.id);
+  chatStore.fetchChatUsers(chat);
+
 
   if (chat.notifications > 0) {
     unreadStore.read(chat);

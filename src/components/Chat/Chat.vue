@@ -2,14 +2,13 @@
 import { useAuthStore } from '@/stores/auth.store';
 import { useChatStore } from '@/stores/chat.store';
 import { useMessageStore } from '@/stores/message.store';
-import { useStompStore } from '@/stores/stomp.store';
 import { useUserStore } from '@/stores/user.store';
 import { ChatType } from '@/types/chat.type';
 import type { Message } from '@/types/message.type';
 import type { User } from '@/types/user.type';
 import { format, isSameDay, isToday, isYesterday } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { computed, onMounted, onUnmounted, onUpdated, ref, watch } from 'vue';
+import { computed, onUpdated, ref } from 'vue';
 import Button from '../Button.vue';
 import Spinner from '../Spinner.vue';
 import ChatHeader from './ChatHeader.vue';
@@ -23,23 +22,14 @@ const messageStore = useMessageStore();
 const current = computed(() => chatStore.current);
 const chatbox = ref({} as HTMLElement);
 
-
-
-onMounted(() => {
-  watch(current, (newChat) => {
-    chatStore.fetchChatUsers(newChat);
-    messageStore.fetchMessages(newChat.id)
-      .then(() => scrollToBottom('instant'));
-
-  });
-})
-
-onUnmounted(() => {
-  chatStore.reset();
-})
+// onMounted(() => scrollToBottom('instant'));
 
 //will trigger whenever a new message is added
-onUpdated(() => scrollToBottom('smooth'));
+onUpdated(() => {
+  if (!chatStore.currentIsEmpty()) {
+    scrollToBottom('smooth');
+  }
+});
 
 
 function scrollToBottom(behavior: ScrollBehavior) {
@@ -108,90 +98,96 @@ function isLoading() {
 </script>
 
 <template>
-  <span class="m-4 ml-0 bg-slate-800 rounded-xl grid place-items-center" v-if="!showChat()">
-    Welcome, star chatting now!
-  </span>
-  <div class=" bg-slate-800 m-4 ms-0 rounded-xl overflow-hidden flex flex-col" v-else>
-    <ChatHeader />
+  <Transition name="fade" mode="out-in">
 
-    <div class="p-4 max-h-full overflow-y-scroll chatbox" ref="chatbox">
+    <span class="m-4 ml-0 bg-slate-800 rounded-xl grid place-items-center" v-if="!showChat()">
+      Welcome, star chatting now!
+    </span>
+    <div class=" bg-slate-800 m-4 ms-0 rounded-xl overflow-hidden flex flex-col" v-else>
+      <ChatHeader />
 
-      <div class="flex flex-col items-center gap-5 py-10" v-if="isLoading()">
-        <Spinner />
-        <p class="text-sm text-slate-400">Loading messages</p>
-      </div>
+      <div class="p-4 max-h-full overflow-y-scroll chatbox" ref="chatbox">
 
-      <div class="gap-3 text-[13px] items-center border border-slate-400/20 p-2 rounded-full">
-        <span class="flex items-center justify-center gap-2 text-slate-500">
-          <img :src="current.creator.avatarUrl" alt="creator avatar pic" class="size-6 block">
-          <p>
-            <span class="font-semibold" :class="getUserColor(current.creator)">{{ isMessageSender(current.creator.id) ?
-              'You' : current.creator.username }}</span>
-            created this chat at {{ displayFullTimestamp(current.createdAt) }}
-          </p>
-        </span>
-      </div>
+        <div class="flex flex-col items-center gap-5 py-10" v-if="isLoading()">
+          <Spinner />
+          <p class="text-sm text-slate-400">Loading messages</p>
+        </div>
 
-      <div v-if="!isLoading()" class="group mt-4 flex flex-col" v-for="(message, i) in messageStore.messages"
-        :key="message.id" :class="{ 'mt-[.125rem]': isSameSender(message.sender.id, i) }">
+        <div class="gap-3 text-[13px] items-center border border-slate-400/20 p-2 rounded-full">
+          <span class="flex items-center justify-center gap-2 text-slate-500">
+            <img :src="current.creator.avatarUrl" alt="creator avatar pic" class="size-6 block">
+            <p>
+              <span class="font-semibold" :class="getUserColor(current.creator)">
+                {{ isMessageSender(current.creator.id)
+                  ? 'You'
+                  : current.creator.username }}
+              </span>
+              created this chat at {{ displayFullTimestamp(current.createdAt) }}
+            </p>
+          </span>
+        </div>
 
-        <span class="relative mt-4 mb-5 flex items-center justify-center text-sm w-full" v-if="!sameDay(message, i)">
-          <p class="z-10 bg-slate-900/40 px-2 py-1 text-slate-400 font-light text-xs   rounded">
-            {{ displayFullTimestamp(message.timestamp) }}
-          </p>
-        </span>
+        <div class="group mt-4 flex flex-col" v-for="(message, i) in messageStore.messages" :key="message.id"
+          :class="{ 'mt-[.125rem]': isSameSender(message.sender.id, i) }">
 
-        <section class="grid"
-          :class="{ 'grid-columns': !isMessageSender(message.sender.id) && chatStore.current.type === ChatType.group }">
-          <div v-if="!isMessageSender(message.sender.id)">
-            <div v-if="showMessageHeader(message, i)" class="grid place-items-center w-8 h-8 rounded-full">
-              <img :src="message.sender.avatarUrl">
+          <span class="relative mt-4 mb-5 flex items-center justify-center text-sm w-full" v-if="!sameDay(message, i)">
+            <p class="z-10 bg-slate-900/40 px-2 py-1 text-slate-400 font-light text-xs   rounded">
+              {{ displayFullTimestamp(message.timestamp) }}
+            </p>
+          </span>
+
+          <section class="grid"
+            :class="{ 'grid-columns': !isMessageSender(message.sender.id) && chatStore.current.type === ChatType.group }">
+            <div v-if="!isMessageSender(message.sender.id)">
+              <div v-if="showMessageHeader(message, i)" class="grid place-items-center w-8 h-8 rounded-full">
+                <img :src="message.sender.avatarUrl">
+              </div>
             </div>
-          </div>
 
-          <div>
-            <div class="flex items-center gap-2" :class="{ 'flex-row-reverse': isMessageSender(message.sender.id) }">
-              <div class="relative flex flex-col rounded-xl md:max-w-[75%] sm:max-w-full"
-                :class="[isMessageSender(message.sender.id) ? 'bg-sky-600' : 'bg-slate-900']">
-                <div class="text-xs font-bold mb-1 col-span-2 px-2.5 mt-2"
-                  v-if="showMessageHeader(message, i) && !isMessageSender(message.sender.id)">
-                  <p :class="getUserColor(message.sender)">{{ message.sender.username }}</p>
-                </div>
-                <div class="flex justify-between gap-2">
-                  <p class="py-1.5 px-2.5 text-sm font-normal"
-                    :class="{ 'pt-0.5': showMessageHeader(message, i) && !isMessageSender(message.sender.id) }">
-                    {{ message.content }}
-                  </p>
-                  <span class="mb-0.5 mr-1.5 text-xs font-medium self-end"
-                    :class="[isMessageSender(message.sender.id) ? 'text-sky-400' : 'text-slate-600']">
-                    {{ formatTimestamp(message.timestamp) }}
+            <div>
+              <div class="flex items-center gap-2" :class="{ 'flex-row-reverse': isMessageSender(message.sender.id) }">
+                <div class="relative flex flex-col rounded-xl md:max-w-[75%] sm:max-w-full"
+                  :class="[isMessageSender(message.sender.id) ? 'bg-sky-600' : 'bg-slate-900']">
+                  <div class="text-xs font-bold mb-1 col-span-2 px-2.5 mt-2"
+                    v-if="showMessageHeader(message, i) && !isMessageSender(message.sender.id)">
+                    <p :class="getUserColor(message.sender)">{{ message.sender.username }}</p>
+                  </div>
+                  <div class="flex justify-between gap-2">
+                    <p class="py-1.5 px-2.5 text-sm font-normal"
+                      :class="{ 'pt-0.5': showMessageHeader(message, i) && !isMessageSender(message.sender.id) }">
+                      {{ message.content }}
+                    </p>
+                    <span class="mb-0.5 mr-1.5 text-xs font-medium self-end"
+                      :class="[isMessageSender(message.sender.id) ? 'text-sky-400' : 'text-slate-600']">
+                      {{ formatTimestamp(message.timestamp) }}
+                    </span>
+                  </div>
+                  <span class="absolute top-0 message-first-triangle"
+                    :class="[isMessageSender(message.sender.id) ? '-right-2 left-auto bg-sky-600' : '-left-2 bg-slate-900']"
+                    :style="{ 'display': isSameSender(message.sender.id, i) && sameDay(message, i) ? 'none' : 'block' }">
                   </span>
                 </div>
-                <span class="absolute top-0 message-first-triangle"
-                  :class="[isMessageSender(message.sender.id) ? '-right-2 left-auto bg-sky-600' : '-left-2 bg-slate-900']"
-                  :style="{ 'display': isSameSender(message.sender.id, i) && sameDay(message, i) ? 'none' : 'block' }">
+                <span class="group-hover:block hidden text-xs text-gray-500">
+                  {{ format(message.timestamp, "P", { locale: ptBR }) }}
                 </span>
               </div>
-              <span class="group-hover:block hidden text-xs text-gray-500">
-                {{ format(message.timestamp, "P", { locale: ptBR }) }}
-              </span>
             </div>
-          </div>
-        </section>
+          </section>
 
+        </div>
       </div>
+
+      <form class="mt-auto p-4 flex items-center justify-between gap-4" @submit.prevent="sendMessage">
+        <div
+          class="flex items-center transition-all text-sm outline-none focus-within:ring-2 focus-within:ring-sky-600 bg-slate-900 w-full rounded-2xl p-2 ps-2">
+          <input class="p-2 bg-transparent focus:outline-none w-full" required v-model="message" type="text"
+            placeholder="Type messages here" />
+          <Button class="ms-auto" icon="fa-paper-plane" variant="primary-text" tooltip="Send" tooltip-pos="top" rounded
+            submit />
+        </div>
+      </form>
     </div>
-
-    <form class="mt-auto p-4 flex items-center justify-between gap-4" @submit.prevent="sendMessage">
-      <div
-        class="flex items-center transition-all text-sm outline-none focus-within:ring-2 focus-within:ring-sky-600 bg-slate-900 w-full rounded-2xl p-2 ps-2">
-        <input class="p-2 bg-transparent focus:outline-none w-full" required v-model="message" type="text"
-          placeholder="Type messages here" />
-        <Button class="ms-auto" icon="fa-paper-plane" variant="primary-text" tooltip="Send" tooltip-pos="top" rounded
-          submit />
-      </div>
-    </form>
-  </div>
+  </Transition>
 </template>
 
 <style scoped>

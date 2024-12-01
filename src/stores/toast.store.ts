@@ -14,7 +14,7 @@ type Toast = {
 export type ToastVariant = "info" | "success" | "danger";
 
 export const useToastStore = defineStore("toast", () => {
-  const DISMISS_TIME = 10000000;
+  const DISMISS_TIME = 10000;
   const TOAST_LIMIT = 5;
   const toasts = reactive<Toast[]>([]);
   const { play } = useAudioStore();

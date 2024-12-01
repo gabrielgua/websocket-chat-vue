@@ -87,7 +87,8 @@ const isLoading = (id: number) => {
 
       <Button class="ml-auto" :on-click="toggleModalActive" rounded variant="secondary" icon="fa-trash"
         :tooltip="sent ? 'Cancel' : 'Deny'" />
-      <Button v-if="received" rounded variant="success" icon="fa-check" tooltip="Accept" />
+      <Button :on-click="() => requestStatusStore.acceptRequest(user.id)" v-if="received" rounded variant="success"
+        icon="fa-check" tooltip="Accept" />
     </div>
 
     <Modal action-buttons :modal-active="modalActive" @on-confirm="() => handleOnConfirm(user.id)"

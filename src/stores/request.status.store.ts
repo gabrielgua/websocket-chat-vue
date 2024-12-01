@@ -3,11 +3,17 @@ import { useRequestStore } from "./request.store";
 import { http } from "@/services/http";
 import { reactive, ref } from "vue";
 import { useToastStore } from "./toast.store";
+import { useFriendStore } from "./friend.store";
+import { useAsideStore } from "./aside.store";
+import type { User } from "@/types/user.type";
 
 export const useRequestStatusStore = defineStore("requestStatus", () => {
   const REQUEST_ENPOINT = "/api/users/requests";
 
   const requestStore = useRequestStore();
+  const friendStore = useFriendStore();
+  const asideStore = useAsideStore();
+
   const { append } = useToastStore();
   const state = reactive({
     id: 0,
@@ -21,16 +27,26 @@ export const useRequestStatusStore = defineStore("requestStatus", () => {
 
     setTimeout(() => {
       http
-        .post(`${REQUEST_ENPOINT}/accept`, { requesterId })
-        .then((res) => {
-          console.log(res);
-        })
+        .put(`${REQUEST_ENPOINT}/accept`, { requesterId })
+        .then((res) => handleRequestAcceptedSuccess(res.data))
         .catch((e) => {
           console.log(e);
           state.error = true;
+          append("Something occurred!", "danger", e.response.data.message);
         })
         .finally(() => (state.loading = false));
     }, 500);
+  };
+
+  const handleRequestAcceptedSuccess = (user: User) => {
+    requestStore.removeReceived(user.id);
+    friendStore.addFriend(user);
+    asideStore.addNotification("friends");
+    append(
+      "Request accepted",
+      "success",
+      `${user.username} is now your friend.`
+    );
   };
 
   const cancelRequest = (receiverId: number) => {
@@ -48,7 +64,6 @@ export const useRequestStatusStore = defineStore("requestStatus", () => {
             "info",
             "The request was successfully canceled."
           );
-          console.log(state);
         })
         .catch((e) => {
           console.log(e);

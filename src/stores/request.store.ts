@@ -77,6 +77,12 @@ export const useRequestStore = defineStore("request", () => {
     );
   };
 
+  const removeReceived = (requesterId: number) => {
+    received.value = received.value.filter(
+      (request) => request.requester?.id !== requesterId
+    );
+  };
+
   const sendRequest = (receiverId: number) => {
     individualState.id = receiverId;
     individualState.loading = true;
@@ -125,5 +131,6 @@ export const useRequestStore = defineStore("request", () => {
     alreadyReceived,
     sendRequest,
     removeSent,
+    removeReceived,
   };
 });

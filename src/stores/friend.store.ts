@@ -25,6 +25,10 @@ export const useFriendStore = defineStore("friend", () => {
       .finally(() => (state.loading = false));
   };
 
+  const addFriend = (user: User) => {
+    friends.value.push(user);
+  };
+
   const startLoading = () => {
     state.error = false;
     state.loading = true;
@@ -51,6 +55,7 @@ export const useFriendStore = defineStore("friend", () => {
     state,
     friends,
     fetchFriends,
+    addFriend,
     reset,
     alreadyFriends,
     updateFriendStatus,
