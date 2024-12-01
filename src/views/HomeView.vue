@@ -3,6 +3,7 @@ import AsideMenu from '@/components/Aside/AsideMenu.vue';
 import Button from '@/components/Button.vue';
 import ChatComponent from '@/components/Chat/Chat.vue';
 import Logo from '@/components/Logo.vue';
+import RightMenu from '@/components/RightMenu.vue';
 
 import { useAsideStore } from '@/stores/aside.store';
 import { useFriendStore } from '@/stores/friend.store';
@@ -43,7 +44,18 @@ const { append } = useToastStore();
     </div>
 
     <ChatComponent class="flex-grow" />
+    <!-- 
+    <section class="absolute top-0 left-40 mt-auto flex gap-2">
 
+      <Button
+        :on-click="() => append('Test one', undefined, 'This is a test notification for testing either the animations and the functionality.')"
+        variant="primary">Info</Button>
+      <Button :on-click="() => append('Something went wrong', 'danger', 'Please try again later.')"
+        variant="danger">Danger</Button>
+      <Button :on-click="() => append('This was a success', 'success', 'Something was a success, were proud of you.')"
+        variant="success">Success</Button>
+
+    </section> -->
 
     <!-- <RightMenu /> -->
 

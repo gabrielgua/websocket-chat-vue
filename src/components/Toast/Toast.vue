@@ -22,9 +22,9 @@ const success = computed(() => props.variant === 'success');
 const danger = computed(() => props.variant === 'danger');
 
 const variants = [
-  { name: 'info', styles: 'ring-sky-600/10 text-sky-400 shadow-sky-600/20' },
-  { name: 'success', styles: 'ring-teal-400/10  text-teal-400 shadow-teal-600/20' },
-  { name: 'danger', styles: 'ring-rose-300/10 text-rose-500 shadow-rose-400/20 ' },
+  { name: 'info', styles: 'ring-sky-600/20 text-sky-400 shadow-sky-600/20' },
+  { name: 'success', styles: 'ring-teal-400/20  text-teal-400 shadow-teal-600/20' },
+  { name: 'danger', styles: 'ring-rose-300/20 text-rose-500 shadow-rose-400/20 ' },
 ]
 
 const getVariantStyles = () => {
@@ -33,12 +33,11 @@ const getVariantStyles = () => {
   return variants.find(variant => variant.name === props.variant)?.styles;
 }
 
-
 </script>
 
 <template>
-  <div class="relative ring-1 w-[350px] transition-all bg-slate-900 p-4 overflow-hidden pr-2 rounded-xl"
-    :class="getVariantStyles()">
+  <div class="relative ring-1 w-[350px] transition-all bg-slate-900 p-4 pr-2 rounded-xl" :class="getVariantStyles()">
+
     <div class="flex items-start gap-3">
       <fa-icon v-if="info" icon="fa-solid fa-info-circle" />
       <fa-icon v-if="success" icon="fa-solid fa-check-circle" />

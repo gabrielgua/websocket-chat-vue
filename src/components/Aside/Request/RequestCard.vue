@@ -1,13 +1,12 @@
 <script setup lang="ts">
 import Modal from '@/components/Modal.vue';
+import Spinner from '@/components/Spinner.vue';
 import { useRequestStatusStore } from '@/stores/request.status.store';
 import type { User } from '@/types/user.type';
 import { displayFullTimestamp } from '@/utils/date';
 import { computed, ref } from 'vue';
 import Button from '../../Button.vue';
 import type { RequestListType } from './RequestList.vue';
-import Spinner from '@/components/Spinner.vue';
-import Dialog from '@/components/Dialog.vue';
 
 
 const props = defineProps<{
@@ -59,9 +58,6 @@ const isLoading = (id: number) => {
   return requestStatusStore.state.loading && requestStatusStore.state.id === id;
 }
 
-const closeDialog = () => {
-  requestStatusStore.reset();
-}
 
 </script>
 
@@ -113,10 +109,6 @@ const closeDialog = () => {
         to send you another request.
       </p>
     </Modal>
-
-    <Dialog title="Request cancelled successfully" :show="requestStatusStore.state.success"
-      @dialog-close="closeDialog" />
-
   </div>
 </template>
 

@@ -1,5 +1,6 @@
 import { defineStore } from "pinia";
 import { reactive, ref } from "vue";
+import { useAudioStore } from "./audio.store";
 
 type Toast = {
   id: number;
@@ -13,9 +14,10 @@ type Toast = {
 export type ToastVariant = "info" | "success" | "danger";
 
 export const useToastStore = defineStore("toast", () => {
-  const DISMISS_TIME = 10000;
+  const DISMISS_TIME = 10000000;
   const TOAST_LIMIT = 5;
   const toasts = reactive<Toast[]>([]);
+  const { play } = useAudioStore();
 
   const append = (
     title: string,
@@ -32,6 +34,9 @@ export const useToastStore = defineStore("toast", () => {
       remainingSeconds,
     };
 
+    toasts.unshift(toast);
+    play();
+
     toast.interval = setInterval(() => {
       const existing = toasts.find((t) => t.id === toast.id);
       if (existing) {
@@ -43,7 +48,6 @@ export const useToastStore = defineStore("toast", () => {
       }
     }, 1000);
 
-    toasts.unshift(toast);
     if (toasts.length >= TOAST_LIMIT) {
       toasts.pop();
     }

@@ -2,11 +2,13 @@ import { defineStore } from "pinia";
 import { useRequestStore } from "./request.store";
 import { http } from "@/services/http";
 import { reactive, ref } from "vue";
+import { useToastStore } from "./toast.store";
 
 export const useRequestStatusStore = defineStore("requestStatus", () => {
   const REQUEST_ENPOINT = "/api/users/requests";
 
   const requestStore = useRequestStore();
+  const { append } = useToastStore();
   const state = reactive({
     id: 0,
     loading: false,
@@ -40,6 +42,12 @@ export const useRequestStatusStore = defineStore("requestStatus", () => {
         .then(() => {
           requestStore.removeSent(receiverId);
           state.success = true;
+
+          append(
+            "Request canceled",
+            "info",
+            "The request was successfully canceled."
+          );
           console.log(state);
         })
         .catch((e) => {
