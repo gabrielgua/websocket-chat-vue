@@ -17,7 +17,6 @@ const message = ref('');
 const authStore = useAuthStore();
 const userStore = useUserStore();
 const chatStore = useChatStore();
-const messageStore = useMessageStore();
 
 const current = computed(() => chatStore.current);
 const chatbox = ref({} as HTMLElement);
@@ -26,14 +25,16 @@ const chatbox = ref({} as HTMLElement);
 
 //will trigger whenever a new message is added
 onUpdated(() => {
-  if (!chatStore.currentIsEmpty()) {
-    scrollToBottom('smooth');
-  }
+  console.log('updated');
+
+  scrollToBottom('instant');
 });
 
 
 function scrollToBottom(behavior: ScrollBehavior) {
-  chatbox.value.scrollTo({ top: chatbox.value.scrollHeight, behavior: behavior });
+  if (showChat()) {
+    chatbox.value.scrollTo({ top: chatbox.value.scrollHeight, behavior: behavior });
+  }
 }
 
 function sendMessage() {
@@ -49,7 +50,7 @@ function isSameSender(senderId: number, index: number) {
   if (index === 0) {
     return false;
   }
-  return messageStore.messages[index - 1].sender.id === senderId;
+  return current.value.messages[index - 1].sender.id === senderId;
 }
 
 function isMessageSender(userId: number) {
@@ -64,12 +65,12 @@ function showChat() {
   return !chatStore.currentIsEmpty();
 }
 
-function sameDay(current: Message, index: number) {
+function sameDay(message: Message, index: number) {
   if (index === 0) {
     return false;
   }
-  const previous = messageStore.messages[index - 1];
-  return isSameDay(previous.timestamp, current.timestamp);
+  const previous = current.value.messages[index - 1];
+  return isSameDay(previous.timestamp, message.timestamp);
 }
 
 function displayFullTimestamp(timestamp: Date) {
@@ -90,13 +91,8 @@ function getUserColor(sender: User) {
   return userStore.getUserColor(sender);
 }
 
-function isLoading() {
-  return messageStore.state.loading;
-}
-
 
 </script>
-
 <template>
   <Transition name="fade" mode="out-in">
 
@@ -108,7 +104,7 @@ function isLoading() {
 
       <div class="p-4 max-h-full overflow-y-scroll chatbox" ref="chatbox">
 
-        <div class="flex flex-col items-center gap-5 py-10" v-if="isLoading()">
+        <div class="flex flex-col items-center gap-5 py-10" v-if="false">
           <Spinner />
           <p class="text-sm text-slate-400">Loading messages</p>
         </div>
@@ -127,7 +123,7 @@ function isLoading() {
           </span>
         </div>
 
-        <div class="group mt-4 flex flex-col" v-for="(message, i) in messageStore.messages" :key="message.id"
+        <div class="group mt-4 flex flex-col" v-for="(message, i) in current.messages" :key="message.id"
           :class="{ 'mt-[.125rem]': isSameSender(message.sender.id, i) }">
 
           <span class="relative mt-4 mb-5 flex items-center justify-center text-sm w-full" v-if="!sameDay(message, i)">

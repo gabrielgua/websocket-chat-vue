@@ -27,14 +27,9 @@ export type Chat = {
   createdAt: Date;
   statusCount: ChatStatusCount;
   lastMessage: Message;
+  messages: Message[];
   receiver?: User;
   notifications: number;
   abreviation?: string;
   users: User[];
 };
-
-export interface ChatShort {
-  id: string;
-  statusCount: ChatStatusCount;
-  receiver?: User;
-}

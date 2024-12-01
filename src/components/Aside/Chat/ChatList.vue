@@ -29,15 +29,13 @@ const authStore = useAuthStore();
 const userStore = useUserStore();
 const messageStore = useMessageStore();
 const unreadStore = useUnreadStore();
-const asideStore = useAsideStore();
-const toastStore = useToastStore();
 
 function isCurrent(chat: Chat): boolean {
   return chatStore.current.id === chat.id;
 }
 
 function isSender(message: Message) {
-  return messageStore.isSender(message);
+  return authStore.authentication.userId === message.sender.id;
 }
 
 function changeCurrent(chat: Chat) {
@@ -55,20 +53,6 @@ function changeCurrent(chat: Chat) {
   }
 }
 
-emitter.on('message', handleOnMessage);
-
-function handleOnMessage(body: string) {
-  const message: Message = JSON.parse(body);
-
-  chatStore.updateLastMessage(message);
-  chatStore.sortChatList();
-
-  console.log(message);
-  if (chatStore.current.id != message.chat && !isSender(message)) {
-    unreadStore.add(message);
-    asideStore.addNotification('chats');
-  }
-}
 
 function isAuthenticatedUser(user: User) {
   return authStore.authentication.userId === user.id;
@@ -98,10 +82,11 @@ function hasLastMessage(chat: Chat): boolean {
 
       <div class="flex flex-col truncate flex-grow items-start gap-1">
         <p class="font-bold">{{ chat.name }}</p>
-        <p class="text-xs text-slate-400 truncate max-w-full" v-if="hasLastMessage(chat)">
+        <p class="text-xs text-slate-400  truncate max-w-full" v-if="hasLastMessage(chat)">
           <span class="font-semibold" v-if="chat.type === ChatType.group">
             {{ displayUsername(chat.lastMessage.sender) }}:
           </span>
+          <fa-icon icon="fa-share" class="mr-1 mt-0.5 text-[10px]" v-else-if="isSender(chat.lastMessage)" />
           {{ chat.lastMessage.content }}
         </p>
         <p v-else class="text-xs text-slate-400 truncate max-w-full">

@@ -1,11 +1,14 @@
 import { emitter } from "@/services/mitt";
 import { useAsideStore } from "@/stores/aside.store";
+import { useAudioStore } from "@/stores/audio.store";
+import { useAuthStore } from "@/stores/auth.store";
 import { useChatStore } from "@/stores/chat.store";
 import { useFriendStore } from "@/stores/friend.store";
-import { useMessageStore } from "@/stores/message.store";
 import { useRequestStore } from "@/stores/request.store";
 import { useToastStore } from "@/stores/toast.store";
+import { useUnreadStore } from "@/stores/unread.store";
 import type { FriendRequest } from "@/types/friendRequest.type";
+import type { Message } from "@/types/message.type";
 
 export default class Handler {
   init() {
@@ -19,10 +22,12 @@ export default class Handler {
 
 const chatStore = useChatStore();
 const asideStore = useAsideStore();
-const messageStore = useMessageStore();
 const requestStore = useRequestStore();
 const toastStore = useToastStore();
 const friendStore = useFriendStore();
+const unreadStore = useUnreadStore();
+const authStore = useAuthStore();
+const audioStore = useAudioStore();
 
 const handleRequestNotification = (body: string) => {
   const request: FriendRequest = JSON.parse(body);
@@ -51,13 +56,28 @@ const handleRequestNotification = (body: string) => {
 };
 
 const handleMessageReceived = (body: string) => {
-  const message = JSON.parse(body);
-
-  console.log(message);
-
-  if (message.chat === chatStore.current.id) {
-    messageStore.add(message);
+  const message: Message = JSON.parse(body);
+  const chat = chatStore.findChat(message.chat);
+  if (!chat) {
+    return;
   }
+
+  const noChatOpened = chatStore.currentIsEmpty();
+  const isDifferentChat = chatStore.current.id !== chat.id;
+  const isDifferentSender =
+    authStore.authentication.userId !== message.sender.id;
+
+  chatStore.updateLastMessage(message);
+  chatStore.addMessage(message);
+
+  console.log((noChatOpened || isDifferentChat) && isDifferentSender);
+
+  if ((noChatOpened || isDifferentChat) && isDifferentSender) {
+    unreadStore.add(message);
+    asideStore.addNotification("chats");
+  }
+
+  chatStore.sortChatList();
 };
 
 const handleConnectionNotification = (body: string) => {

@@ -1,7 +1,7 @@
 import { http } from "@/services/http";
 import { emitter } from "@/services/mitt";
 import type { ChatRequest } from "@/types/chat.request.type";
-import { ChatType, type Chat, type ChatShort } from "@/types/chat.type";
+import { ChatType, type Chat } from "@/types/chat.type";
 import type { MessageRequest } from "@/types/message.request.type";
 import type { Message } from "@/types/message.type";
 import { UserStatus, type User } from "@/types/user.type";
@@ -17,14 +17,13 @@ export const useChatStore = defineStore("chat", () => {
 
   function fetchChats() {
     state.loading = true;
-    chats.value = [];
+    state.error = false;
+
     return http
       .get(CHATS_ENDPOINT)
       .then((response) => {
-        state.error = false;
-        response.data.map((chat: Chat) => {
-          chats.value.push(chat);
-        });
+        chats.value = response.data;
+        chats.value.forEach((chat) => (chat.messages = []));
 
         sortChatList();
       })
@@ -36,6 +35,22 @@ export const useChatStore = defineStore("chat", () => {
         state.loading = false;
       });
   }
+
+  const fetchChatMessages = (chat: Chat) => {
+    if (chat.messages?.length) {
+      return;
+    }
+
+    return http
+      .get(`/api/chats/${chat.id}/messages`)
+      .then((response) => {
+        chat.messages = response.data;
+      })
+      .catch((e) => {
+        console.log(e);
+      })
+      .finally(() => {});
+  };
 
   const fetchChatUsers = (chat: Chat) => {
     if (isPrivate()) {
@@ -50,6 +65,7 @@ export const useChatStore = defineStore("chat", () => {
 
   function changeCurrent(chat: Chat) {
     current.value = chat;
+    fetchChatMessages(chat);
     updateChatStatus();
   }
 
@@ -101,12 +117,21 @@ export const useChatStore = defineStore("chat", () => {
       .then(() => console.log("Message sent!"));
   }
 
-  function updateLastMessage(message: Message) {
+  const addMessage = (message: Message) => {
+    const chat = chats.value.find((c) => c.id === message.chat);
+    if (chat) {
+      chat.messages.push(message);
+      chat.lastMessage = message;
+    }
+  };
+
+  const updateLastMessage = (message: Message) => {
+    console.log("lastMessage", message.content);
     const chat = chats.value.find((c) => c.id === message.chat);
     if (chat) {
       chat.lastMessage = message;
     }
-  }
+  };
 
   function sortChatList() {
     chats.value = chats.value.sort((a: Chat, b: Chat) => {
@@ -197,7 +222,6 @@ export const useChatStore = defineStore("chat", () => {
     fetchChats,
     fetchChatUsers,
     createChat,
-    updateLastMessage,
     sortChatList,
     isReceiverOnline,
     updateChatUserStatus,
@@ -207,5 +231,8 @@ export const useChatStore = defineStore("chat", () => {
     currentIsEmpty,
     sendMessage,
     findPrivateByReceiver,
+    fetchChatMessages,
+    addMessage,
+    updateLastMessage,
   };
 });
