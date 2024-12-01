@@ -10,6 +10,7 @@ import { useStompStore } from "./stomp.store";
 import { useFriendStore } from "./friend.store";
 import { useRequestStore } from "./request.store";
 import { useAsideStore } from "./aside.store";
+import { useRequestStatusStore } from "./request.status.store";
 
 export const useAuthStore = defineStore("auth", () => {
   const router = useRouter();
@@ -17,6 +18,7 @@ export const useAuthStore = defineStore("auth", () => {
   const friendStore = useFriendStore();
   const requestStore = useRequestStore();
   const asideStore = useAsideStore();
+  const requestStatusStore = useRequestStatusStore();
 
   type Authentication = {
     userId: number;
@@ -70,6 +72,8 @@ export const useAuthStore = defineStore("auth", () => {
       emitter.all.clear();
       friendStore.reset();
       requestStore.reset();
+      requestStatusStore.reset();
+
       asideStore.reset();
     });
   }

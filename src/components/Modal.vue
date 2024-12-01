@@ -19,7 +19,7 @@ defineEmits(['on-close', 'on-confirm'])
   <Teleport to="body">
     <Transition name="outer-modal">
       <div @click.self="$emit('on-close')" v-show="modalActive"
-        class="absolute z-10 top-0 left-0 bg-black/60 w-full h-full grid place-items-center ">
+        class="absolute z-20 top-0 left-0 bg-black/60 w-full h-full grid place-items-center ">
 
         <Transition name="content-modal">
           <div v-if="modalActive"

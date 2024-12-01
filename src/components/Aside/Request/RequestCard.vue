@@ -7,6 +7,7 @@ import { computed, ref } from 'vue';
 import Button from '../../Button.vue';
 import type { RequestListType } from './RequestList.vue';
 import Spinner from '@/components/Spinner.vue';
+import Dialog from '@/components/Dialog.vue';
 
 
 const props = defineProps<{
@@ -56,6 +57,10 @@ const handleOnConfirm = (userId: number) => {
 
 const isLoading = (id: number) => {
   return requestStatusStore.state.loading && requestStatusStore.state.id === id;
+}
+
+const closeDialog = () => {
+  requestStatusStore.reset();
 }
 
 </script>
@@ -108,6 +113,9 @@ const isLoading = (id: number) => {
         to send you another request.
       </p>
     </Modal>
+
+    <Dialog title="Request cancelled successfully" :show="requestStatusStore.state.success"
+      @dialog-close="closeDialog" />
 
   </div>
 </template>

@@ -4,12 +4,15 @@ import { http } from "@/services/http";
 import { reactive, ref } from "vue";
 
 export const useRequestStatusStore = defineStore("requestStatus", () => {
-  const initialState = { id: 0, loading: false, error: false };
-
   const REQUEST_ENPOINT = "/api/users/requests";
 
   const requestStore = useRequestStore();
-  const state = ref(initialState);
+  const state = reactive({
+    id: 0,
+    loading: false,
+    error: false,
+    success: false,
+  });
 
   const acceptRequest = (requesterId: number) => {
     request(requesterId);
@@ -22,9 +25,9 @@ export const useRequestStatusStore = defineStore("requestStatus", () => {
         })
         .catch((e) => {
           console.log(e);
-          state.value.error = true;
+          state.error = true;
         })
-        .finally(() => (state.value.loading = false));
+        .finally(() => (state.loading = false));
     }, 500);
   };
 
@@ -34,24 +37,32 @@ export const useRequestStatusStore = defineStore("requestStatus", () => {
     setTimeout(() => {
       http
         .delete(`${REQUEST_ENPOINT}/cancel`, { data: { receiverId } })
-        .then(() => requestStore.removeSent(receiverId))
+        .then(() => {
+          requestStore.removeSent(receiverId);
+          state.success = true;
+          console.log(state);
+        })
         .catch((e) => {
           console.log(e);
-          state.value.error = true;
+          state.error = true;
         })
-        .finally(() => (state.value.loading = false));
+        .finally(() => (state.loading = false));
     }, 500);
   };
 
   const request = (id: number) => {
-    state.value.id = id;
-    state.value.error = false;
-    state.value.loading = true;
+    state.id = id;
+    state.error = false;
+    state.loading = true;
+    state.success = false;
   };
 
   const reset = () => {
-    state.value = initialState;
+    state.id = 0;
+    state.success = false;
+    state.loading = false;
+    state.error = false;
   };
 
-  return { state, acceptRequest, cancelRequest };
+  return { state, acceptRequest, cancelRequest, reset };
 });

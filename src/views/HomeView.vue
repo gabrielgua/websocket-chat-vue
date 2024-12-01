@@ -1,16 +1,15 @@
 <script setup lang="ts">
 import AsideMenu from '@/components/Aside/AsideMenu.vue';
-import ChatAside from '@/components/Aside/Chat/ChatAside.vue';
-import FriendAside from '@/components/Aside/Friend/FriendAside.vue';
-import RequestAside from '@/components/Aside/Request/RequestAside.vue';
+import Button from '@/components/Button.vue';
 import ChatComponent from '@/components/Chat/Chat.vue';
 import Logo from '@/components/Logo.vue';
 
-import { useAsideStore, type AsideType } from '@/stores/aside.store';
+import { useAsideStore } from '@/stores/aside.store';
 import { useFriendStore } from '@/stores/friend.store';
 import { useRequestStore } from '@/stores/request.store';
+import { useToastStore } from '@/stores/toast.store';
 import Handler from '@/utils/handler';
-import { computed, onMounted, shallowRef } from 'vue';
+import { computed, onMounted } from 'vue';
 
 const asideStore = useAsideStore();
 const friendStore = useFriendStore();
@@ -26,11 +25,12 @@ onMounted(() => {
 
 
 const activeComponent = computed(() => asideStore.currentMenu.component);
+const { append } = useToastStore();
 
 </script>
 
 <template>
-  <div class="antialiased flex content-start bg-slate-900 mx-auto container-width text-white">
+  <div class="antialiased relative flex content-start bg-slate-900 mx-auto container-width text-white">
     <div class="grid grid-cols-[1fr_auto] min-h-dvh">
       <AsideMenu />
 
@@ -43,6 +43,8 @@ const activeComponent = computed(() => asideStore.currentMenu.component);
     </div>
 
     <ChatComponent class="flex-grow" />
+
+
     <!-- <RightMenu /> -->
 
   </div>
