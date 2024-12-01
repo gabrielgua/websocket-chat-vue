@@ -33,6 +33,12 @@ const getVariantStyles = () => {
   return variants.find(variant => variant.name === props.variant)?.styles;
 }
 
+const getButtonVariant = () => {
+  if (danger.value) return 'danger-text';
+  if (success.value) return 'success-text';
+  return 'primary-text';
+}
+
 </script>
 
 <template>
@@ -50,9 +56,7 @@ const getVariantStyles = () => {
           <fa-icon icon="fa-clock"></fa-icon>
           <p>{{ remainingSeconds }}s</p>
         </div>
-        <Button :on-click="() => $emit('on-dismiss')"
-          :variant="props.variant ? success ? 'success-text' : danger ? 'danger-text' : 'primary-text' : 'primary-text'"
-          rounded icon="fa-xmark" />
+        <Button :on-click="() => $emit('on-dismiss')" :variant="getButtonVariant()" icon="fa-xmark" rounded />
       </div>
     </div>
     <p v-if="description" class="text-xs mx-7 mt-3 opacity-70">

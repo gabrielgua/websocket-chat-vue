@@ -13,6 +13,7 @@ import { onUnmounted } from 'vue';
 import ChatAvatar from '../../Chat/ChatAvatar.vue';
 import Avatar from '@/components/Avatar.vue';
 import { useAsideStore } from '@/stores/aside.store';
+import { useToastStore } from '@/stores/toast.store';
 
 defineProps<{
   chats: Chat[]
@@ -29,6 +30,7 @@ const userStore = useUserStore();
 const messageStore = useMessageStore();
 const unreadStore = useUnreadStore();
 const asideStore = useAsideStore();
+const toastStore = useToastStore();
 
 function isCurrent(chat: Chat): boolean {
   return chatStore.current.id === chat.id;
@@ -58,6 +60,7 @@ function handleOnMessage(body: string) {
   chatStore.updateLastMessage(message);
   chatStore.sortChatList();
 
+  console.log(message);
   if (chatStore.current.id != message.chat && !isSender(message)) {
     unreadStore.add(message);
     asideStore.addNotification('chats');
@@ -157,7 +160,6 @@ function hasLastMessage(chat: Chat): boolean {
 .chat-list-leave-to {
   opacity: 0;
   scale: .95;
-
 }
 
 .chat-list-leave-active {

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { emitter } from '@/services/mitt';
 import { useAuthStore } from '@/stores/auth.store';
 import { useChatStore } from '@/stores/chat.store';
 import { useMessageStore } from '@/stores/message.store';
@@ -41,8 +40,6 @@ onUnmounted(() => {
 
 //will trigger whenever a new message is added
 onUpdated(() => scrollToBottom('smooth'));
-
-
 
 
 function scrollToBottom(behavior: ScrollBehavior) {

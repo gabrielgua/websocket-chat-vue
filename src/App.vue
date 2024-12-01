@@ -1,6 +1,16 @@
 <script setup lang="ts">
+import { watch } from 'vue';
+import { useUnreadStore } from './stores/unread.store';
 
+const store = useUnreadStore();
 
+watch(() => store.count, (newCount) => {
+  console.log(store.count, newCount);
+
+  document.title = newCount > 0
+    ? `(${newCount}) WebSocket Chat`
+    : 'WebSocket Chat'
+}, { immediate: true })
 
 </script>
 

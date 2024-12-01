@@ -7,7 +7,12 @@ import ChatAside from "@/components/Aside/Chat/ChatAside.vue";
 import RequestAside from "@/components/Aside/Request/RequestAside.vue";
 import FriendAside from "@/components/Aside/Friend/FriendAside.vue";
 
-export type AsideType = "profile" | "chats" | "requests" | "friends";
+export type AsideType =
+  | "profile"
+  | "chats"
+  | "requests"
+  | "friends"
+  | "notifications";
 
 type Menu = {
   name: string;
@@ -44,7 +49,20 @@ export const useAsideStore = defineStore("aside", () => {
     component: shallowRef(FriendAside),
   };
 
-  const initialMenus: Menu[] = [chatsMenu, requestsMenu, friendsMenu];
+  const notificationsMenu: Menu = {
+    name: "Notifications",
+    type: "notifications",
+    icon: "fa-bell",
+    notification: false,
+    component: shallowRef(FriendAside),
+  };
+
+  const initialMenus: Menu[] = [
+    chatsMenu,
+    notificationsMenu,
+    requestsMenu,
+    friendsMenu,
+  ];
 
   const chatStore = useChatStore();
   const currentMenu = ref<Menu>(chatsMenu);

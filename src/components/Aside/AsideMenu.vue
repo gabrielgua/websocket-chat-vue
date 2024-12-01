@@ -37,7 +37,6 @@ const changeCurrent = (type: AsideType) => {
           <span v-if="menu.notification"
             class="w-3 h-3 ring ring-slate-800 bg-sky-600 absolute right-0.5 top-0.5 rounded-full">
           </span>
-
         </JumpInTransition>
       </li>
 

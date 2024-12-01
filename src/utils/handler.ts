@@ -31,6 +31,8 @@ const handleRequestNotification = (body: string) => {
 const handleMessageReceived = (body: string) => {
   const message = JSON.parse(body);
 
+  console.log(message);
+
   if (message.chat === chatStore.current.id) {
     messageStore.add(message);
   }

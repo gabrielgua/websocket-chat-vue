@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import { useChatStore } from "./chat.store";
-import { ref, type Ref } from "vue";
+import { computed, ref, type Ref } from "vue";
 import type { Message } from "@/types/message.type";
 import { http } from "@/services/http";
 import type { Chat } from "@/types/chat.type";
@@ -10,6 +10,7 @@ export const useUnreadStore = defineStore("unread", () => {
 
   const chatStore = useChatStore();
   const unread: Ref<Message[]> = ref([]);
+  const count = computed(() => unread.value.length);
 
   function fetch() {
     unread.value = [];
@@ -32,7 +33,7 @@ export const useUnreadStore = defineStore("unread", () => {
   }
 
   function add(message: Message) {
-    http.put(`${API_URL}/add/${message.id}`).then(() => {
+    http.put(`${API_URL}/${message.id}`).then(() => {
       unread.value.push(message);
       var chat = chatStore.findChat(message.chat);
       if (chat) {
@@ -56,9 +57,9 @@ export const useUnreadStore = defineStore("unread", () => {
     );
 
     http
-      .delete(`${API_URL}/remove`, { data: toRemoveIds })
+      .delete(`${API_URL}`, { data: toRemoveIds })
       .then(() => setUnreadCountForChat(chat));
   }
 
-  return { read, fetch, add };
+  return { read, fetch, add, count };
 });
