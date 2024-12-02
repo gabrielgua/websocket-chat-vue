@@ -8,6 +8,7 @@ type Events = {
   chatCreated: string;
   chatConnectionNotification: string;
 
+  requestSent: string;
   requestNotification: string;
   connectionNotification: string;
 };

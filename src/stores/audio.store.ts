@@ -4,7 +4,7 @@ import { reactive, ref } from "vue";
 import notificationSound from "../assets/sounds/notification_sound.mp3";
 
 export const useAudioStore = defineStore("audio", () => {
-  const enabled = ref<boolean>(true);
+  const enabled = ref<boolean>(false);
 
   const toggleAudio = () => {
     enabled.value = !enabled.value;

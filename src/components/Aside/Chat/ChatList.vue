@@ -118,7 +118,6 @@ function hasLastMessage(chat: Chat): boolean {
 
 
 <style scoped>
-/* width */
 ::-webkit-scrollbar {
   width: .25rem;
 }
@@ -127,13 +126,11 @@ function hasLastMessage(chat: Chat): boolean {
   background: transparent;
 }
 
-/* Handle */
 ::-webkit-scrollbar-thumb {
   background: rgb(2 132 199);
   border-radius: .25rem;
 }
 
-/* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
   background: white;
 }

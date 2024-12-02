@@ -23,11 +23,10 @@ export default class Handler {
 const chatStore = useChatStore();
 const asideStore = useAsideStore();
 const requestStore = useRequestStore();
-const toastStore = useToastStore();
+const { toast } = useToastStore();
 const friendStore = useFriendStore();
 const unreadStore = useUnreadStore();
 const authStore = useAuthStore();
-const audioStore = useAudioStore();
 
 const handleRequestNotification = (body: string) => {
   const request: FriendRequest = JSON.parse(body);
@@ -35,7 +34,7 @@ const handleRequestNotification = (body: string) => {
     requestStore.addReceived(request);
     asideStore.addNotification("requests");
 
-    toastStore.append(
+    toast(
       "Request received",
       "info",
       `${request.requester.username} has sent you a friend request.`
@@ -47,7 +46,7 @@ const handleRequestNotification = (body: string) => {
     requestStore.removeSent(request.receiver.id);
     asideStore.addNotification("friends");
 
-    toastStore.append(
+    toast(
       "Request accepted",
       "success",
       `${request.receiver.username} accepted your friend request. `

@@ -7,40 +7,40 @@ export const useUserSearchStore = defineStore("userSearch", () => {
   const FIND_ENDPOINT = "/api/users";
 
   const searchUsers = ref<User[]>([]);
-  const state = reactive({ loading: false, error: false, empty: false });
+  const previousTerm = ref("");
+  const state = reactive({ loading: false, error: false, touched: false });
 
   function findByNameOrUsername(term: string) {
-    if (!term.length) {
+    if (!term.length || previousTerm.value.trim() === term.trim()) {
       return;
     }
 
     state.loading = true;
+    previousTerm.value = term;
 
     setTimeout(() => {
       http
         .get(`${FIND_ENDPOINT}?term=${term}`)
         .then((response) => {
-          if (!response.data.length) {
-            state.empty = true;
-            return;
-          }
-
-          state.empty = false;
           searchUsers.value = response.data;
         })
         .catch((e) => {
           console.log(e);
           state.error = true;
         })
-        .finally(() => (state.loading = false));
+        .finally(() => {
+          state.loading = false;
+          state.touched = true;
+        });
     }, 500);
   }
 
   function reset() {
     state.error = false;
     state.loading = false;
-    state.empty = false;
+    state.touched = false;
     searchUsers.value = [];
+    previousTerm.value = "";
   }
 
   return {

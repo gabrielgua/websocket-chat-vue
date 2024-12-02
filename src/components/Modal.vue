@@ -7,7 +7,8 @@ defineProps({
   actionButtons: { type: Boolean, default: false },
   confirmText: { type: String, default: 'Confirm' },
   cancelText: { type: String, default: 'Cancel' },
-  title: String
+  title: String,
+  width: { type: String, default: '600px' }
 })
 
 defineEmits(['on-close', 'on-confirm'])
@@ -23,15 +24,17 @@ defineEmits(['on-close', 'on-confirm'])
 
         <Transition name="content-modal">
           <div v-if="modalActive"
-            class="modal-container transition-all bg-slate-900 text-white p-6 border border-slate-800/60 shadow rounded-xl flex flex-col gap-6 max-h-dvh">
-            <div class="relative flex items-center justify-between gap-5">
-              <p class="text-lg font-bold mr-auto">{{ title ? title : 'Do you want to confirm the action?' }}</p>
-              <Button :on-click="() => $emit('on-close')" class="absolute -top-0 -right-0 " icon="fa-xmark"
+            class="modal-container transition-all bg-slate-900 text-white p-6 border border-slate-800/60 shadow rounded-xl flex flex-col gap-6 max-h-dvh"
+            :style="{ '--width': width }">
+
+            <div class="relative flex">
+              <p class="text-lg font-bold mr-auto -mt-1.5">{{ title }}</p>
+              <Button :on-click="() => $emit('on-close')" class="absolute -top-2 -right-2 " icon="fa-xmark"
                 variant="secondary-text" rounded />
             </div>
             <slot />
-            <div v-if="actionButtons" class="flex gap-3 mt-3">
 
+            <div v-if="actionButtons" class="flex gap-3 mt-3">
               <Button :on-click="() => $emit('on-confirm')" icon="fa-check" variant="primary" inverted>
                 {{ confirmText }}
               </Button>
@@ -50,7 +53,7 @@ defineEmits(['on-close', 'on-confirm'])
 
 <style scoped>
 .modal-container {
-  --modal-width: 600px;
+  --modal-width: v-bind(width);
   --margin-inline: 1rem;
   width: min(var(--modal-width), 100% - (var(--margin-inline) * 2));
 }

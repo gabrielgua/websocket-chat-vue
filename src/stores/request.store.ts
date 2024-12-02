@@ -2,12 +2,15 @@ import { http } from "@/services/http";
 import type { FriendRequest } from "@/types/friendRequest.type";
 import { defineStore } from "pinia";
 import { reactive, ref } from "vue";
+import { useToastStore } from "./toast.store";
+import { emitter } from "@/services/mitt";
 
 export const useRequestStore = defineStore("request", () => {
   const REQUEST_ENPOINT = "/api/users/requests";
 
   const sent = ref<FriendRequest[]>([]);
   const received = ref<FriendRequest[]>([]);
+  const { toast } = useToastStore();
 
   const state = reactive({ loading: false, error: false });
 
@@ -62,13 +65,11 @@ export const useRequestStore = defineStore("request", () => {
   };
 
   const addSent = (request: FriendRequest) => {
-    sent.value.push(request);
-    sent.value = sortByDate(sent.value);
+    sent.value.unshift(request);
   };
 
   const addReceived = (request: FriendRequest) => {
-    received.value.push(request);
-    received.value = sortByDate(received.value);
+    received.value.unshift(request);
   };
 
   const removeSent = (receiverId: number) => {
@@ -92,6 +93,8 @@ export const useRequestStore = defineStore("request", () => {
         .post(`${REQUEST_ENPOINT}/send`, { receiverId: receiverId })
         .then((res) => {
           addSent(res.data);
+
+          emitter.emit("requestSent", "request-sent");
         })
         .catch((e) => {
           console.log(e);

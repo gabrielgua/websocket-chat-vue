@@ -19,7 +19,7 @@ export const useToastStore = defineStore("toast", () => {
   const toasts = reactive<Toast[]>([]);
   const { play } = useAudioStore();
 
-  const append = (
+  const toast = (
     title: string,
     variant?: ToastVariant,
     description?: string
@@ -64,5 +64,5 @@ export const useToastStore = defineStore("toast", () => {
     }
   };
 
-  return { toasts, append, dismiss };
+  return { toasts, toast, dismiss };
 });

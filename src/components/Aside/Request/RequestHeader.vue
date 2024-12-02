@@ -5,17 +5,29 @@ import Button from '../../Button.vue';
 import Modal from '../../Modal.vue';
 import FriendForm from '../../FriendForm.vue';
 import { useRequestStore } from '@/stores/request.store';
+import { emitter } from '@/services/mitt';
+import { useToastStore } from '@/stores/toast.store';
+import { useAsideStore } from '@/stores/aside.store';
 
 const friendModalActive = ref(false);
 
 const searchStore = useUserSearchStore();
 const requestStore = useRequestStore();
+const { toast } = useToastStore();
+const asideStore = useAsideStore();
 
 function toggleFriendModal() {
   searchStore.reset();
   requestStore.resetIndividualState();
   friendModalActive.value = !friendModalActive.value;
 }
+
+emitter.on('requestSent', (e) => {
+  toggleFriendModal();
+  toast('Request Sent', 'success', 'Your request was successfully sent!')
+  asideStore.changeMenu('requests');
+  asideStore.changeRequestType('sent');
+})
 
 </script>
 
@@ -33,6 +45,7 @@ function toggleFriendModal() {
     <Modal :modal-active="friendModalActive" @on-close="toggleFriendModal" title="Find and add users">
       <FriendForm @close-modal="toggleFriendModal" />
     </Modal>
+
   </section>
 </template>
 

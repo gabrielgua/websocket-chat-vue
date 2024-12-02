@@ -6,8 +6,11 @@ import Modal from './Modal.vue';
 const props = defineProps<{
   show: boolean,
   title?: string,
-  variant?: 'success' | 'error'
+  variant?: 'success' | 'error',
+  width?: string,
 }>()
+
+const defaultDialogWidth = '450px';
 
 const show = computed(() => props.show);
 
@@ -19,7 +22,8 @@ const onClose = () => {
 
 </script>
 <template>
-  <Modal :title="title ? title : undefined" :modal-active="show" @on-close="onClose">
+  <Modal :width="width ? width : defaultDialogWidth" title="Request Sent" class="max-w-2" :modal-active="show"
+    @on-close="onClose">
     <slot />
 
     <Button variant="primary" icon="fa-check" :on-click="onClose" inverted>Ok</Button>

@@ -14,7 +14,7 @@ export const useRequestStatusStore = defineStore("requestStatus", () => {
   const friendStore = useFriendStore();
   const asideStore = useAsideStore();
 
-  const { append } = useToastStore();
+  const { toast } = useToastStore();
   const state = reactive({
     id: 0,
     loading: false,
@@ -32,7 +32,7 @@ export const useRequestStatusStore = defineStore("requestStatus", () => {
         .catch((e) => {
           console.log(e);
           state.error = true;
-          append("Something occurred!", "danger", e.response.data.message);
+          toast("Something occurred!", "danger", e.response.data.message);
         })
         .finally(() => (state.loading = false));
     }, 500);
@@ -42,7 +42,7 @@ export const useRequestStatusStore = defineStore("requestStatus", () => {
     requestStore.removeReceived(user.id);
     friendStore.addFriend(user);
     asideStore.addNotification("friends");
-    append(
+    toast(
       "Request accepted",
       "success",
       `${user.username} is now your friend.`
@@ -59,7 +59,7 @@ export const useRequestStatusStore = defineStore("requestStatus", () => {
           requestStore.removeSent(receiverId);
           state.success = true;
 
-          append(
+          toast(
             "Request canceled",
             "info",
             "The request was successfully canceled."

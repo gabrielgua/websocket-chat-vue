@@ -1,13 +1,14 @@
 <script setup lang="ts">
+import { useAsideStore } from '@/stores/aside.store';
+import { useChatStore } from '@/stores/chat.store';
+import { useFriendStore } from '@/stores/friend.store';
 import { useRequestStore } from '@/stores/request.store';
 import { useUserSearchStore } from '@/stores/user.search.store';
 import { ref } from 'vue';
-import Button from './Button.vue';
 import Input from './Input.vue';
 import Spinner from './Spinner.vue';
-import { useFriendStore } from '@/stores/friend.store';
-import { useAsideStore } from '@/stores/aside.store';
-import { useChatStore } from '@/stores/chat.store';
+import JumpInTransition from './Transitions/JumpInTransition.vue';
+import FriendFormCard from '@/components/FriendFormCard.vue';
 
 
 const searchStore = useUserSearchStore();
@@ -17,8 +18,9 @@ const asideStore = useAsideStore();
 const chatStore = useChatStore();
 
 const term = ref('');
-
+const result = ref('');
 const emit = defineEmits(['close-modal'])
+
 
 const findByTerm = () => {
   if (!term.value.length) {
@@ -26,7 +28,9 @@ const findByTerm = () => {
   }
 
   searchStore.findByNameOrUsername(term.value);
+  result.value = term.value;
 }
+
 
 const closeForm = () => {
   emit('close-modal')
@@ -61,7 +65,7 @@ const sendRequest = (receivedId: number) => {
 </script>
 
 <template>
-  <form class="flex flex-col gap-10">
+  <form>
     <section>
       <label for="search" class="text-slate-400 font-bold">Search for users</label>
       <p class="mb-3 text-[12px] text-slate-500">Find users to start new chats with.</p>
@@ -69,87 +73,53 @@ const sendRequest = (receivedId: number) => {
         placeholder="Search by name or username" />
     </section>
 
-    <Transition name="fade">
+    <JumpInTransition class="mt-4">
       <section v-if="searchStore.state.loading">
-        <Spinner type="dots" />
+        <div class="grid pt-4 place-items-center">
+          <Spinner type="spinner" />
+        </div>
       </section>
-    </Transition>
 
+      <section v-else-if="searchStore.state.touched" class="border-slate-800 rounded-xl border">
+        <div class="flex items-center">
+          <h2 class="font-semibold text-sm p-4">Results</h2>
+          <p class="text-xs bg-slate-800 p-2 rounded-xl text-slate-300">"{{ result }}"</p>
+        </div>
 
-    <Transition name="fade">
-      <section v-if="searchStore.state.empty && !searchStore.state.loading"
-        class="border border-slate-800 p-3 rounded-lg">
-        <p class="text-slate-400 font-semibold text-sm mb-2">No user found 😿</p>
-        <p class="text-slate-500 text-[12px]">
-          This could have happend either because the search term was wrong or we don't have any user with the search
-          term name or username.
-        </p>
-      </section>
-    </Transition>
-
-    <Transition name="fade">
-      <section v-if="searchStore.searchUsers.length && !searchStore.state.loading && !searchStore.state.empty">
-        <ul class="flex flex-col gap-2">
-          <li v-for="user in searchStore.searchUsers" :key="user.id"
-            class="border border-slate-800 flex items-center rounded-xl shadow gap-3 p-3">
-            <img class="rounded-full w-10 ring-2 ring-sky-600 ring-offset-2 ring-offset-slate-800"
-              :src="user.avatarUrl">
-            <div>
-              <h5 class="font-bold">{{ user.name }}</h5>
-              <p class="text-[12px] text-slate-400">@{{ user.username }} </p>
-            </div>
-            <div class="ml-auto">
-              <Spinner v-if="requestStore.individualState.loading && requestStore.individualState.id === user.id"
-                type="spinner" />
-
-              <div v-else-if="requestStore.alreadySent(user.id)" class="flex items-center gap-2 ">
-                <p class="text-slate-400 text-xs">Request sent</p>
-                <Button :on-click="goToSent" icon="fa-user-group" rounded variant="primary"
-                  tooltip="Go to sent requests" />
-              </div>
-              <p v-else-if="requestStore.individualState.error" class="text-xs text-rose-400 px-2">
-                Something went wrong
-              </p>
-
-              <div v-else-if="friendStore.alreadyFriends(user.id)" class="flex items-center gap-2 ">
-                <p class="text-slate-400 text-xs">Friends</p>
-                <Button :on-click="() => goToChat(user.id)" icon="fa-comment" rounded variant="primary"
-                  tooltip="Go to chat" tooltip-pos="right" />
-              </div>
-
-              <div v-else-if="requestStore.alreadyReceived(user.id)" class="flex items-center gap-2 ">
-                <p class="text-slate-400 text-xs">Sent you a request</p>
-                <Button :on-click="goToReceived" icon="fa-user-group" rounded variant="primary"
-                  tooltip="Go to requests" />
-              </div>
-
-              <Button v-else icon="fa-user-plus" :on-click="() => sendRequest(user.id)" inverted variant="primary">
-                <p>Send request</p>
-              </Button>
-            </div>
+        <ul class="flex flex-col divide-y divide-slate-800 max-h-[427px] overflow-y-auto">
+          <li v-if="!searchStore.searchUsers.length" class="p-4 border-t border-slate-800 rounded-t-xl">
+            <p class="text-slate-400 font-semibold text-sm mb-2">No user found 😿</p>
+            <p class="text-slate-500 text-[12px]">
+              This could have happend either because the search term was wrong or we don't have any user with the search
+              term name or username.
+            </p>
           </li>
-
+          <FriendFormCard v-for="user in searchStore.searchUsers" :key="user.id" :id="user.id" :name="user.name"
+            :username="user.username" :avatar-url="user.avatarUrl" :friends="friendStore.alreadyFriends(user.id)"
+            :request-sent="requestStore.alreadySent(user.id)" :request-received="requestStore.alreadyReceived(user.id)"
+            @to-chat="goToChat(user.id)" @to-received="goToReceived" @to-sent="goToSent"
+            @on-send="sendRequest(user.id)" />
         </ul>
       </section>
-
-    </Transition>
+    </JumpInTransition>
   </form>
 </template>
 
 <style scoped>
-.fade-enter-active {
-  transition: all 250ms ease;
+::-webkit-scrollbar {
+  width: .25rem;
 }
 
-.fade-leave-active {
-  transition: all 0ms ease;
-
+::-webkit-scrollbar-track {
+  background: transparent;
 }
 
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-  scale: .95;
-  position: absolute;
+::-webkit-scrollbar-thumb {
+  background: rgb(2 132 199);
+  border-radius: .25rem;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: white;
 }
 </style>
