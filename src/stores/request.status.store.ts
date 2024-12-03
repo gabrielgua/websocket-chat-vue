@@ -73,6 +73,30 @@ export const useRequestStatusStore = defineStore("requestStatus", () => {
     }, 500);
   };
 
+  const denyRequest = (requesterId: number) => {
+    request(requesterId);
+
+    setTimeout(() => {
+      http
+        .delete(`${REQUEST_ENPOINT}/deny`, { data: { requesterId } })
+        .then(() => {
+          requestStore.removeReceived(requesterId);
+          state.success = true;
+
+          toast(
+            "Request denied",
+            "info",
+            "The request was successfully denied."
+          );
+        })
+        .catch((e) => {
+          console.log(e);
+          state.error = true;
+        })
+        .finally(() => (state.loading = false));
+    }, 500);
+  };
+
   const request = (id: number) => {
     state.id = id;
     state.error = false;
@@ -87,5 +111,5 @@ export const useRequestStatusStore = defineStore("requestStatus", () => {
     state.error = false;
   };
 
-  return { state, acceptRequest, cancelRequest, reset };
+  return { state, acceptRequest, cancelRequest, denyRequest, reset };
 });

@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import type { FriendRequest, FriendRequestId } from '@/types/friendRequest.type';
 import RequestCard from './RequestCard.vue';
-import { ref } from 'vue';
-import Modal from '@/components/Modal.vue';
 
 export type RequestListType = 'sent' | 'received';
 
@@ -11,12 +9,9 @@ defineProps<{
   type: RequestListType
 }>();
 
-
-
 const getRequestId = (id: FriendRequestId) => {
   return `${id.requesterId}, ${id.receiverId}`;
 }
-
 
 </script>
 

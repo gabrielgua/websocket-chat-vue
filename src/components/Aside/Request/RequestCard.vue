@@ -39,7 +39,7 @@ const cancelRequest = (receiverId: number) => {
 }
 
 const denyRequest = (requesterId: number) => {
-  console.log('deny: ', requesterId);
+  requestStatusStore.denyRequest(requesterId);
 }
 
 const handleOnConfirm = (userId: number) => {
