@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { useRequestStore } from '@/stores/request.store';
 import { computed, onMounted, ref } from 'vue';
-import Button from './Button.vue';
-import Spinner from './Spinner.vue';
+import Button from '../Button.vue';
+import Spinner from '../Spinner.vue';
 
 type FriendFormButton = {
   icon: string;
@@ -56,20 +56,19 @@ const getButtonVariantIndex = () => {
     <img class="rounded-full w-10 ring-2 ring-sky-600/30 ring-offset-2 ring-offset-slate-800" :src="avatarUrl">
 
     <div>
-      <div class="flex items-center gap-2">
-        <h5 class="font-semibold text-sm">{{ name }} </h5>
-        <div v-if="friends" class="mr-2">
+      <h5 class="font-semibold text-sm">{{ name }}
+        <span v-if="friends" class="mr-2">
           <fa-icon title="Friends" icon="fa-user-group" class="text-xs text-sky-600/80" />
-        </div>
+        </span>
 
-        <div v-else-if="requestSent || requestReceived" class="relative"
+        <span v-else-if="requestSent || requestReceived" class="relative"
           :title="`Request ${requestSent ? 'sent' : 'received'}`">
           <fa-icon :icon="requestSent ? 'fa-share' : 'fa-reply'"
             class="absolute bottom-1 -right-1 z-10 text-[10px] text-sky-600" />
           <fa-icon icon="fa-envelope" class="text-sm text-sky-600/60" />
-        </div>
+        </span>
+      </h5>
 
-      </div>
       <p class="text-xs text-slate-400">@{{ username }} </p>
     </div>
 

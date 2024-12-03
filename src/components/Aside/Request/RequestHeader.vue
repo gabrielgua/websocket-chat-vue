@@ -3,7 +3,7 @@ import { useUserSearchStore } from '@/stores/user.search.store';
 import { ref } from 'vue';
 import Button from '../../Button.vue';
 import Modal from '../../Modal.vue';
-import FriendForm from '../../FriendForm.vue';
+import FriendForm from '../../FriendForm/FriendForm.vue';
 import { useRequestStore } from '@/stores/request.store';
 import { emitter } from '@/services/mitt';
 import { useToastStore } from '@/stores/toast.store';

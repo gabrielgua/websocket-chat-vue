@@ -1,14 +1,15 @@
 <script setup lang="ts">
+import FriendFormCard from '@/components/FriendForm/FriendFormCard.vue';
 import { useAsideStore } from '@/stores/aside.store';
 import { useChatStore } from '@/stores/chat.store';
 import { useFriendStore } from '@/stores/friend.store';
 import { useRequestStore } from '@/stores/request.store';
 import { useUserSearchStore } from '@/stores/user.search.store';
 import { ref } from 'vue';
-import Input from './Input.vue';
-import Spinner from './Spinner.vue';
-import JumpInTransition from './Transitions/JumpInTransition.vue';
-import FriendFormCard from '@/components/FriendFormCard.vue';
+import FriendFormListEmpty from '../FriendForm/FriendFormListEmpty.vue';
+import Input from '../Input.vue';
+import Spinner from '../Spinner.vue';
+import JumpInTransition from '../Transitions/JumpInTransition.vue';
 
 
 const searchStore = useUserSearchStore();
@@ -73,27 +74,20 @@ const sendRequest = (receivedId: number) => {
         placeholder="Search by name or username" />
     </section>
 
-    <JumpInTransition class="mt-4">
-      <section v-if="searchStore.state.loading">
-        <div class="grid pt-4 place-items-center">
-          <Spinner type="spinner" />
-        </div>
-      </section>
 
-      <section v-else-if="searchStore.state.touched" class="border-slate-800 rounded-xl border">
+    <JumpInTransition class="mt-4">
+      <div v-if="searchStore.state.loading" class="grid pt-4 place-items-center">
+        <Spinner type="spinner" />
+      </div>
+
+      <section v-else-if="searchStore.state.touched" class="border-slate-800 rounded-xl border transition-all">
         <div class="flex items-center">
           <h2 class="font-semibold text-sm p-4">Results</h2>
           <p class="text-xs bg-slate-800 p-2 rounded-xl text-slate-300">"{{ result }}"</p>
         </div>
 
         <ul class="flex flex-col divide-y divide-slate-800 max-h-[427px] overflow-y-auto">
-          <li v-if="!searchStore.searchUsers.length" class="p-4 border-t border-slate-800 rounded-t-xl">
-            <p class="text-slate-400 font-semibold text-sm mb-2">No user found 😿</p>
-            <p class="text-slate-500 text-[12px]">
-              This could have happend either because the search term was wrong or we don't have any user with the search
-              term name or username.
-            </p>
-          </li>
+          <FriendFormListEmpty :show="!searchStore.searchUsers.length" />
           <FriendFormCard v-for="user in searchStore.searchUsers" :key="user.id" :id="user.id" :name="user.name"
             :username="user.username" :avatar-url="user.avatarUrl" :friends="friendStore.alreadyFriends(user.id)"
             :request-sent="requestStore.alreadySent(user.id)" :request-received="requestStore.alreadyReceived(user.id)"
@@ -102,6 +96,7 @@ const sendRequest = (receivedId: number) => {
         </ul>
       </section>
     </JumpInTransition>
+
   </form>
 </template>
 

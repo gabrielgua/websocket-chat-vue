@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import Button from '@/components/Button.vue';
-import FriendForm from '@/components/FriendForm.vue';
+import FriendForm from '@/components/FriendForm/FriendForm.vue';
 import Modal from '@/components/Modal.vue';
 import { useRequestStore } from '@/stores/request.store';
 import { useUserSearchStore } from '@/stores/user.search.store';
