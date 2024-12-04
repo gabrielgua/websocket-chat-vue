@@ -11,8 +11,7 @@ defineProps<{
 </script>
 
 <template>
-  <div class="relative w-[350px] transition-all bg-slate-900 p-3 pr-2 rounded-2xl text-sky-600">
-
+  <div class="relative w-[350px] shadow-2xl transition-all bg-slate-900 p-3 pr-2 rounded-2xl text-sky-600">
 
     <div class="flex items-start gap-3 ">
       <Avatar :url="avatarUrl" no-status />

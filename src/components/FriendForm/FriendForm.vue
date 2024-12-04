@@ -10,6 +10,8 @@ import FriendFormListEmpty from '../FriendForm/FriendFormListEmpty.vue';
 import Input from '../Input.vue';
 import Spinner from '../Spinner.vue';
 import JumpInTransition from '../Transitions/JumpInTransition.vue';
+import { emitter } from '@/services/mitt';
+import { useToastStore } from '@/stores/toast.store';
 
 
 const searchStore = useUserSearchStore();
@@ -17,6 +19,7 @@ const requestStore = useRequestStore();
 const friendStore = useFriendStore();
 const asideStore = useAsideStore();
 const chatStore = useChatStore();
+const { toast } = useToastStore();
 
 const term = ref('');
 const result = ref('');
@@ -62,6 +65,17 @@ const goToSent = () => {
 const sendRequest = (receivedId: number) => {
   requestStore.sendRequest(receivedId);
 }
+
+
+emitter.on('requestSent', (e) => {
+
+  closeForm();
+  toast('Request Sent', 'success', 'Your request was successfully sent!')
+  asideStore.changeMenu('requests');
+  asideStore.changeRequestType('sent');
+})
+
+
 
 </script>
 

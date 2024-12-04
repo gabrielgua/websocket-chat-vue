@@ -85,8 +85,8 @@ const isLoading = (id: number) => {
         <p class="text-xs">{{ status }}</p>
       </div>
 
-      <Button class="ml-auto" :on-click="toggleModalActive" rounded variant="secondary" icon="fa-trash"
-        :tooltip="sent ? 'Cancel' : 'Deny'" />
+      <Button class="ml-auto" :on-click="toggleModalActive" rounded variant="secondary"
+        :icon="sent ? 'fa-trash' : 'fa-xmark'" :tooltip="sent ? 'Cancel' : 'Deny'" />
       <Button :on-click="() => requestStatusStore.acceptRequest(user.id)" v-if="received" rounded variant="success"
         icon="fa-check" tooltip="Accept" />
     </div>

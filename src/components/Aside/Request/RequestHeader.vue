@@ -22,13 +22,6 @@ function toggleFriendModal() {
   friendModalActive.value = !friendModalActive.value;
 }
 
-emitter.on('requestSent', (e) => {
-  toggleFriendModal();
-  toast('Request Sent', 'success', 'Your request was successfully sent!')
-  asideStore.changeMenu('requests');
-  asideStore.changeRequestType('sent');
-})
-
 </script>
 
 <template>
