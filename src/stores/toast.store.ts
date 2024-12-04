@@ -9,20 +9,21 @@ type Toast = {
   description?: string;
   remainingSeconds: number;
   interval?: NodeJS.Timeout;
+  avatarUrl?: string;
 };
 
-export type ToastVariant = "info" | "success" | "danger";
+export type ToastVariant = "info" | "success" | "danger" | "user";
 
 export const useToastStore = defineStore("toast", () => {
-  const DISMISS_TIME = 10000;
+  const DISMISS_TIME = 10000000;
   const TOAST_LIMIT = 5;
   const toasts = reactive<Toast[]>([]);
-  const { play } = useAudioStore();
 
   const toast = (
     title: string,
     variant?: ToastVariant,
-    description?: string
+    description?: string,
+    avatarUrl?: string
   ) => {
     const remainingSeconds = Math.ceil(DISMISS_TIME / 1000);
 
@@ -32,10 +33,10 @@ export const useToastStore = defineStore("toast", () => {
       title,
       description,
       remainingSeconds,
+      avatarUrl,
     };
 
     toasts.unshift(toast);
-    play();
 
     toast.interval = setInterval(() => {
       const existing = toasts.find((t) => t.id === toast.id);

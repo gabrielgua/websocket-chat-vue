@@ -44,8 +44,9 @@ export const useRequestStatusStore = defineStore("requestStatus", () => {
     asideStore.addNotification("friends");
     toast(
       "Request accepted",
-      "success",
-      `${user.username} is now your friend.`
+      "user",
+      `${user.username} is now your friend.`,
+      user.avatarUrl
     );
   };
 

@@ -36,8 +36,9 @@ const handleRequestNotification = (body: string) => {
 
     toast(
       "Request received",
-      "info",
-      `${request.requester.username} has sent you a friend request.`
+      "user",
+      `@${request.requester.username} wants to be friends.`,
+      request.requester.avatarUrl
     );
   }
 
@@ -48,8 +49,9 @@ const handleRequestNotification = (body: string) => {
 
     toast(
       "Request accepted",
-      "success",
-      `${request.receiver.username} accepted your friend request. `
+      "user",
+      `@${request.receiver.username} is now your friend.`,
+      request.receiver.avatarUrl
     );
   }
 };

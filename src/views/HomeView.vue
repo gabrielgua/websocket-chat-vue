@@ -47,13 +47,14 @@ const activeComponent = computed(() => asideStore.currentMenu.component);
 
     <section class="absolute top-0 left-40 mt-auto flex gap-2">
 
-      <Button
-        :on-click="() => toast('Test one', undefined, 'This is a test notification for testing either the animations and the functionality.')"
-        variant="primary">Info</Button>
-      <Button :on-click="() => toast('Something went wrong', 'danger', 'Please try again later.')"
+      <Button :on-click="() => toast('Test one', 'info',)" variant="primary">Info</Button>
+      <Button :on-click="() => toast('Something went wrong', 'danger', 'This is a description.')"
         variant="danger">Danger</Button>
-      <Button :on-click="() => toast('This was a success', 'success', 'Something was a success, were proud of you.')"
+      <Button :on-click="() => toast('This was a success', 'success', 'This is a description.')"
         variant="success">Success</Button>
+      <Button
+        :on-click="() => toast('Request received', 'user', '@opaco wants to be friends!', 'https://api.dicebear.com/9.x/thumbs/svg?radius=50&seed=opacobfac823d-91c6-4c22-a0ad-ab96704cca65')"
+        variant="primary-text">Success</Button>
 
     </section>
 

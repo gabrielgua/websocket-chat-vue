@@ -42,7 +42,7 @@ const variants: ButtonVariant[] = [
 
   { name: 'primary-text', styles: 'text-sky-600 hover:bg-sky-600/20 transition-colors' },
   { name: 'secondary-text', styles: 'text-slate-300 hover:bg-slate-600/30 transition-colors' },
-  { name: 'success-text', styles: 'text-teal-300 hover:bg-teal-600/30 transition-colors' },
+  { name: 'success-text', styles: 'text-teal-500 hover:bg-teal-600/30 transition-colors' },
   { name: 'danger-text', styles: 'text-rose-500 hover:bg-rose-500/40 transition-colors' },
 
   { name: 'link', styles: 'hover:underline' },

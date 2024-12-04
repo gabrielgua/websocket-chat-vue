@@ -1,8 +1,13 @@
 <script setup lang="ts">
-import { computed } from 'vue';
-import Button from '../Button.vue';
 import type { ToastVariant } from '@/stores/toast.store';
-
+import { computed, onMounted, ref } from 'vue';
+import Button, { type ButtonVariantType } from '../Button.vue';
+import Avatar from '../Avatar.vue';
+type Toast = {
+  btn: ButtonVariantType,
+  icon: string,
+  styles: string;
+}
 
 const props = defineProps<{
   variant?: ToastVariant,
@@ -11,52 +16,37 @@ const props = defineProps<{
   remainingSeconds: number;
 }>();
 
+onMounted(() => {
+  toast.value = variants.get(props.variant ? props.variant : 'info');
+})
 
+const toast = ref<Toast>();
 const emit = defineEmits(['on-dismiss'])
-
 const remainingSeconds = computed(() => props.remainingSeconds);
 
 
-const info = computed(() => props.variant === 'info');
-const success = computed(() => props.variant === 'success');
-const danger = computed(() => props.variant === 'danger');
-
-const variants = [
-  { name: 'info', styles: 'ring-sky-600/20 text-sky-400 shadow-sky-600/20' },
-  { name: 'success', styles: 'ring-teal-400/20  text-teal-400 shadow-teal-600/20' },
-  { name: 'danger', styles: 'ring-rose-300/20 text-rose-500 shadow-rose-400/20 ' },
-]
-
-const getVariantStyles = () => {
-  if (!props.variant) return variants.find(variant => variant.name === 'info')?.styles;
-
-  return variants.find(variant => variant.name === props.variant)?.styles;
-}
-
-const getButtonVariant = () => {
-  if (danger.value) return 'danger-text';
-  if (success.value) return 'success-text';
-  return 'primary-text';
-}
+const variants: Map<string, Toast> = new Map([
+  ['info', { btn: 'primary-text', icon: 'fa-info-circle', styles: 'text-sky-400' }],
+  ['success', { btn: 'success-text', icon: 'fa-check-circle', styles: 'text-teal-400' }],
+  ['danger', { btn: 'danger-text', icon: 'fa-xmark-circle', styles: 'text-rose-400' }],
+]);
 
 </script>
 
 <template>
-  <div class="relative ring-1 w-[350px] transition-all bg-slate-900 p-4 pr-2 rounded-xl" :class="getVariantStyles()">
+  <div class="relative w-[350px] transition-all bg-slate-900 p-3 pr-2 rounded-2xl" :class="toast?.styles">
 
     <div class="flex items-start gap-3">
-      <fa-icon v-if="info" icon="fa-solid fa-info-circle" />
-      <fa-icon v-if="success" icon="fa-solid fa-check-circle" />
-      <fa-icon v-if="danger" icon="fa-solid fa-xmark-circle" />
+      <fa-icon :icon="`fa-solid ${toast?.icon}`" />
 
-      <p class="font-semibold -mt-0.5 text-sm mr-12">{{ title }}</p>
+      <p class="font-semibold  text-sm mr-12">{{ title }}</p>
 
-      <div class="absolute flex items-center gap-2 right-2 top-2">
+      <div class="absolute flex items-center gap-2 right-1 top-1">
         <div class="flex items-center -mt-0.5 text-[11px] gap-1 opacity-70">
           <fa-icon icon="fa-clock"></fa-icon>
           <p>{{ remainingSeconds }}s</p>
         </div>
-        <Button :on-click="() => $emit('on-dismiss')" :variant="getButtonVariant()" icon="fa-xmark" rounded />
+        <Button :on-click="() => $emit('on-dismiss')" :variant="toast?.btn" icon="fa-xmark" rounded />
       </div>
     </div>
     <p v-if="description" class="text-xs mx-7 mt-3 opacity-70">
