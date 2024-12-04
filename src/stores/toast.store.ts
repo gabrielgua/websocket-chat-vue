@@ -15,7 +15,7 @@ type Toast = {
 export type ToastVariant = "info" | "success" | "danger" | "user";
 
 export const useToastStore = defineStore("toast", () => {
-  const DISMISS_TIME = 10000000;
+  const DISMISS_TIME = 10000;
   const TOAST_LIMIT = 5;
   const toasts = reactive<Toast[]>([]);
 
@@ -36,6 +36,10 @@ export const useToastStore = defineStore("toast", () => {
       avatarUrl,
     };
 
+    if (toasts.length >= TOAST_LIMIT) {
+      toasts.pop();
+    }
+
     toasts.unshift(toast);
 
     toast.interval = setInterval(() => {
@@ -48,10 +52,6 @@ export const useToastStore = defineStore("toast", () => {
         }
       }
     }, 1000);
-
-    if (toasts.length >= TOAST_LIMIT) {
-      toasts.pop();
-    }
   };
 
   const dismiss = (id: number) => {
