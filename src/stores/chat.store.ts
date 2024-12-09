@@ -12,7 +12,7 @@ export const useChatStore = defineStore("chat", () => {
   const CHATS_ENDPOINT = "/api/chats";
 
   const chats = ref<Chat[]>([]);
-  const current = ref<Chat>({} as Chat);
+  const current = ref<Chat | undefined>(undefined);
   const state = reactive({ loading: false, error: false });
 
   function fetchChats() {
@@ -41,6 +41,8 @@ export const useChatStore = defineStore("chat", () => {
       return;
     }
 
+    console.log("fetch messages for: ", chat.name);
+
     return http
       .get(`/api/chats/${chat.id}/messages`)
       .then((response) => {
@@ -58,8 +60,10 @@ export const useChatStore = defineStore("chat", () => {
     }
 
     http.get(`${CHATS_ENDPOINT}/${chat.id}/users`).then((res) => {
-      current.value.users = res.data;
-      updateChatStatus();
+      if (current.value) {
+        current.value.users = res.data;
+        updateChatStatus();
+      }
     });
   };
 
@@ -70,7 +74,7 @@ export const useChatStore = defineStore("chat", () => {
   }
 
   function currentIsEmpty() {
-    return Object.keys(current.value).length === 0;
+    return current.value === undefined;
   }
 
   function findChat(chatId: string) {
@@ -78,6 +82,8 @@ export const useChatStore = defineStore("chat", () => {
   }
 
   const updateChatUserStatus = (user: User) => {
+    if (!current.value) return;
+
     if (isPrivate() && current.value.receiver) {
       current.value.receiver.status = user.status;
       return;
@@ -93,6 +99,10 @@ export const useChatStore = defineStore("chat", () => {
   };
 
   const updateChatStatus = () => {
+    if (!current.value) {
+      return;
+    }
+
     if (isPrivate()) {
       return;
     }
@@ -173,6 +183,7 @@ export const useChatStore = defineStore("chat", () => {
       return chat.type === ChatType.group;
     }
 
+    if (!current.value) return;
     return current.value.type === ChatType.group;
   }
 
@@ -181,12 +192,13 @@ export const useChatStore = defineStore("chat", () => {
       return chat.type === ChatType.private;
     }
 
+    if (!current.value) return;
     return current.value.type === ChatType.private;
   };
 
   function reset() {
     chats.value = [];
-    current.value = {} as Chat;
+    current.value = undefined;
   }
 
   function createChat(chat: ChatRequest) {

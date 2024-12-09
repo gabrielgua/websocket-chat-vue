@@ -5,8 +5,6 @@ import { useUnreadStore } from './stores/unread.store';
 const store = useUnreadStore();
 
 watch(() => store.count, (newCount) => {
-  console.log(store.count, newCount);
-
   document.title = newCount > 0
     ? `(${newCount}) WebSocket Chat`
     : 'WebSocket Chat'

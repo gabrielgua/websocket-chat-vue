@@ -8,10 +8,12 @@ import type { Message } from '@/types/message.type';
 import type { User } from '@/types/user.type';
 import { format, isSameDay, isToday, isYesterday } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { computed, onUpdated, ref } from 'vue';
+import { computed, onMounted, onUpdated, ref, watch } from 'vue';
 import Button from '../Button.vue';
 import Spinner from '../Spinner.vue';
 import ChatHeader from './ChatHeader.vue';
+import { emitter } from '@/services/mitt';
+import { nextTick } from 'vue';
 
 const message = ref('');
 const authStore = useAuthStore();
@@ -19,27 +21,33 @@ const userStore = useUserStore();
 const chatStore = useChatStore();
 
 const current = computed(() => chatStore.current);
-const chatbox = ref({} as HTMLElement);
+const chatbox = ref<HTMLDivElement | null>(null);
 
-// onMounted(() => scrollToBottom('instant'));
-
-//will trigger whenever a new message is added
-onUpdated(() => {
-  console.log('updated');
-
+//i dont like this btw
+//when changing the current chat
+watch(() => current.value?.messages, () => {
   scrollToBottom('instant');
 });
 
+//when adding a new message 
+watch(() => current.value?.messages, () => {
+  scrollToBottom('smooth');
+}, { deep: true })
+
 
 function scrollToBottom(behavior: ScrollBehavior) {
-  if (showChat()) {
-    chatbox.value.scrollTo({ top: chatbox.value.scrollHeight, behavior: behavior });
+  if (chatbox.value) {
+    nextTick(() => {
+      chatbox.value!.scrollTo({ top: chatbox.value!.scrollHeight, behavior })
+    })
   }
 }
 
 function sendMessage() {
-  chatStore.sendMessage({ chatId: current.value.id, content: message.value.trim() });
-  message.value = '';
+  if (current.value) {
+    chatStore.sendMessage({ chatId: current.value!.id, content: message.value.trim() });
+    message.value = '';
+  }
 }
 
 function formatTimestamp(timestamp: Date) {
@@ -50,7 +58,7 @@ function isSameSender(senderId: number, index: number) {
   if (index === 0) {
     return false;
   }
-  return current.value.messages[index - 1].sender.id === senderId;
+  return current.value?.messages[index - 1].sender.id === senderId;
 }
 
 function isMessageSender(userId: number) {
@@ -58,18 +66,18 @@ function isMessageSender(userId: number) {
 }
 
 function isGroupChat() {
-  return current.value.type === ChatType.group;
+  return current.value?.type === ChatType.group;
 }
 
 function showChat() {
-  return !chatStore.currentIsEmpty();
+  return current.value !== undefined;
 }
 
 function sameDay(message: Message, index: number) {
   if (index === 0) {
     return false;
   }
-  const previous = current.value.messages[index - 1];
+  const previous = current.value!.messages[index - 1];
   return isSameDay(previous.timestamp, message.timestamp);
 }
 
@@ -96,7 +104,7 @@ function getUserColor(sender: User) {
 <template>
   <Transition name="fade" mode="out-in">
 
-    <span class="m-4 ml-0 bg-slate-800 rounded-xl grid place-items-center" v-if="!showChat()">
+    <span class="m-4 ml-0 bg-slate-800 rounded-xl grid place-items-center" v-if="current === undefined">
       Welcome, star chatting now!
     </span>
     <div class=" bg-slate-800 m-4 ms-0 rounded-xl overflow-hidden flex flex-col" v-else>
@@ -132,8 +140,7 @@ function getUserColor(sender: User) {
             </p>
           </span>
 
-          <section class="grid"
-            :class="{ 'grid-columns': !isMessageSender(message.sender.id) && chatStore.current.type === ChatType.group }">
+          <section class="grid" :class="{ 'grid-columns': !isMessageSender(message.sender.id) && isGroupChat() }">
             <div v-if="!isMessageSender(message.sender.id)">
               <div v-if="showMessageHeader(message, i)" class="grid place-items-center w-8 h-8 rounded-full">
                 <img :src="message.sender.avatarUrl">

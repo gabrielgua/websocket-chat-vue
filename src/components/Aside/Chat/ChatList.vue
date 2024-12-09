@@ -31,7 +31,7 @@ const messageStore = useMessageStore();
 const unreadStore = useUnreadStore();
 
 function isCurrent(chat: Chat): boolean {
-  return chatStore.current.id === chat.id;
+  return chatStore.current?.id === chat.id;
 }
 
 function isSender(message: Message) {
@@ -39,7 +39,7 @@ function isSender(message: Message) {
 }
 
 function changeCurrent(chat: Chat) {
-  if (chat.id === chatStore.current.id) {
+  if (chat.id === chatStore.current?.id) {
     return;
   }
 
