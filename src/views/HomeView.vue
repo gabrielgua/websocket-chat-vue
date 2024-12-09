@@ -47,13 +47,15 @@ const activeComponent = computed(() => asideStore.currentMenu.component);
 
     <section class="absolute top-0 left-40 mt-auto flex gap-2">
 
-      <Button :on-click="() => toast('Test one', 'info',)" variant="primary">Info</Button>
-      <Button :on-click="() => toast('Something went wrong', 'danger', 'This is a description.')"
+      <Button :on-click="() => toast('Information')" variant="primary">Info</Button>
+      <Button
+        :on-click="() => toast('Something went wrong', { variant: 'danger', description: 'This is a danger description.' })"
         variant="danger">Danger</Button>
-      <Button :on-click="() => toast('This was a success', 'success', 'This is a description.')"
+      <Button
+        :on-click="() => toast('This was a success', { variant: 'success', description: 'This is a success description.' })"
         variant="success">Success</Button>
       <Button
-        :on-click="() => toast('Request received', 'user', '@opaco wants to be friends!', 'https://api.dicebear.com/9.x/thumbs/svg?radius=50&seed=opacobfac823d-91c6-4c22-a0ad-ab96704cca65')"
+        :on-click="() => toast('Request received', { description: '@opaco wants to be friends!', avatarUrl: 'https://api.dicebear.com/9.x/big-smile/svg?seed=gabrielguaitaneleniszczak&backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf&radius=50' })"
         variant="primary-text">Success</Button>
 
     </section>

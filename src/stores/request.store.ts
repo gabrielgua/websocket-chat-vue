@@ -1,17 +1,14 @@
 import { http } from "@/services/http";
+import { emitter } from "@/services/mitt";
 import type { FriendRequest } from "@/types/friendRequest.type";
 import { defineStore } from "pinia";
 import { reactive, ref } from "vue";
-import { useToastStore } from "./toast.store";
-import { emitter } from "@/services/mitt";
 
 export const useRequestStore = defineStore("request", () => {
   const REQUEST_ENPOINT = "/api/users/requests";
 
   const sent = ref<FriendRequest[]>([]);
   const received = ref<FriendRequest[]>([]);
-  const { toast } = useToastStore();
-
   const state = reactive({ loading: false, error: false });
 
   const individualState = reactive({

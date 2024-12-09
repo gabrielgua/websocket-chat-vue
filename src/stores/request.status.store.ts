@@ -32,7 +32,10 @@ export const useRequestStatusStore = defineStore("requestStatus", () => {
         .catch((e) => {
           console.log(e);
           state.error = true;
-          toast("Something occurred!", "danger", e.response.data.message);
+          toast("Something occurred!", {
+            variant: "danger",
+            description: e.response.data.message,
+          });
         })
         .finally(() => (state.loading = false));
     }, 500);
@@ -42,12 +45,10 @@ export const useRequestStatusStore = defineStore("requestStatus", () => {
     requestStore.removeReceived(user.id);
     friendStore.addFriend(user);
     asideStore.addNotification("friends");
-    toast(
-      "Request accepted",
-      "user",
-      `${user.username} is now your friend.`,
-      user.avatarUrl
-    );
+    toast("Request accepted", {
+      description: `@${user.username} is now your friend.`,
+      avatarUrl: user.avatarUrl,
+    });
   };
 
   const cancelRequest = (receiverId: number) => {
@@ -60,11 +61,9 @@ export const useRequestStatusStore = defineStore("requestStatus", () => {
           requestStore.removeSent(receiverId);
           state.success = true;
 
-          toast(
-            "Request canceled",
-            "info",
-            "The request was successfully canceled."
-          );
+          toast("Request canceled", {
+            description: "The request was successfully canceled.",
+          });
         })
         .catch((e) => {
           console.log(e);
@@ -84,11 +83,9 @@ export const useRequestStatusStore = defineStore("requestStatus", () => {
           requestStore.removeReceived(requesterId);
           state.success = true;
 
-          toast(
-            "Request denied",
-            "info",
-            "The request was successfully denied."
-          );
+          toast("Request denied", {
+            description: "The request was successfully denied.",
+          });
         })
         .catch((e) => {
           console.log(e);

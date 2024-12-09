@@ -1,20 +1,15 @@
 <script setup lang="ts">
+import { useRequestStore } from '@/stores/request.store';
 import { useUserSearchStore } from '@/stores/user.search.store';
 import { ref } from 'vue';
 import Button from '../../Button.vue';
-import Modal from '../../Modal.vue';
 import FriendForm from '../../FriendForm/FriendForm.vue';
-import { useRequestStore } from '@/stores/request.store';
-import { emitter } from '@/services/mitt';
-import { useToastStore } from '@/stores/toast.store';
-import { useAsideStore } from '@/stores/aside.store';
+import Modal from '../../Modal.vue';
 
 const friendModalActive = ref(false);
 
 const searchStore = useUserSearchStore();
 const requestStore = useRequestStore();
-const { toast } = useToastStore();
-const asideStore = useAsideStore();
 
 function toggleFriendModal() {
   searchStore.reset();

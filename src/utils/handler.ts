@@ -34,12 +34,10 @@ const handleRequestNotification = (body: string) => {
     requestStore.addReceived(request);
     asideStore.addNotification("requests");
 
-    toast(
-      "Request received",
-      "user",
-      `@${request.requester.username} wants to be friends.`,
-      request.requester.avatarUrl
-    );
+    toast("Request received", {
+      avatarUrl: request.requester.avatarUrl,
+      description: `@${request.requester.username} wants to be friends.`,
+    });
   }
 
   if (request.receiver) {
@@ -47,12 +45,10 @@ const handleRequestNotification = (body: string) => {
     requestStore.removeSent(request.receiver.id);
     asideStore.addNotification("friends");
 
-    toast(
-      "Request accepted",
-      "user",
-      `@${request.receiver.username} is now your friend.`,
-      request.receiver.avatarUrl
-    );
+    toast("Request accepted", {
+      avatarUrl: request.receiver.avatarUrl,
+      description: `<b>@${request.receiver.username}<b/> is now your friend.`,
+    });
   }
 };
 
