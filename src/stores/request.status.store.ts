@@ -6,6 +6,7 @@ import { useToastStore } from "./toast.store";
 import { useFriendStore } from "./friend.store";
 import { useAsideStore } from "./aside.store";
 import type { User } from "@/types/user.type";
+import type { AxiosError } from "axios";
 
 export const useRequestStatusStore = defineStore("requestStatus", () => {
   const REQUEST_ENPOINT = "/api/users/requests";
@@ -29,14 +30,7 @@ export const useRequestStatusStore = defineStore("requestStatus", () => {
       http
         .put(`${REQUEST_ENPOINT}/accept`, { requesterId })
         .then((res) => handleRequestAcceptedSuccess(res.data))
-        .catch((e) => {
-          console.log(e);
-          state.error = true;
-          toast("Something occurred!", {
-            variant: "danger",
-            description: e.response.data.message,
-          });
-        })
+        .catch((e) => handleErrorStatus(e))
         .finally(() => (state.loading = false));
     }, 500);
   };
@@ -62,13 +56,10 @@ export const useRequestStatusStore = defineStore("requestStatus", () => {
           state.success = true;
 
           toast("Request canceled", {
-            description: "The request was successfully canceled.",
+            variant: "success",
           });
         })
-        .catch((e) => {
-          console.log(e);
-          state.error = true;
-        })
+        .catch((e) => handleErrorStatus(e))
         .finally(() => (state.loading = false));
     }, 500);
   };
@@ -84,15 +75,21 @@ export const useRequestStatusStore = defineStore("requestStatus", () => {
           state.success = true;
 
           toast("Request denied", {
-            description: "The request was successfully denied.",
+            variant: "success",
           });
         })
-        .catch((e) => {
-          console.log(e);
-          state.error = true;
-        })
+        .catch((e) => handleErrorStatus(e))
         .finally(() => (state.loading = false));
     }, 500);
+  };
+
+  const handleErrorStatus = (e: AxiosError, description?: string) => {
+    console.error(e);
+    state.error = true;
+    toast("Something occurred", {
+      variant: "danger",
+      description: description ? description : "Try refreshing the requests.",
+    });
   };
 
   const request = (id: number) => {

@@ -3,6 +3,8 @@ import { emitter } from "@/services/mitt";
 import type { FriendRequest } from "@/types/friendRequest.type";
 import { defineStore } from "pinia";
 import { reactive, ref } from "vue";
+import { useRequestStatusStore } from "./request.status.store";
+import { useToastStore } from "./toast.store";
 
 export const useRequestStore = defineStore("request", () => {
   const REQUEST_ENPOINT = "/api/users/requests";
@@ -10,6 +12,8 @@ export const useRequestStore = defineStore("request", () => {
   const sent = ref<FriendRequest[]>([]);
   const received = ref<FriendRequest[]>([]);
   const state = reactive({ loading: false, error: false });
+  const { reset: statusReset } = useRequestStatusStore();
+  const { toast } = useToastStore();
 
   const individualState = reactive({
     id: 0,
@@ -25,30 +29,38 @@ export const useRequestStore = defineStore("request", () => {
 
   const fetchSent = () => {
     state.loading = true;
-    http
-      .get(`${REQUEST_ENPOINT}/sent`)
-      .then((res) => {
-        sent.value = sortByDate(res.data);
-      })
-      .catch((e) => {
-        state.error = true;
-        console.log(e);
-      })
-      .finally(() => (state.loading = false));
+
+    setTimeout(() => {
+      http
+        .get(`${REQUEST_ENPOINT}/sent`)
+        .then((res) => {
+          sent.value = sortByDate(res.data);
+          statusReset();
+        })
+        .catch((e) => {
+          state.error = true;
+          console.log(e);
+        })
+        .finally(() => (state.loading = false));
+    }, 500);
   };
 
   const fetchReceived = () => {
     state.loading = true;
-    http
-      .get(`${REQUEST_ENPOINT}/received`)
-      .then((res) => {
-        received.value = sortByDate(res.data);
-      })
-      .catch((e) => {
-        state.error = true;
-        console.log(e);
-      })
-      .finally(() => (state.loading = false));
+
+    setTimeout(() => {
+      http
+        .get(`${REQUEST_ENPOINT}/received`)
+        .then((res) => {
+          received.value = sortByDate(res.data);
+          statusReset();
+        })
+        .catch((e) => {
+          state.error = true;
+          console.log(e);
+        })
+        .finally(() => (state.loading = false));
+    }, 500);
   };
 
   const alreadySent = (receiverId: number) => {
@@ -92,6 +104,8 @@ export const useRequestStore = defineStore("request", () => {
           addSent(res.data);
 
           emitter.emit("requestSent", "request-sent");
+
+          toast("Request Sent", { variant: "success" });
         })
         .catch((e) => {
           console.log(e);
@@ -106,6 +120,7 @@ export const useRequestStore = defineStore("request", () => {
     state.loading = false;
 
     resetIndividualState();
+    statusReset();
 
     received.value = [];
     sent.value = [];

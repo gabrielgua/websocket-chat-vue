@@ -19,10 +19,7 @@ const props = defineProps<{
 }>();
 
 onMounted(() => {
-  console.log(!!props.variant, props.variant);
-  toast.value = !!props.variant ? variants.get(props.variant) : variants.get('info');
-  console.log(toast.value);
-
+  toast.value = props.variant ? variants.get(props.variant) : variants.get('info');
 })
 
 const toast = ref<Toast>();

@@ -25,6 +25,7 @@ type ButtonProps = {
   tooltip?: string,
   tooltipPos?: ToolTipPosition,
   noPadding?: boolean,
+  disabled?: boolean
 }
 
 const props = defineProps<ButtonProps>()
@@ -71,8 +72,9 @@ const showTooltip = ref(false);
 
 <template>
   <div class="relative grid place-items-center transition-all" @mouseenter="showTooltip = true"
-    @mouseleave="showTooltip = false" :class="{ 'rounded-full': rounded }">
-    <button :type="submit ? 'submit' : 'button'" @click="handleClick"
+    @mouseleave="showTooltip = false"
+    :class="[{ 'rounded-full': rounded }, { 'opacity-35 pointer-events-none': disabled }]">
+    <button :disabled="disabled" :type="submit ? 'submit' : 'button'" @click="handleClick"
       class="flex items-center justify-center text-sm gap-2 active:scale-95"
       :class="getButtonVariant(), [rounded ? 'rounded-full w-9 aspect-square ' : 'rounded-xl px-4 w-full'], { 'flex-row-reverse': inverted }, [noPadding ? '' : 'p-2']">
       <slot />

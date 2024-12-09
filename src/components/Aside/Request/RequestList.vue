@@ -1,29 +1,43 @@
 <script setup lang="ts">
+import Button from '@/components/Button.vue';
+import { useRequestStatusStore } from '@/stores/request.status.store';
+import { useRequestStore } from '@/stores/request.store';
 import type { FriendRequest, FriendRequestId } from '@/types/friendRequest.type';
 import RequestCard from './RequestCard.vue';
 
 export type RequestListType = 'sent' | 'received';
 
-defineProps<{
+const props = defineProps<{
   requests: FriendRequest[],
   type: RequestListType
 }>();
 
+const requestStore = useRequestStore();
+const requestStatusStore = useRequestStatusStore();
+
 const getRequestId = (id: FriendRequestId) => {
   return `${id.requesterId}, ${id.receiverId}`;
+}
+
+const refreshRequests = () => {
+  props.type === 'sent' ? requestStore.fetchSent() : requestStore.fetchReceived();
 }
 
 </script>
 
 <template>
   <section>
-
-    <div class="mx-4 mt-6 mb-2">
+    <div class="mx-4 mt-6 mb-2  flex items-center justify-between ">
       <p class="font-semibold text-sm text-slate-400">
         {{ type === 'sent' ? 'Sent' : 'Received' }}
       </p>
+      <Button v-if="requestStatusStore.state.error" :on-click="refreshRequests"
+        :class="{ 'animate-spin': requestStore.state.loading }" icon="fa-refresh" variant="secondary-text"
+        :disabled="requestStore.state.loading" rounded />
     </div>
-    <TransitionGroup class="overflow-y-auto relative h-[calc(100dvh-265px)]" tag="ul" name="request-list">
+
+    <TransitionGroup class="overflow-y-auto relative h-[calc(100dvh-265px)]" tag="ul" name="request-list"
+      :class="{ 'opacity-30 pointer-events-none': requestStore.state.loading }">
 
       <div v-if="!requests.length" class="px-4">
         <p class="text-xs text-slate-400">No {{ type }} requests.</p>

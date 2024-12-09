@@ -67,10 +67,8 @@ const sendRequest = (receivedId: number) => {
 }
 
 
-emitter.on('requestSent', (e) => {
-
+emitter.on('requestSent', () => {
   closeForm();
-  toast('Request Sent', { variant: 'success', description: 'Your request was successfully sent!' })
   asideStore.changeMenu('requests');
   asideStore.changeRequestType('sent');
 })

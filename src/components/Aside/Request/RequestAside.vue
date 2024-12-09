@@ -1,8 +1,6 @@
 <script setup lang="ts">
-import { emitter } from '@/services/mitt';
 import { useAsideStore } from '@/stores/aside.store';
 import { useRequestStore } from '@/stores/request.store';
-import type { FriendRequest } from '@/types/friendRequest.type';
 import { computed } from 'vue';
 import Button from '../../Button.vue';
 import RequestHeader from './RequestHeader.vue';
