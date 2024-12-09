@@ -31,6 +31,10 @@ const authStore = useAuthStore();
 const handleRequestNotification = (body: string) => {
   const request: FriendRequest = JSON.parse(body);
   if (request.requester) {
+    if (requestStore.alreadyReceived(request.requester.id)) {
+      return;
+    }
+
     requestStore.addReceived(request);
     asideStore.addNotification("requests");
 
@@ -47,7 +51,7 @@ const handleRequestNotification = (body: string) => {
 
     toast("Request accepted", {
       avatarUrl: request.receiver.avatarUrl,
-      description: `<b>@${request.receiver.username}<b/> is now your friend.`,
+      description: `@${request.receiver.username} is now your friend.`,
     });
   }
 };
