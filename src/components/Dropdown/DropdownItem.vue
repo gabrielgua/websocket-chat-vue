@@ -11,10 +11,13 @@ const props = defineProps<{
 
 <template>
   <div>
-    <Button :on-click="onClick" :variant="variant ? variant : 'secondary-text'" class="*:w-[100%] *:justify-end"
-      :icon="icon" inverted>
+    <button @click="onClick"
+      class="text-slate-300 hover:bg-slate-600/30 text-sm transition-colors p-2  rounded-xl w-full flex items-center gap-2">
+      <div class="w-5">
+        <fa-icon class="text-sm" :icon="icon" />
+      </div>
       <slot />
-    </Button>
+    </button>
   </div>
 </template>
 

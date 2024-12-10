@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import AsideMenu from '@/components/Aside/AsideMenu.vue';
 import Button from '@/components/Button.vue';
-import ChatComponent from '@/components/Chat/Chat.vue';
+import Chat from '@/components/Chat/Chat.vue';
 import Logo from '@/components/Logo.vue';
-import RightMenu from '@/components/RightMenu.vue';
 
 import { useAsideStore } from '@/stores/aside.store';
 import { useFriendStore } from '@/stores/friend.store';
@@ -43,9 +42,9 @@ const activeComponent = computed(() => asideStore.currentMenu.component);
       </div>
     </div>
 
-    <ChatComponent class="flex-grow" />
+    <Chat class="flex-grow" />
 
-    <section class="absolute top-0 left-40 mt-auto flex gap-2">
+    <!-- <section class="absolute top-0 left-40 mt-auto flex gap-2">
 
       <Button :on-click="() => toast('Information')" variant="primary">Info</Button>
       <Button
@@ -58,7 +57,7 @@ const activeComponent = computed(() => asideStore.currentMenu.component);
         :on-click="() => toast('Request received', { description: '@opaco wants to be friends!', avatarUrl: 'https://api.dicebear.com/9.x/big-smile/svg?seed=gabrielguaitaneleniszczak&backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf&radius=50' })"
         variant="primary-text">Success</Button>
 
-    </section>
+    </section> -->
 
     <!-- <RightMenu /> -->
 

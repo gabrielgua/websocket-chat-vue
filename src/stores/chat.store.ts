@@ -198,8 +198,12 @@ export const useChatStore = defineStore("chat", () => {
 
   function reset() {
     chats.value = [];
-    current.value = undefined;
+    closeCurrent();
   }
+
+  const closeCurrent = () => {
+    current.value = undefined;
+  };
 
   function createChat(chat: ChatRequest) {
     state.loading = true;
@@ -246,5 +250,6 @@ export const useChatStore = defineStore("chat", () => {
     fetchChatMessages,
     addMessage,
     updateLastMessage,
+    closeCurrent,
   };
 });

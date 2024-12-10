@@ -7,12 +7,20 @@ import JumpInTransition from '../Transitions/JumpInTransition.vue';
 import Button from '../Button.vue';
 import { UserStatus } from '@/types/user.type';
 import SlideInTransition from '../Transitions/SlideInTransition.vue';
+import { ChatType, type Chat } from '@/types/chat.type';
+import Dropdown from '../Dropdown/Dropdown.vue';
+import DropdownItem from '../Dropdown/DropdownItem.vue';
 
-const chatStore = useChatStore();
-const chat = computed(() => chatStore.current);
+const { closeCurrent } = useChatStore();
 
-const isGroup = computed(() => chatStore.isGroup());
-const isPrivate = computed(() => chatStore.isPrivate());
+
+
+const props = defineProps<{
+  chat: Chat
+}>();
+
+const isGroup = computed(() => props.chat.type === ChatType.group);
+const isPrivate = computed(() => props.chat.type === ChatType.private);
 
 
 </script>
@@ -43,7 +51,14 @@ const isPrivate = computed(() => chatStore.isPrivate());
       </SlideInTransition>
     </div>
 
-    <Button class="ms-auto" icon="fa-gear" variant="secondary-text" tooltip="Settings" tooltip-pos="left" rounded />
+    <Dropdown class="ml-auto" variant="secondary-text" icon="fa-ellipsis-vertical" rounded>
+      <template #dropdown-items>
+        <DropdownItem icon="fa-file-lines">Details</DropdownItem>
+        <DropdownItem icon="fa-user-group">Users</DropdownItem>
+        <DropdownItem icon="fa-cog">Settings</DropdownItem>
+        <DropdownItem :on-click="closeCurrent" icon="fa-xmark">Close chat</DropdownItem>
+      </template>
+    </Dropdown>
   </div>
 </template>
 

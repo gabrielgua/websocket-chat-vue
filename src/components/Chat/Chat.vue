@@ -107,8 +107,8 @@ function getUserColor(sender: User) {
     <span class="m-4 ml-0 bg-slate-800 rounded-xl grid place-items-center" v-if="current === undefined">
       Welcome, star chatting now!
     </span>
-    <div class=" bg-slate-800 m-4 ms-0 rounded-xl overflow-hidden flex flex-col" v-else>
-      <ChatHeader />
+    <div class=" bg-slate-800 m-4 ms-0 rounded-xl flex flex-col" v-else>
+      <ChatHeader :chat="current" />
 
       <div class="p-4 max-h-full overflow-y-scroll chatbox" ref="chatbox">
 
