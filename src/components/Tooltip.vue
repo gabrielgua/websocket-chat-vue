@@ -134,11 +134,12 @@ const getTooltipPos = () => {
   border-left-color: white;
 }
 
+.tooltip-enter-active {
+  transition: all 125ms ease 500ms;
+}
 
-.tooltip-enter-active,
 .tooltip-leave-active {
-  transition: all 0.125s ease;
-
+  transition: all 125ms ease;
 }
 
 .tooltip-enter-from,

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { emitter } from '@/services/mitt';
+import Avatar from '@/components/Avatar.vue';
 import { useAuthStore } from '@/stores/auth.store';
 import { useChatStore } from '@/stores/chat.store';
 import { useMessageStore } from '@/stores/message.store';
@@ -9,11 +9,8 @@ import { ChatType, type Chat } from '@/types/chat.type';
 import type { Message } from '@/types/message.type';
 import type { User } from '@/types/user.type';
 import { displayFullTimestamp, formatTimestamp } from '@/utils/date';
-import { onUnmounted } from 'vue';
+import { onUnmounted, watch } from 'vue';
 import ChatAvatar from '../../Chat/ChatAvatar.vue';
-import Avatar from '@/components/Avatar.vue';
-import { useAsideStore } from '@/stores/aside.store';
-import { useToastStore } from '@/stores/toast.store';
 
 defineProps<{
   chats: Chat[]
@@ -21,14 +18,17 @@ defineProps<{
 
 onUnmounted(() => {
   userStore.reset();
-  messageStore.reset();
 })
 
 const chatStore = useChatStore();
 const authStore = useAuthStore();
 const userStore = useUserStore();
-const messageStore = useMessageStore();
 const unreadStore = useUnreadStore();
+const messageStore = useMessageStore();
+
+watch(() => chatStore.current, () => {
+  messageStore.fetchMessagesForChat(chatStore.current!.id);
+})
 
 function isCurrent(chat: Chat): boolean {
   return chatStore.current?.id === chat.id;
@@ -44,7 +44,6 @@ function changeCurrent(chat: Chat) {
   }
 
   chatStore.changeCurrent(chat);
-  messageStore.fetchMessages(chat.id);
   chatStore.fetchChatUsers(chat);
 
 

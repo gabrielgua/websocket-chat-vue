@@ -7,15 +7,21 @@ const props = defineProps<{
   url: string,
   status?: UserStatus,
   statusInvertedColor?: boolean,
-  noStatus?: boolean
+  noStatus?: boolean,
+  size?: 'small' | 'normal'
 }>();
 
 const online = computed(() => props.status === UserStatus.Online);
 
+const sizes = new Map<string, string>([
+  ['small', 'w-8 h-8'],
+  ['normal', 'w-12 h-12'],
+])
+
 </script>
 <template>
   <div class="relative transition-all">
-    <img class="min-w-12 min-h-12" :src="url" alt="Profile pic">
+    <img :class="sizes.get(size ? size : 'normal')" :src="url" alt="Profile pic">
 
     <div v-if="!noStatus" class="rounded-full w-4 h-4 grid place-items-center absolute -right-0 -top-0.5"
       :class="[statusInvertedColor ? 'bg-slate-800' : 'bg-slate-900 ']">

@@ -4,6 +4,7 @@ import { useAudioStore } from "@/stores/audio.store";
 import { useAuthStore } from "@/stores/auth.store";
 import { useChatStore } from "@/stores/chat.store";
 import { useFriendStore } from "@/stores/friend.store";
+import { useMessageStore } from "@/stores/message.store";
 import { useRequestStore } from "@/stores/request.store";
 import { useToastStore } from "@/stores/toast.store";
 import { useUnreadStore } from "@/stores/unread.store";
@@ -27,6 +28,7 @@ const { toast } = useToastStore();
 const friendStore = useFriendStore();
 const unreadStore = useUnreadStore();
 const authStore = useAuthStore();
+const messageStore = useMessageStore();
 
 const handleRequestNotification = (body: string) => {
   const request: FriendRequest = JSON.parse(body);
@@ -64,14 +66,12 @@ const handleMessageReceived = (body: string) => {
   }
 
   const noChatOpened = chatStore.currentIsEmpty();
-  const isDifferentChat = chatStore.current.id !== chat.id;
+  const isDifferentChat = chatStore.current?.id !== chat.id;
   const isDifferentSender =
     authStore.authentication.userId !== message.sender.id;
 
   chatStore.updateLastMessage(message);
-  chatStore.addMessage(message);
-
-  console.log((noChatOpened || isDifferentChat) && isDifferentSender);
+  messageStore.add(message);
 
   if ((noChatOpened || isDifferentChat) && isDifferentSender) {
     unreadStore.add(message);

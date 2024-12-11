@@ -1,51 +1,53 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import Button, { type ButtonVariantType } from '../Button.vue';
+import type { ToolTipPosition } from '../Tooltip.vue';
 
 type DropdownPosition = 'start' | 'center' | 'end'
-type DropdownVariant = {
-  name: DropdownPosition,
-  class: string,
-}
 
 const props = defineProps<{
   inverted?: boolean,
   variant?: ButtonVariantType,
   position?: DropdownPosition,
   icon?: string,
-  rounded?: boolean
+  rounded?: boolean,
+  tooltip?: string,
+  tooltipPos?: ToolTipPosition
 }>()
 
+onMounted(() => {
+  position.value = positions.get(props.position ? props.position : 'end')!;
+});
+
 const showDropdown = ref(false);
+const position = ref('');
+
+
+const positions: Map<DropdownPosition, string> = new Map([
+  ['start', 'place-self-start'],
+  ['center', 'place-self-center'],
+  ['end', 'place-self-end'],
+])
 
 const clickOutside = () => {
   if (showDropdown) showDropdown.value = false;
 }
 
-const positions: DropdownVariant[] = [
-  { name: 'start', class: 'place-self-start' },
-  { name: 'center', class: 'place-self-center' },
-  { name: 'end', class: 'place-self-end' },
-]
 
-const getPosition = () => {
-  if (!props.position) return 'place-self-end'
-
-  return positions.find(p => p.name === props.position)?.class
-}
 </script>
 
 
 <template>
   <div class="relative grid">
     <Button :on-click="() => showDropdown = !showDropdown" :variant="variant ? variant : 'secondary'"
-      :icon="icon ? icon : showDropdown ? 'fa-chevron-up' : 'fa-chevron-down'" :inverted="inverted" :rounded="rounded">
+      :icon="icon ? icon : showDropdown ? 'fa-chevron-up' : 'fa-chevron-down'" :inverted="inverted" :rounded="rounded"
+      :tooltip="tooltip" :tooltip-pos="tooltipPos">
       <slot />
     </Button>
     <Transition name="dropdown-menu">
       <div v-if="showDropdown" v-click-outside="clickOutside" @click="clickOutside"
         class="absolute *:w-[100%] flex flex-col items-start border border-slate-800/60 shadow min-w-40 w-max top-[100%] mt-2 z-20 bg-slate-900 p-2 rounded-xl"
-        :class="getPosition()">
+        :class="position">
         <slot name="dropdown-items" />
       </div>
     </Transition>
@@ -62,7 +64,7 @@ const getPosition = () => {
 .dropdown-menu-enter-from,
 .dropdown-menu-leave-to {
   opacity: 0;
-  scale: .9;
+  scale: .85;
   transform: translateY(-1rem);
 }
 </style>

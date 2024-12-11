@@ -27,7 +27,6 @@ export type Chat = {
   createdAt: Date;
   statusCount: ChatStatusCount;
   lastMessage: Message;
-  messages: Message[];
   receiver?: User;
   notifications: number;
   abreviation?: string;

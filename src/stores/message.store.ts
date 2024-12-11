@@ -1,42 +1,49 @@
 import { http } from "@/services/http";
+import type { MessagePageable } from "@/types/message.pageable";
 import type { Message } from "@/types/message.type";
 import { defineStore } from "pinia";
-import { reactive, ref, type Ref } from "vue";
+import { computed, reactive, ref } from "vue";
 import { useAuthStore } from "./auth.store";
-import { useUserStore } from "./user.store";
+
+type PageableState = {
+  chatId: string;
+  maxPageReached: number;
+};
 
 export const useMessageStore = defineStore("message", () => {
-  const messages: Ref<Message[]> = ref([]);
+  const pageSize = 20;
+  const pageNumber = 0;
+
+  const pageable = ref<MessagePageable | undefined>();
+  const messages = computed<Message[]>(() => {
+    if (!pageable.value) {
+      return [];
+    }
+
+    return pageable.value.content.sort(
+      (a, b) =>
+        new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+    );
+  });
+
   const authStore = useAuthStore();
-  const userStore = useUserStore();
   const state = reactive({ loading: false, error: false });
 
-  function reset() {
-    messages.value = [];
-    state.error = false;
-    state.loading = false;
-  }
-
   function add(message: Message) {
-    messages.value.push(message);
+    if (pageable.value) {
+      pageable.value.content.push(message);
+    }
   }
 
-  function fetchMessages(chat: string) {
+  function fetchMessagesForChat(chat: string) {
     state.loading = true;
-    messages.value = [];
 
-    return http
-      .get(`/api/chats/${chat}/messages`)
-      .then((response) => {
-        response.data.map((message: Message) => {
-          messages.value.push(message);
-
-          userStore.setUserColor(message.sender);
-        });
-      })
+    http
+      .get(`/api/chats/${chat}/messages?size=${pageSize}&page=${pageNumber}`)
+      .then((res) => (pageable.value = res.data))
       .catch((e) => {
         state.error = true;
-        console.log(e);
+        console.error(e);
       })
       .finally(() => (state.loading = false));
   }
@@ -45,5 +52,13 @@ export const useMessageStore = defineStore("message", () => {
     return authStore.authentication.userId === message.sender.id;
   }
 
-  return { messages, state, fetchMessages, reset, add, isSender };
+  const reset = () => {
+    if (!pageable.value) return;
+
+    pageable.value.content = [];
+    state.error = false;
+    state.loading = false;
+  };
+
+  return { messages, state, fetchMessagesForChat, reset, add, isSender };
 });
