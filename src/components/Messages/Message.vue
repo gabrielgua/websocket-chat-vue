@@ -10,6 +10,7 @@ const props = defineProps<{
   timestamp: Date,
   showSenderUsername: boolean,
   showAvatar: boolean,
+  showMessageTriangle: boolean,
 }>();
 
 const authStore = useAuthStore();
@@ -26,15 +27,14 @@ const senderStyles = 'justify-self-end text-end bg-sky-600';
 
 </script>
 <template>
-  <div class="flex gap-3" :class="[{ 'mt-8': showAvatar }, { 'flex-row-reverse': isSender }]">
+  <div class="flex gap-3" :class="[{ 'mt-8': showMessageTriangle }, { 'flex-row-reverse': isSender }]">
 
-    <div class="min-w-8">
-      <Avatar :url="sender.avatarUrl" v-if="showAvatar" no-status size="small" />
+    <div class="min-w-8" v-if="!isSender">
+      <Avatar :url="sender.avatarUrl" v-if="showAvatar" size="small" no-status />
     </div>
     <div class="relative grid max-w-max px-2.5 py-1.5 rounded-xl text-[15px] mb-0.5"
       :class="[isSender ? senderStyles : normalStyles, { 'rounded-tr-none': isSender && showAvatar }, { 'rounded-tl-none': !isSender && showAvatar }]">
-      <p v-if="showSenderUsername && showAvatar && !isSender" class="text-xs font-semibold mb-2 text-slate-400"
-        :class="sender.color">
+      <p v-if="showSenderUsername && showAvatar && !isSender" class="text-xs font-semibold mb-2 text-slate-400">
         @{{ sender.username }}
       </p>
       <div class="flex gap-2">
@@ -45,7 +45,7 @@ const senderStyles = 'justify-self-end text-end bg-sky-600';
         </div>
       </div>
 
-      <div v-if="showAvatar" class="message-triangle absolute"
+      <div v-if="showMessageTriangle" class="message-triangle absolute"
         :class="[isSender ? 'message-triangle-sender ' : 'message-triangle-normal']">
       </div>
     </div>

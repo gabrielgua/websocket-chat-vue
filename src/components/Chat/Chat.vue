@@ -98,8 +98,16 @@ function displayFullTimestamp(timestamp: Date) {
 }
 
 function showAvatar(message: Message, index: number) {
+  return !isMessageSender(message) && showMessageTriangle(message, index);
+}
+
+const showMessageTriangle = (message: Message, index: number) => {
   const sameSenderDifferentDay = isSameSender(message.sender.id, index) && !sameDay(message, index);
   return !isSameSender(message.sender.id, index) || sameSenderDifferentDay;
+}
+
+const isMessageSender = (message: Message) => {
+  return messageStore.isSender(message);
 }
 
 
@@ -131,7 +139,7 @@ function showAvatar(message: Message, index: number) {
 
             <MessageComponent :avatar-url="message.sender.avatarUrl" :sender="message.sender"
               :timestamp="new Date(message.timestamp)" :show-sender-username="isGroupChat()"
-              :show-avatar="showAvatar(message, i)">
+              :show-avatar="showAvatar(message, i)" :show-message-triangle="showMessageTriangle(message, i)">
               {{ message.content }}
             </MessageComponent>
 
