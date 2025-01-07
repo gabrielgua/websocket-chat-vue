@@ -71,6 +71,7 @@ const handleMessageReceived = (body: string) => {
     authStore.authentication.userId !== message.sender.id;
 
   chatStore.updateLastMessage(message);
+
   messageStore.add(message);
 
   if ((noChatOpened || isDifferentChat) && isDifferentSender) {

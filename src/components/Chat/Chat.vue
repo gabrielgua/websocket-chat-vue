@@ -15,10 +15,8 @@ import { useMessageStore } from '@/stores/message.store';
 import MessageComponent from '../Messages/Message.vue';
 
 const message = ref('');
-const authStore = useAuthStore();
-const userStore = useUserStore();
 const chatStore = useChatStore();
-const messages = computed(() => messageStore.messages);
+
 
 const messageStore = useMessageStore();
 const current = computed(() => chatStore.current);
@@ -29,12 +27,21 @@ watch(() => current.value, () => {
   if (!current.value) { return; }
 
   messageStore.fetchMessagesForChat(current.value.id);
-  scrollToBottom('instant');
+  if (!messageStore.state.loading) {
+    scrollToBottom('instant');
+
+  }
 });
 
 //when adding a new message 
-watch(() => messages.value, () => {
-  scrollToBottom('smooth');
+watch(() => messageStore.messages, (newMessages, oldMessages) => {
+  if (newMessages[newMessages.length - 1].chat === oldMessages[oldMessages.length - 1].chat) {
+    scrollToBottom('smooth');
+    return;
+  }
+
+  scrollToBottom('instant');
+
 }, { deep: true })
 
 
@@ -47,10 +54,12 @@ function scrollToBottom(behavior: ScrollBehavior) {
 }
 
 function sendMessage() {
-  if (current.value) {
-    chatStore.sendMessage({ chatId: current.value.id, content: message.value.trim() });
-    message.value = '';
+  if (!current.value) {
+    return;
   }
+
+  chatStore.sendMessage({ chatId: current.value.id, content: message.value.trim() });
+  message.value = '';
 }
 
 
@@ -59,7 +68,7 @@ function isSameSender(senderId: number, index: number) {
   if (index === 0) {
     return false;
   }
-  return messages.value[index - 1].sender.id === senderId;
+  return messageStore.messages[index - 1].sender.id === senderId;
 }
 
 
@@ -73,7 +82,7 @@ function sameDay(message: Message, index: number) {
   if (index === 0) {
     return false;
   }
-  const previous = messages.value[index - 1];
+  const previous = messageStore.messages[index - 1];
   return isSameDay(previous.timestamp, message.timestamp);
 }
 
@@ -96,15 +105,14 @@ function showAvatar(message: Message, index: number) {
 </script>
 <template>
   <Transition name="fade" mode="out-in">
-
     <div class="m-4 ml-0 bg-slate-800 gap-4 rounded-xl flex flex-col justify-center text-center"
       v-if="current === undefined">
       <fa-icon icon="fa-comments" class="text-slate-900 text-8xl" />
     </div>
-    <div class=" bg-slate-800 m-4 ms-0 rounded-xl flex flex-col" v-else>
+    <div class="bg-slate-800 m-4 ms-0 rounded-xl flex flex-col" v-else>
       <ChatHeader :chat="current" />
 
-      <div class="p-4 max-h-full overflow-y-scroll chatbox" ref="chatbox">
+      <div class="p-4 max-h-full flex-grow overflow-y-scroll chatbox" ref="chatbox">
 
         <div class="flex flex-col items-center gap-5 py-10" v-if="false">
           <Spinner />
@@ -112,14 +120,14 @@ function showAvatar(message: Message, index: number) {
         </div>
 
         <ul>
-          <li v-for="(message, i) in messages" :key="i">
+          <li v-for="(message, i) in messageStore.messages" :key="i">
             <span class="mt-8 flex items-center gap-2 text-slate-400" v-if="!sameDay(message, i)">
               <!-- <fa-icon class="text-xs" icon="fa-calendar-days"></fa-icon> -->
               <p class="text-xs">{{ displayFullTimestamp(message.timestamp) }}</p>
             </span>
 
             <MessageComponent :avatar-url="message.sender.avatarUrl" :sender="message.sender"
-              :timestamp="message.timestamp" :show-sender-username="isGroupChat()"
+              :timestamp="new Date(message.timestamp)" :show-sender-username="isGroupChat()"
               :show-avatar="showAvatar(message, i)">
               {{ message.content }}
             </MessageComponent>

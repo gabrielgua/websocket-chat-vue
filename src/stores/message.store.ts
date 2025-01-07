@@ -14,7 +14,7 @@ export const useMessageStore = defineStore("message", () => {
   const pageSize = 20;
   const pageNumber = 0;
 
-  const pageable = ref<MessagePageable | undefined>();
+  const pageable = ref<MessagePageable>();
   const messages = computed<Message[]>(() => {
     if (!pageable.value) {
       return [];
@@ -30,9 +30,10 @@ export const useMessageStore = defineStore("message", () => {
   const state = reactive({ loading: false, error: false });
 
   function add(message: Message) {
-    if (pageable.value) {
-      pageable.value.content.push(message);
+    if (!pageable.value) {
+      return;
     }
+    pageable.value.content.push(message);
   }
 
   function fetchMessagesForChat(chat: string) {
