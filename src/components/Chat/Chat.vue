@@ -1,18 +1,16 @@
 <script setup lang="ts">
-import { useAuthStore } from '@/stores/auth.store';
 import { useChatStore } from '@/stores/chat.store';
-import { useUserStore } from '@/stores/user.store';
+import { useMessageStore } from '@/stores/message.store';
 import { ChatType } from '@/types/chat.type';
 import type { Message } from '@/types/message.type';
-import type { User } from '@/types/user.type';
 import { format, isSameDay, isToday, isYesterday } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { computed, nextTick, ref, watch } from 'vue';
 import Button from '../Button.vue';
-import Spinner from '../Spinner.vue';
-import ChatHeader from './ChatHeader.vue';
-import { useMessageStore } from '@/stores/message.store';
 import MessageComponent from '../Messages/Message.vue';
+import Spinner from '../Spinner.vue';
+import FadeTransition from '../Transitions/FadeTransition.vue';
+import ChatHeader from './ChatHeader.vue';
 
 const message = ref('');
 const chatStore = useChatStore();
@@ -20,6 +18,7 @@ const chatStore = useChatStore();
 
 const messageStore = useMessageStore();
 const current = computed(() => chatStore.current);
+
 const chatbox = ref<HTMLDivElement | null>(null);
 
 //when changing the current chat
@@ -92,15 +91,14 @@ function sameDay(message: Message, index: number) {
 
 function displayFullTimestamp(timestamp: Date) {
   let date = "PPPP";
-  if (isToday(timestamp)) date = "'Hoje, 'P";
-  else if (isYesterday(timestamp)) date = "'Ontem, 'P";
+  if (isToday(timestamp)) date = "'Hoje";
+  else if (isYesterday(timestamp)) date = "'Ontem";
 
   return format(timestamp, date, { locale: ptBR });
 }
 
 function showAvatar(message: Message, index: number) {
   const sameSenderDifferentDay = isSameSender(message.sender.id, index) && !sameDay(message, index);
-
   return !isSameSender(message.sender.id, index) || sameSenderDifferentDay;
 }
 
@@ -108,12 +106,13 @@ function showAvatar(message: Message, index: number) {
 
 </script>
 <template>
-  <Transition name="fade" mode="out-in">
+  <FadeTransition>
     <div class="m-4 ml-0 bg-slate-800 gap-4 rounded-xl flex flex-col justify-center text-center"
       v-if="current === undefined">
       <fa-icon icon="fa-comments" class="text-slate-900 text-8xl" />
     </div>
     <div class="bg-slate-800 m-4 ms-0 rounded-xl flex flex-col" v-else>
+
       <ChatHeader :chat="current" />
 
       <div class="p-4 max-h-full flex-grow overflow-y-scroll chatbox" ref="chatbox">
@@ -125,7 +124,7 @@ function showAvatar(message: Message, index: number) {
 
         <ul>
           <li v-for="(message, i) in messageStore.messages" :key="i">
-            <span class="mt-8 flex items-center gap-2 text-slate-400" v-if="!sameDay(message, i)">
+            <span class="mt-8 flex items-center justify-center gap-2 text-slate-400" v-if="!sameDay(message, i)">
               <!-- <fa-icon class="text-xs" icon="fa-calendar-days"></fa-icon> -->
               <p class="text-xs">{{ displayFullTimestamp(message.timestamp) }}</p>
             </span>
@@ -150,8 +149,10 @@ function showAvatar(message: Message, index: number) {
             submit />
         </div>
       </form>
+
+
     </div>
-  </Transition>
+  </FadeTransition>
 </template>
 
 <style scoped>

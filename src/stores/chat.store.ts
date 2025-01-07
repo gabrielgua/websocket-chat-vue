@@ -12,9 +12,8 @@ export const useChatStore = defineStore("chat", () => {
   const CHATS_ENDPOINT = "/api/chats";
 
   const chats = ref<Chat[]>([]);
-  const current = ref<Chat | undefined>(undefined);
+  const current = ref<Chat>();
   const state = reactive({ loading: false, error: false });
-  const messagesPage = ref<number>(0);
 
   function fetchChats() {
     state.loading = true;
@@ -24,8 +23,6 @@ export const useChatStore = defineStore("chat", () => {
       .get(CHATS_ENDPOINT)
       .then((response) => {
         chats.value = response.data;
-        // chats.value.forEach((chat) => (chat.messages = []));
-
         sortChatList();
       })
       .catch((e) => {
@@ -36,27 +33,6 @@ export const useChatStore = defineStore("chat", () => {
         state.loading = false;
       });
   }
-
-  // const fetchChatMessages = (chat: Chat, options?: { nextPage: boolean }) => {
-  //   console.log("fetch messages for: ", chat.name);
-
-  //   if (options?.nextPage === true) {
-  //     messagesPage.value = messagesPage.value + 1;
-  //     console.log(messagesPage.value);
-  //   }
-
-  //   return http
-  //     .get(`/api/chats/${chat.id}/messages?page=${messagesPage.value}&size=1`)
-  //     .then((response) => {
-  //       const messages: Message[] = response.data.content;
-  //       chat.messages =
-  //         .concat(chat.messages);
-  //     })
-  //     .catch((e) => {
-  //       console.log(e);
-  //     })
-  //     .finally(() => {});
-  // };
 
   const fetchChatUsers = (chat: Chat) => {
     if (isPrivate()) {
@@ -73,7 +49,6 @@ export const useChatStore = defineStore("chat", () => {
 
   const changeCurrent = (chat: Chat) => {
     current.value = chat;
-    // fetchChatMessages(chat);
     updateChatStatus();
   };
 
@@ -134,7 +109,6 @@ export const useChatStore = defineStore("chat", () => {
   const addMessage = (message: Message) => {
     const chat = chats.value.find((c) => c.id === message.chat);
     if (chat) {
-      // chat.messages.push(message);
       chat.lastMessage = message;
     }
   };
