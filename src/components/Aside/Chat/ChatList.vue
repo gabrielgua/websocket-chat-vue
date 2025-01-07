@@ -27,7 +27,11 @@ const unreadStore = useUnreadStore();
 const messageStore = useMessageStore();
 
 watch(() => chatStore.current, () => {
-  messageStore.fetchMessagesForChat(chatStore.current!.id);
+  if (!chatStore.current) {
+    return;
+  }
+
+  messageStore.fetchMessagesForChat(chatStore.current.id);
 })
 
 function isCurrent(chat: Chat): boolean {
