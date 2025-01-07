@@ -72,7 +72,9 @@ const handleMessageReceived = (body: string) => {
 
   chatStore.updateLastMessage(message);
 
-  messageStore.add(message);
+  if (!isDifferentChat) {
+    messageStore.add(message);
+  }
 
   if ((noChatOpened || isDifferentChat) && isDifferentSender) {
     unreadStore.add(message);

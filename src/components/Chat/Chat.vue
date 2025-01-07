@@ -35,6 +35,10 @@ watch(() => current.value, () => {
 
 //when adding a new message 
 watch(() => messageStore.messages, (newMessages, oldMessages) => {
+  if (!newMessages.length || !oldMessages.length) {
+    return;
+  }
+
   if (newMessages[newMessages.length - 1].chat === oldMessages[oldMessages.length - 1].chat) {
     scrollToBottom('smooth');
     return;
