@@ -207,7 +207,7 @@ export const useChatStore = defineStore("chat", () => {
           console.log(e);
         })
         .finally(() => (state.loading = false));
-    }, 5000);
+    }, 0);
   }
 
   const findPrivateByReceiver = (receiverId: number) => {

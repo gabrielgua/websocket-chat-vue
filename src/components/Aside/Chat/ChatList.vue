@@ -72,21 +72,19 @@ function hasLastMessage(chat: Chat): boolean {
 
 
 
+
 </script>
 
 <template>
   <TransitionGroup name="chat-list" tag="ul" class="relative overflow-y-auto h-[calc(100dvh-265px)] ">
     <button class="group w-full flex items-center p-3 px-4 gap-4 transition-all" v-for="chat in chats" :key="chat.id"
       @click="changeCurrent(chat)" :class="isCurrent(chat) ? 'bg-slate-800' : 'hover:bg-slate-800/50'">
-
-      <Avatar v-if="chatStore.isPrivate(chat)" :url="chat.receiver!.avatarUrl" no-status />
-      <ChatAvatar v-else :chat="chat" />
-
+      <Avatar :url="chat.imageUrl" no-status />
 
       <div class="flex flex-col truncate flex-grow items-start gap-1">
-        <p class="font-bold">{{ chat.name }}</p>
-        <p class="text-xs text-slate-400  truncate max-w-full" v-if="hasLastMessage(chat)">
-          <span class="font-semibold" v-if="chat.type === ChatType.group">
+        <p :title="chat.name" class="font-bold truncate max-w-full">{{ chat.name }}</p>
+        <p class="text-xs text-slate-400 truncate max-w-full" v-if="hasLastMessage(chat)">
+          <span class="font-semibold truncate" v-if="chat.type === ChatType.group">
             {{ displayUsername(chat.lastMessage.sender) }}:
           </span>
           <fa-icon icon="fa-share" class="mr-1 mt-0.5 text-[10px]" v-else-if="isSender(chat.lastMessage)" />

@@ -3,25 +3,27 @@ import { UserStatus } from '@/types/user.type';
 import { computed } from 'vue';
 import JumpInTransition from './Transitions/JumpInTransition.vue';
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   url: string,
   status?: UserStatus,
   statusInvertedColor?: boolean,
   noStatus?: boolean,
   size?: 'small' | 'normal'
-}>();
+}>(), {
+  size: 'normal'
+})
 
 const online = computed(() => props.status === UserStatus.Online);
 
 const sizes = new Map<string, string>([
-  ['small', 'w-8 h-8'],
-  ['normal', 'w-12 h-12'],
+  ['small', 'w-8 h-8 min-w-8'],
+  ['normal', 'w-12 h-12 min-w-12'],
 ])
 
 </script>
 <template>
   <div class="relative transition-all">
-    <img :class="sizes.get(size ? size : 'normal')" :src="url" alt="Profile pic">
+    <img :class="sizes.get(size)" class="rounded-full" :src="url" alt="Profile pic">
 
     <div v-if="!noStatus" class="rounded-full w-4 h-4 grid place-items-center absolute -right-0 -top-0.5"
       :class="[statusInvertedColor ? 'bg-slate-800' : 'bg-slate-900 ']">

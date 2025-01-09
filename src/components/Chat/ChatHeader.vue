@@ -27,12 +27,8 @@ const isPrivate = computed(() => props.chat.type === ChatType.private);
 
 <template>
   <div class="flex items-center gap-4 p-4 bg-slate-800 rounded-t-lg shadow-2xl">
-    <JumpInTransition>
-      <Avatar v-if="isPrivate" :url="chat.receiver!.avatarUrl" :status="chat.receiver!.status" status-inverted-color />
-      <ChatAvatar v-else :chat="chat" />
-
-    </JumpInTransition>
-
+    <Avatar v-if="isPrivate" :url="chat.imageUrl" :status="chat.receiver!.status" status-inverted-color />
+    <Avatar v-else :url="chat.imageUrl" no-status />
     <div class="flex flex-col transition-all">
 
 
