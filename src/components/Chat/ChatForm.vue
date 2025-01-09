@@ -9,6 +9,8 @@ import { computed, ref } from 'vue';
 import Button from '../Button.vue';
 import Input from '../Input.vue';
 import Textarea from '../Textarea.vue';
+import Spinner from '../Spinner.vue';
+import JumpInTransition from '../Transitions/JumpInTransition.vue';
 
 
 defineEmits(['submitted'])
@@ -126,12 +128,16 @@ function createGroupChat() {
 </script>
 
 <template>
+
+
   <form @submit.prevent="createGroupChat" class="flex flex-col h-full">
+
 
     <Transition name="step">
       <section v-if="show('chat-info')">
         <p class="text-slate-400 font-bold">Chat Information</p>
-        <p class="mb-3 text-[12px] text-slate-500">What is your chat going to be called? Will it have a description?</p>
+        <p class="mb-3 text-[12px] text-slate-500">What is your chat going to be called? Will it have a description?
+        </p>
         <Input as="input" type="text" v-model="chatName" placeholder="Chat name" icon-start="fa-comment" />
 
         <Textarea class="mt-4" icon-start="fa-pen" placeholder="Description (optional)" v-model="chatDescription" />
@@ -162,7 +168,7 @@ function createGroupChat() {
             <fa-icon icon="fa-icon fa-users" class="text-sky-600" />
             <p class="font-bold text-sm">{{ chatUsers.length }}</p>
           </li>
-          <li v-for="user in chatUsers">
+          <li v-for="user in chatUsers" :key="user.id">
             <div class="bg-slate-800 rounded-full flex gap-2 items-center pe-3">
               <img :src="user.avatarUrl" class="w-6 rounded-full" />
               <p class="text-sm text-slate-300">{{ user.username }}</p>
@@ -180,7 +186,7 @@ function createGroupChat() {
         <Transition name="step">
           <div v-if="friendsFiltered.length" class="mt-10">
             <TransitionGroup name="friend-list" tag="ul" class="flex flex-col gap-2 relative">
-              <li v-for="friend in friendsFiltered"
+              <li v-for="friend in friendsFiltered" :key="friend.id"
                 class="flex gap-3 items-center transition-all border border-slate-800 p-3 rounded-xl w-full"
                 :class="{ 'bg-sky-600/10 rounded-md': isAdded(friend.id) }">
                 <img class="rounded-full w-10 ring-2 ring-sky-600 ring-offset-2 ring-offset-slate-800"
@@ -218,12 +224,13 @@ function createGroupChat() {
 
     <Transition name="step">
       <section class="mt-6 place-self-start" v-if="canConfirmGroup()">
-        <Button :on-click="() => $emit('submitted')" icon="fa-check" variant="primary" submit>
+        <Button icon="fa-check" variant="primary" submit>
           Create chat
         </Button>
       </section>
     </Transition>
   </form>
+
 </template>
 
 

@@ -11,6 +11,7 @@ import Dropdown from '../../Dropdown/Dropdown.vue';
 import DropdownItem from '../../Dropdown/DropdownItem.vue';
 import Input from '../../Input.vue';
 import ChatList from './ChatList.vue';
+import JumpInTransition from '@/components/Transitions/JumpInTransition.vue';
 
 
 
@@ -96,11 +97,14 @@ function toggleGroupModal() {
     <ChatList :chats="filteredChats" />
 
     <Modal :modal-active="groupModalActive" @on-close="toggleGroupModal" title="Create a new group chat">
-      <span class="self-center grid place-items-center gap-4" v-if="chatStore.state.loading">
-        <Spinner />
-        <p class="text-sm text-slate-400">Creating chat</p>
-      </span>
-      <ChatForm v-else />
+      <JumpInTransition>
+        <span class="flex items-center gap-4" v-if="chatStore.state.loading">
+          <Spinner type="spinner" />
+          <p class="text-sm text-slate-400">Creating chat...</p>
+        </span>
+        <ChatForm v-else />
+      </JumpInTransition>
+
     </Modal>
 
 

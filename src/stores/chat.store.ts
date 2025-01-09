@@ -7,12 +7,14 @@ import type { Message } from "@/types/message.type";
 import { UserStatus, type User } from "@/types/user.type";
 import { defineStore } from "pinia";
 import { reactive, ref } from "vue";
+import { useToastStore } from "./toast.store";
 
 export const useChatStore = defineStore("chat", () => {
   const CHATS_ENDPOINT = "/api/chats";
 
   const chats = ref<Chat[]>([]);
   const current = ref<Chat>();
+  const { toast } = useToastStore();
   const state = reactive({ loading: false, error: false });
 
   function fetchChats() {
@@ -185,22 +187,27 @@ export const useChatStore = defineStore("chat", () => {
 
   function createChat(chat: ChatRequest) {
     state.loading = true;
-    state.error = true;
+    state.error = false;
 
-    http
-      .post(CHATS_ENDPOINT, chat)
-      .then((response) => {
-        chats.value.push(response.data);
+    setTimeout(() => {
+      http
+        .post(CHATS_ENDPOINT, chat)
+        .then((response) => {
+          chats.value.push(response.data);
+          sortChatList();
 
-        sortChatList();
-
-        emitter.emit("chatCreated", response.data);
-      })
-      .catch((e) => {
-        state.error = true;
-        console.log(e);
-      })
-      .finally(() => (state.loading = false));
+          emitter.emit("chatCreated", response.data);
+          toast("Chat created", {
+            variant: "success",
+            description: `Created ${response.data.name} group chat.`,
+          });
+        })
+        .catch((e) => {
+          state.error = true;
+          console.log(e);
+        })
+        .finally(() => (state.loading = false));
+    }, 5000);
   }
 
   const findPrivateByReceiver = (receiverId: number) => {
