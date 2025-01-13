@@ -130,7 +130,7 @@ const isMessageSender = (message: Message) => {
           <p class="text-sm text-slate-400">Loading messages</p>
         </div>
 
-        <ul>
+        <TransitionGroup name="messages-list" tag="ul">
           <li v-for="(message, i) in messageStore.messages" :key="i">
             <span class="mt-8 flex items-center justify-center gap-2 text-slate-400" v-if="!sameDay(message, i)">
               <!-- <fa-icon class="text-xs" icon="fa-calendar-days"></fa-icon> -->
@@ -144,13 +144,19 @@ const isMessageSender = (message: Message) => {
             </MessageComponent>
 
           </li>
-        </ul>
+        </TransitionGroup>
 
       </div>
 
       <form class="p-4 flex items-center justify-between gap-4" @submit.prevent="sendMessage">
         <div
           class="flex items-center transition-all text-sm outline-none focus-within:ring-2 focus-within:ring-sky-600 bg-slate-900 w-full rounded-2xl p-2 ps-2">
+          <Button variant="secondary-text" no-padding rounded tooltip="Emojis">
+            <fa-icon icon="fa-face-smile" class="text-base" />
+          </Button>
+          <Button variant="secondary-text" no-padding rounded tooltip="Attachments">
+            <fa-icon icon="fa-paperclip" class="text-base" />
+          </Button>
           <input class="p-2 bg-transparent focus:outline-none w-full" required v-model="message" type="text"
             placeholder="Type messages here" />
           <Button class="ms-auto" icon="fa-paper-plane" variant="primary-text" tooltip="Send" tooltip-pos="top" rounded
@@ -192,5 +198,24 @@ const isMessageSender = (message: Message) => {
 
 .grid-columns {
   grid-template-columns: 2.75rem 1fr;
+}
+
+.messages-list-move,
+.messages-list-leave-active {
+  transition: none;
+}
+
+.messages-list-enter-active {
+  transition: all 150ms ease;
+}
+
+.messages-list-leave-to,
+.messages-list-enter-from {
+  opacity: 0;
+  scale: 1.05;
+}
+
+.messages-list-leave-active {
+  position: absolute;
 }
 </style>
