@@ -135,6 +135,7 @@ export const useStompStore = defineStore("stomp", () => {
     connect,
     subscribe,
     subscribeAll,
+    subscribeToChat,
     disconnectAndUnsubscribe,
   };
 });

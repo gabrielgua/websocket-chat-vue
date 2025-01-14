@@ -8,11 +8,13 @@ import { UserStatus, type User } from "@/types/user.type";
 import { defineStore } from "pinia";
 import { reactive, ref } from "vue";
 import { useToastStore } from "./toast.store";
+import { useStompStore } from "./stomp.store";
 
 export const useChatStore = defineStore("chat", () => {
   const CHATS_ENDPOINT = "/api/chats";
 
   const chats = ref<Chat[]>([]);
+  const { subscribeToChat } = useStompStore();
   const current = ref<Chat>();
   const { toast } = useToastStore();
   const state = reactive({ loading: false, error: false });
@@ -195,6 +197,7 @@ export const useChatStore = defineStore("chat", () => {
         .then((response) => {
           chats.value.push(response.data);
           sortChatList();
+          subscribeToChat(response.data);
 
           emitter.emit("chatCreated", response.data);
           toast("Chat created", {

@@ -11,12 +11,14 @@ import { useFriendStore } from "./friend.store";
 import { useRequestStore } from "./request.store";
 import { useAsideStore } from "./aside.store";
 import { useRequestStatusStore } from "./request.status.store";
+import { useChatStore } from "./chat.store";
 
 export const useAuthStore = defineStore("auth", () => {
   const router = useRouter();
   const stompStore = useStompStore();
   const friendStore = useFriendStore();
   const requestStore = useRequestStore();
+  const chatStore = useChatStore();
   const asideStore = useAsideStore();
   const requestStatusStore = useRequestStatusStore();
 
@@ -70,10 +72,11 @@ export const useAuthStore = defineStore("auth", () => {
       localStorage.clear();
       clearAuthentication();
       emitter.all.clear();
+
+      chatStore.reset();
       friendStore.reset();
       requestStore.reset();
       requestStatusStore.reset();
-
       asideStore.reset();
     });
   }
